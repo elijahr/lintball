@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -ueo pipefail
+
+SCRIPTDIR="$(dirname "${BASH_SOURCE[0]}")"
+
+EXTRA_EXCLUDES="*/fixture/*"
+
+# shellcheck source=SCRIPTDIR/../lib/cmd.bash
+source "${SCRIPTDIR}/../lib/cmd.bash"
+
+FULLY_STAGED_ONLY="yes"
+
+status=0
+while read -r path; do
+  if [ -n "$path" ]; then
+    if [ -z "$(git check-ignore "$path")" ]; then
+      if fix "$path"; then
+        git add "$path"
+      else
+        status=1
+      fi
+    fi
+  fi
+done <<<"$(eval "$find_cmd")"
+
+exit "$status"

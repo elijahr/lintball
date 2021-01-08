@@ -1,0 +1,41 @@
+name: Test
+on:
+  pull_request:
+    brances: ["*"]
+  push:
+    brances: ["*"]
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "12"
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Install shfmt
+        run: brew install shfmt
+
+      - name: Update shellcheck
+        run: |
+          sudo apt install xz-utils
+          scversion="stable"
+          wget -qO- "https://github.com/koalaman/shellcheck/releases/download/${scversion?}/shellcheck-${scversion?}.linux.x86_64.tar.xz" | tar -xJv
+          sudo cp "shellcheck-${scversion}/shellcheck" /usr/bin/
+          shellcheck --version
+
+      - name: Install deps
+        run: |
+          npm install --include=dev --verbose
+          pip install black
+
+      - name: Test
+        run: npm run test
