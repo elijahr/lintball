@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
+LINTBALL_DIR="${LINTBALL_DIR:-"${HOME}/.lintball"}"
+
 fix_prettier() {
   local path original
   path="$1"
   original="$(cat "$path")"
-  if npx prettier -u -w "$path" 1>/dev/null 2>&1; then
+  if npx --userconfig "${LINTBALL_DIR}/.npmrc" prettier -u -w "$path" 1>/dev/null 2>&1; then
     if [ "$(cat "$path")" = "$original" ]; then
       echo "↳ prettier     ok"
     else
@@ -19,7 +21,7 @@ check_prettier() {
   local path
   path="$1"
   echo "# prettier $path"
-  npx prettier --check "$path"
+  npx --userconfig "${LINTBALL_DIR}/.npmrc" prettier --check "$path"
 }
 
 fix_bash() {
@@ -93,25 +95,95 @@ check_bats() {
 fix_py() {
   local path
   path="$1"
-  if black "$path"; then
-    echo "↳ black        ok"
+  if [ -z "$(which autoflake)" ]; then
+    echo "↳ autoflake    *not installed*"
   else
-    echo "↳ black        wrote"
+    if autoflake \
+      --in-place \
+      --remove-unused-variables \
+      --remove-unused-imports \
+      --expand-star-imports \
+      --remove-duplicate-keys \
+      --ignore-init-module-imports \
+      "$path"; then
+      echo "↳ autoflake    ok"
+    else
+      echo "↳ autoflake    wrote"
+    fi
+  fi
+  if [ -z "$(which black)" ]; then
+    echo "↳ black        *not installed*"
+  else
+    if black "$path"; then
+      echo "↳ black        ok"
+    else
+      echo "↳ black        wrote"
+    fi
   fi
 }
 
 check_py() {
   local path
   path="$1"
+  echo "# autoflake $path"
+  if [ -z "$(which autoflake)" ]; then
+    echo "*not installed*"
+  else
+    autoflake \
+      --check \
+      --remove-unused-variables \
+      --remove-unused-imports \
+      --expand-star-imports \
+      --remove-duplicate-keys \
+      --ignore-init-module-imports \
+      "$path"
+  fi
   echo "# black $path"
-  black --check "$path"
+  if [ -z "$(which black)" ]; then
+    echo "*not installed*"
+  else
+    black --check "$path"
+  fi
+}
+
+fix_nim() {
+  local path prev
+  path="$1"
+  if [ -z "$(which nimpretty)" ]; then
+    echo "↳ nimpretty    *not installed*"
+  else
+    prev="$(cat "$path")"
+    nimpretty "$path"
+    if [ "$prev" = "$(cat "$path")" ]; then
+      echo "↳ nimpretty    ok"
+    else
+      echo "↳ nimpretty    wrote"
+    fi
+  fi
+}
+
+check_nim() {
+  local path tmp patch
+  path="$1"
+  echo "# nimpretty $path"
+  if [ -z "$(which nimpretty)" ]; then
+    echo "*not installed*"
+  else
+    tmp="$(mktemp)"
+    nimpretty "$path" --out:"$tmp"
+    patch="$(diff -u "$path" "$tmp")"
+    if [ -n "$patch" ]; then
+      cat "$patch"
+    fi
+    rm "$tmp"
+  fi
 }
 
 fix() {
   local path
   path="$1"
   echo "# $path"
-  if [ "$FULLY_STAGED_ONLY" = "yes" ]; then
+  if [ "$LINTBALL_STAGED_ONLY" = "yes" ]; then
     if git diff --name-only | grep -qF "$path"; then
       # path has unstaged changes, so don't modify it
       echo "↳ unstaged changes, skipping"
@@ -120,10 +192,11 @@ fix() {
     fi
   fi
   case "$path" in
-    *.md | *.yml) fix_prettier "$path" ;;
+    *.md | *.yml | *.js | *.jsx | *.ts | *.tsx | *.html | *.css | *.scss | *.json) fix_prettier "$path" ;;
     *.bats) fix_bats "$path" ;;
     *.sh | *.bash) fix_bash "$path" ;;
-    *.py) fix_py "$path" ;;
+    *.py | *.pyx,*.pxd,*.pxi) fix_py "$path" ;;
+    *.nim) fix_nim "$path" ;;
     *)
       # Inspect hashbang
       case "$(head -n1 "$path")" in
@@ -141,10 +214,11 @@ check() {
   local path
   path="$1"
   case "$path" in
-    *.md | *.yml) check_prettier "$path" ;;
+    *.md | *.yml | *.js | *.jsx | *.ts | *.tsx | *.html | *.css | *.scss | *.json) check_prettier "$path" ;;
     *.bats) check_bats "$path" ;;
     *.sh | *.bash) check_bash "$path" ;;
-    *.py) check_py "$path" ;;
+    *.py | *.pyx,*.pxd,*.pxi) check_py "$path" ;;
+    *.nim) check_nim "$path" ;;
     *)
       # Inspect hashbang
       case "$(head -n1 "$path")" in

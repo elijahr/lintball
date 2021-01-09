@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    name: test
+    name: bats tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -35,7 +35,44 @@ jobs:
       - name: Install deps
         run: |
           npm install --include=dev --verbose
-          pip install black
+          pip install black autoflake
 
       - name: Test
         run: npm run test
+
+  install:
+    name: test installation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check bash
+        shell: bash
+        run: |
+          set -uexo pipefail
+          LINTBALL_VERSION="$GITHUB_REF"
+          ./install.sh
+          test -n "'$(grep LINTBALL_DIR "${HOME}/.bashrc")'"
+          test -n "'$(grep LINTBALL_DIR "${HOME}/.bash_profile")'"
+          . "${HOME}/.lintball/lintball.sh"
+          test -n "${LINTBALL_DIR:-}"
+          test -n "$(which check-all)"
+          test -n "$(which fix-all)"
+          test -n "$(which install-lintball-githooks)"
+
+      - name: Install deps
+        run: sudo apt-get install fish
+
+      - name: Check fish
+        shell: fish {0}
+        run: |
+          set -gx LINTBALL_VERSION "$GITHUB_REF"
+          bash ./install.sh; or exit 1
+          test -n "'(grep LINTBALL_DIR "$HOME/.config/fish/config.fish")'"; or exit 1
+          ls -al "$HOME/.lintball/lintball.fish"
+          source "$HOME/.lintball/lintball.fish"; or exit 1
+          test -n "$LINTBALL_DIR"; or exit
+          test -n "(which check-all)"; or exit 1
+          test -n "(which fix-all)"; or exit 1
+          test -n "(which install-lintball-githooks)"; or exit 1

@@ -7,7 +7,7 @@ SCRIPTDIR="$(dirname "${BASH_SOURCE[0]}")"
 # shellcheck source=SCRIPTDIR/utils.bash
 source "${SCRIPTDIR}/utils.bash"
 
-export FULLY_STAGED_ONLY="no"
+export LINTBALL_STAGED_ONLY="no"
 
 usage() {
   local script_name
@@ -31,7 +31,7 @@ usage() {
 }
 
 args=()
-excludes=("*/\.git/*" "*/node_modules/*" "${EXTRA_EXCLUDES:-}")
+excludes=("*/\.git/*" "*/\.hg/*" "*/node_modules/*" "${LINTBALL_EXCLUDES:-}")
 while [[ $# -gt 0 ]]; do
   key="$1"
 
@@ -41,7 +41,7 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     -s | --full-staged-only)
-      FULLY_STAGED_ONLY="yes"
+      LINTBALL_STAGED_ONLY="yes"
       shift # past argument
       ;;
     -x | --exclude)
@@ -50,11 +50,11 @@ while [[ $# -gt 0 ]]; do
       shift # past value
       ;;
     -x=*)
-      excludes+=("${1//^-x=/}")
+      excludes+=("${1//-x=/}")
       shift # past argument
       ;;
     --exclude=*)
-      excludes+=("${1//^--exclude=/}")
+      excludes+=("${1//--exclude=/}")
       shift # past argument
       ;;
     -*)

@@ -30,4 +30,4 @@ jobs:
           shellcheck --version
 
       - name: check
-        run: ./check-all --exclude="*/fixture/*" .
+        run: ./bin/check-all --exclude="*/fixture/*" .

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -ueo pipefail
+
+LINTBALL_DIR="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
+
+if [ -n "${1:-}" ]; then
+  cd "$1"
+fi
+
+if [ -z "$(git config --local core.hooksPath)" ]; then
+  git config --local core.hooksPath "${LINTBALL_DIR}/.githooks"
+  echo "Configured core.hooksPath to $(pwd)/.githooks"
+else
+  echo "Other git hooks already enabled for $(basename "$(pwd)"): $(git config --local core.hooksPath)"
+  echo "To use lintball githooks, manually copy githooks from ${LINTBALL_DIR}/.githooks"
+  exit 1
+fi

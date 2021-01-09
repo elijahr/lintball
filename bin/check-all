@@ -2,10 +2,10 @@
 
 set -ueo pipefail
 
-SCRIPTDIR="$(dirname "${BASH_SOURCE[0]}")"
+LINTBALL_DIR="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
 
-# shellcheck source=SCRIPTDIR/lib/cmd.bash
-source "${SCRIPTDIR}/lib/cmd.bash"
+# shellcheck source=SCRIPTDIR/../lib/cmd.bash
+source "${LINTBALL_DIR}/lib/cmd.bash"
 
 status=0
 while read -r path; do
