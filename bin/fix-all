@@ -9,7 +9,6 @@ source "${LINTBALL_DIR}/lib/cmd.bash"
 
 status=0
 while read -r path; do
-  echo "path=$path"
   if [ -n "$path" ]; then
     fix "$path" || status=1
   fi

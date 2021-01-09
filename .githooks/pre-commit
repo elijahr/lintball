@@ -2,6 +2,11 @@
 
 set -ueo pipefail
 
+if [[ "$(basename "$(pwd)")" =~ lintball$ ]]; then
+  LINTBALL_EXCLUDES="*/fixture/*"
+  export LINTBALL_EXCLUDES
+fi
+
 # shellcheck source=SCRIPTDIR/../lib/cmd.bash
 source "${LINTBALL_DIR:-"${HOME}/.lintball"}/lib/cmd.bash"
 

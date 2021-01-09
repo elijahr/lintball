@@ -29,10 +29,18 @@ teardown() {
   assert_success
 }
 
-@test "check-all bash/py" {
+@test "check-all bash/py/nim" {
   run check-all "scripts"
   assert_failure
   run fix-all "scripts"
   run check-all "scripts"
+  assert_success
+}
+
+@test "check-all bats" {
+  run check-all "test"
+  assert_failure
+  run fix-all "test"
+  run check-all "test"
   assert_success
 }

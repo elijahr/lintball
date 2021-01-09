@@ -1,12 +1,24 @@
 #!/usr/bin/env bash
 
+# Use latest installed nodejs, via asdf
+if [ -z "${ASDF_NODEJS_VERSION:-}" ] && [ -n "$(which asdf)" ]; then
+  ASDF_NODEJS_VERSION="$(asdf list nodejs | sort | tail -n 1 | xargs || true)"
+  export ASDF_NODEJS_VERSION
+fi
+
+# Use latest installed nim, via asdf
+if [ -z "${ASDF_NIM_VERSION:-}" ] && [ -n "$(which asdf)" ]; then
+  ASDF_NIM_VERSION="$(asdf list nim | sort | tail -n 1 | xargs || true)"
+  export ASDF_NIM_VERSION
+fi
+
 LINTBALL_DIR="${LINTBALL_DIR:-"${HOME}/.lintball"}"
 
 fix_prettier() {
   local path original
   path="$1"
   original="$(cat "$path")"
-  if npx --userconfig "${LINTBALL_DIR}/.npmrc" prettier -u -w "$path" 1>/dev/null 2>&1; then
+  if npm --prefix="$LINTBALL_DIR" run prettier --path="$(pwd)" -- -u -w "$path" 1>/dev/null 2>&1; then
     if [ "$(cat "$path")" = "$original" ]; then
       echo "↳ prettier     ok"
     else
@@ -21,7 +33,7 @@ check_prettier() {
   local path
   path="$1"
   echo "# prettier $path"
-  npx --userconfig "${LINTBALL_DIR}/.npmrc" prettier --check "$path"
+  npm --prefix="$LINTBALL_DIR" run prettier --path="$(pwd)" -- --check "$path"
 }
 
 fix_bash() {
@@ -101,7 +113,7 @@ fix_py() {
     if autoflake \
       --in-place \
       --remove-unused-variables \
-      --remove-unused-imports \
+      --remove-all-unused-imports \
       --expand-star-imports \
       --remove-duplicate-keys \
       --ignore-init-module-imports \
@@ -132,7 +144,7 @@ check_py() {
     autoflake \
       --check \
       --remove-unused-variables \
-      --remove-unused-imports \
+      --remove-all-unused-imports \
       --expand-star-imports \
       --remove-duplicate-keys \
       --ignore-init-module-imports \
@@ -173,7 +185,7 @@ check_nim() {
     nimpretty "$path" --out:"$tmp"
     patch="$(diff -u "$path" "$tmp")"
     if [ -n "$patch" ]; then
-      cat "$patch"
+      echo "$patch"
     fi
     rm "$tmp"
   fi

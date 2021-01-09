@@ -8,6 +8,7 @@
     "prettier": "^2.2.1"
   },
   "scripts": {
-    "test": "bats test --tap"
+    "test": "bats test --tap",
+    "prettier": "cd \"$npm_config_path\" && prettier"
   }
 }

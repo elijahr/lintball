@@ -17,34 +17,16 @@ Linters/formatters used:
 
 ```shell
 curl -o- https://raw.githubusercontent.com/elijahr/lintball/v0.1.0/install.sh | bash
-# or with wget
-wget -qO- https://raw.githubusercontent.com/elijahr/lintball/v0.1.0/install.sh | bash
 ```
 
-Running either of the above commands downloads a script and runs it. The script clones the lintball repository to ~/.lintball, and attempts to add the source lines from the snippet below to your profile files (~/.bash_profile, ~/.bashrc, ~/.config/fish/config.fish):
+Running the above commands downloads a script and runs it. The script clones the lintball repository to ~/.lintball, and configures your PATH to include the lintball scripts. Currently, bash and fish are supported.
 
-### bash
-
-```bash
-if [ -z "${LINTBALL_DIR:-}" ]; then
-  export LINTBALL_DIR="${HOME}/.lintball"
-  . "${LINTBALL_DIR}/lintball.sh"
-fi
-```
-
-### fish
-
-```lua
-if test -z "$LINTBALL_DIR"
-  set -gx LINTBALL_DIR "$HOME/.lintball"
-  source "$LINTBALL_DIR/lintball.fish"
-end
-```
+If you are using lintball with a git-managed project, we suggest running `install-lintball-githooks` to install a pre-commit hook to auto-fix your code.
 
 ## Usage
 
 lintball provides three scripts:
 
-- `check-all` will
-- `fix-all` will
-- `install-lintball-githooks` will
+- `install-lintball-githooks` will configure the current working directory to use lintball's pre-commit hook, which fixes all auto-fixable problems found in the staged changes, and exits with an error if any issues cannot be fixed.
+- `check-all` will run linter checks against all files in the current working directory.
+- `fix-all` will fix any auto-fixable linter issues in the current working directory.

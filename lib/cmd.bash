@@ -31,7 +31,7 @@ usage() {
 }
 
 args=()
-excludes=("*/\.git/*" "*/\.hg/*" "*/node_modules/*" "${LINTBALL_EXCLUDES:-}")
+excludes=("*/\.git/*" "*/\.hg/*" "*/node_modules/*" "*/.next/*" "*/.serverless_nextjs/*" "*/__pycache__/*" "${LINTBALL_EXCLUDES:-}")
 while [[ $# -gt 0 ]]; do
   key="$1"
 

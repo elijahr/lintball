@@ -74,3 +74,19 @@ EOF
   assert_equal "$(cat "scripts/b")" "$expected"
   assert_equal "$(cat "scripts/b.py")" "$(echo "$expected" | tail -n+4)"
 }
+
+@test "fix-all nim" {
+  run fix-all "scripts"
+  assert_success
+  expected="$(
+    cat <<EOF
+
+type
+  A* = int
+  B* = int
+
+EOF
+  )"
+  assert_equal "$(cat "scripts/d.nim")" "$expected"
+  assert_equal "$(cat "scripts/d.nim")" "$(echo "$expected")"
+}

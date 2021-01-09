@@ -1,18 +1,41 @@
 #!/usr/bin/env bash
 
-set -uexo pipefail
+set -ueo pipefail
+
+if [ -n "$CI" ]; then
+  # in CI systems, show debug output
+  set -x
+fi
+
+# Use latest installed nodejs, via asdf
+if [ -z "${ASDF_NODEJS_VERSION:-}" ] && [ -n "$(which asdf)" ]; then
+  ASDF_NODEJS_VERSION="$(asdf list nodejs | sort | tail -n 1 | xargs || true)"
+  export ASDF_NODEJS_VERSION
+fi
 
 LB_DIR="${1:-"${HOME}/.lintball"}"
 
 if [ ! -d "$LB_DIR" ]; then
+  echo "Cloning elijahr/lintball..."
   git clone \
     --branch "${LINTBALL_VERSION:-"devel"}" \
     --depth 1 \
     https://github.com/elijahr/lintball.git \
-    "$LB_DIR"
+    "$LB_DIR" 2>/dev/null
   (
     cd "${LB_DIR}"
-    npm install
+    npm install 2>/dev/null
+  )
+else
+  # Update
+  echo "lintball already installed, updating..."
+  (
+    cd "${LB_DIR}"
+    git fetch origin
+    git add .
+    git stash
+    git reset --hard "origin/${LINTBALL_VERSION:-"devel"}" 2>/dev/null
+    npm install 2>/dev/null
   )
 fi
 

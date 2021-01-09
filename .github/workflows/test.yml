@@ -7,6 +7,10 @@ on:
 
 jobs:
   test:
+    strategy:
+      matrix:
+        node: [8, 10, 12, 14, 15]
+
     name: bats tests
     runs-on: ubuntu-latest
     steps:
@@ -15,11 +19,15 @@ jobs:
 
       - uses: actions/setup-node@v2
         with:
-          node-version: "12"
+          node-version: ${{ matrix.node-version }}
+
+      - uses: bahmutov/npm-install@v1
 
       - uses: actions/setup-python@v2
         with:
           python-version: "3.9"
+
+      - uses: jiro4989/setup-nim-action@v1
 
       - name: Install shfmt
         run: brew install shfmt
@@ -32,10 +40,8 @@ jobs:
           sudo cp "shellcheck-${scversion}/shellcheck" /usr/bin/
           shellcheck --version
 
-      - name: Install deps
-        run: |
-          npm install --include=dev --verbose
-          pip install black autoflake
+      - name: Install black & autoflake
+        run: pip install black autoflake
 
       - name: Test
         run: npm run test
@@ -51,7 +57,7 @@ jobs:
         shell: bash
         run: |
           set -uexo pipefail
-          LINTBALL_VERSION="$GITHUB_REF"
+          LINTBALL_VERSION="$(basename "$GITHUB_REF")"
           ./install.sh
           test -n "'$(grep LINTBALL_DIR "${HOME}/.bashrc")'"
           test -n "'$(grep LINTBALL_DIR "${HOME}/.bash_profile")'"
@@ -61,13 +67,14 @@ jobs:
           test -n "$(which fix-all)"
           test -n "$(which install-lintball-githooks)"
 
-      - name: Install deps
+      - name: Install fish
         run: sudo apt-get install fish
 
       - name: Check fish
         shell: fish {0}
         run: |
-          set -gx LINTBALL_VERSION "$GITHUB_REF"
+          set fish_trace 1 2
+          set -gx LINTBALL_VERSION (basename "$GITHUB_REF")
           bash ./install.sh; or exit 1
           test -n "'(grep LINTBALL_DIR "$HOME/.config/fish/config.fish")'"; or exit 1
           ls -al "$HOME/.lintball/lintball.fish"
