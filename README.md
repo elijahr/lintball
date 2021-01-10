@@ -16,7 +16,7 @@ Linters/formatters used:
 ## Installation
 
 ```shell
-curl -o- https://raw.githubusercontent.com/elijahr/lintball/v0.1.0/install.sh | bash
+curl -o- https://raw.githubusercontent.com/elijahr/lintball/v0.2.0/install.sh | bash
 ```
 
 Running the above commands downloads a script and runs it. The script clones the lintball repository to ~/.lintball, and configures your PATH to include the lintball scripts. Currently, bash and fish are supported.

@@ -2,7 +2,7 @@
 
 set -ueo pipefail
 
-if [ -n "$CI" ]; then
+if [ -n "${CI:-}" ]; then
   # in CI systems, show debug output
   set -x
 fi
