@@ -1,4 +1,4 @@
 
 type
   A*    = int
-  B*    = int
+  B*          = int
