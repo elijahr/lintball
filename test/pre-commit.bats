@@ -47,6 +47,7 @@ package-lock.json
 package.json
 py th on/a
 py th on/a.py
+py th on/a.pyx
 sh/a
 sh/a.sh
 test/a.bats
