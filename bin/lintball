@@ -22,7 +22,7 @@ Linters/formatters used:
 - autopep8    for Python
 - nimpretty    for Nim
 
-Usage: $script_name [options] [path ...]
+Usage: $script_name [options] [path …]
 
 Options:
   -h|--help

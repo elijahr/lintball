@@ -61,7 +61,7 @@ lintball provides two scripts:
 - `lintball`, usage below:
 
   ```
-  Usage: lintball [options] [path ...]
+  Usage: lintball [options] [path …]
 
   Running without any options will check your code, skipping over directories such as node_modules.
 

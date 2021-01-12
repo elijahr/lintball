@@ -40,30 +40,31 @@ if [ "${#args[@]}" -gt 0 ]; then
 fi
 
 LB_DIR="${1:-"${HOME}/.lintball"}"
-LINTBALL_VERSION="${LINTBALL_VERSION:-"devel"}"
+LINTBALL_VERSION="${LINTBALL_VERSION:-"refs/heads/devel"}"
 
 if [ ! -d "$LB_DIR" ]; then
-  git clone \
-    --branch "$LINTBALL_VERSION" \
-    --depth 1 \
-    https://github.com/elijahr/lintball.git \
-    "$LB_DIR" 2>/dev/null
-  git checkout "${LINTBALL_VERSION:-"origin/devel"}" 2>/dev/null
-  echo "cloned lintball → ${LB_DIR}"
+  echo "cloning lintball → ${LB_DIR}…"
+  git clone https://github.com/elijahr/lintball.git "$LB_DIR" 2>/dev/null
 else
   # Update
-  echo "lintball already installed, updating..."
-  (
-    cd "${LB_DIR}"
-    git config --local pull.ff only
-    git pull
-    git checkout "$LINTBALL_VERSION" 2>/dev/null
-    if [ -d "node_modules" ]; then
-      # User has installed the node modules, so update them
-      npm install 2>/dev/null
-    fi
-  )
+  echo "lintball already installed, updating…"
 fi
+
+(
+  cd "${LB_DIR}"
+  git fetch origin --tags
+  sha="$(git show-ref "$LINTBALL_VERSION" | awk '{ print $1 }')"
+  git stash
+  git checkout "$sha" 2>/dev/null
+  if [ -d "node_modules" ]; then
+    # User has installed the node modules, so update them
+    npm install 2>/dev/null
+  fi
+  if [ -d "vendor" ]; then
+    # User has installed the node modules, so update them
+    bundle install 2>/dev/null
+  fi
+)
 
 if [ "$LINTBALL_INSTALL_DEPS" = "yes" ]; then
   pip3 install black autopep8 isort autoflake docformatter yamllint
