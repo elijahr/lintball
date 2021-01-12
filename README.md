@@ -2,7 +2,7 @@
 
 Multi-linter tool for keeping your project tidy.
 
-lintball can fix all your code with one command, and comes with a convenient githook.
+lintball can fix all your code with one command, or a convenient githook that you can set and forget.
 
 ## Supported languages
 
