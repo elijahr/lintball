@@ -1,3 +1,5 @@
+![Test](https://github.com/elijahr/lintball/workflows/Test/badge.svg)
+
 # lintball
 
 Multi-linter tool for keeping your project tidy.
@@ -32,7 +34,7 @@ lintball can fix all your code with one command, or a convenient githook that yo
 ## Installation
 
 ```sh
-curl -o- https://raw.githubusercontent.com/elijahr/lintball/v0.2.0/install.sh | bash
+curl -o- https://raw.githubusercontent.com/elijahr/lintball/v0.3.0/install.sh | bash
 ```
 
 Running the above command downloads a script and runs it. The script clones the lintball repository to ~/.lintball, and configures your PATH to include the lintball scripts. Currently, fish, bash, and zsh are supported.
