@@ -41,7 +41,7 @@ If you are using lintball with a git-managed project, we suggest using the pre-c
 
 ### Dependencies
 
-By default, lintball will not attempt to install any linters. To install all linters:
+By default, lintball will not attempt to install any linters. You do not need to install all linters to use lintball; lintball will only linters for the types of files in your project. To install all linters:
 
 ```shell
 ~/.lintball/install.sh --deps
@@ -105,6 +105,7 @@ By default, lintball will not fix any files matching the the following patterns:
 */.build/*
 */build/*
 */dist/*
+*/vendor/*
 ```
 
 Patterns are globs, as would be passed to the `find` command's `-path` argument.
@@ -118,6 +119,7 @@ Many of the tools used by lintball can be configured to suit your needs. See:
 - shellcheck: https://www.mankier.com/1/shellcheck#RC_Files
 - prettier: https://prettier.io/docs/en/configuration.html
 - autopep8: https://pypi.org/project/autopep8/#configuration
+- rubocop: https://docs.rubocop.org/rubocop/1.8/configuration.html
 
 ## Acknowledgements
 
