@@ -21,8 +21,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - uses: bahmutov/npm-install@v1
-
       - uses: actions/setup-python@v2
         with:
           python-version: "3.9"
@@ -85,8 +83,6 @@ jobs:
         with:
           node-version: "15"
 
-      - uses: bahmutov/npm-install@v1
-
       - uses: actions/setup-python@v2
         with:
           python-version: "3.9"
@@ -95,4 +91,4 @@ jobs:
         run: ./install.sh --deps
 
       - name: check
-        run: ./bin/lintball .
+        run: ./bin/lintball
