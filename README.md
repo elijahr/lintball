@@ -10,9 +10,7 @@ lintball can fix all your code with one command, and comes with a convenient git
 | :------------------------------------------------------------ | :----------------------------------------------------------------------------: |
 | JavaScript, TypeScript, JSON, <br/> Markdown, HTML, CSS, SASS |                                [`prettier`][1]                                 |
 | YAML                                                          |                        [`prettier`][1] [`yamllint`][10]                        |
-| CSS/SASS                                                      |                                [`prettier`][1]                                 |
-| POSIX shell scripts                                           |                         [`shellcheck`][2] [`shfmt`][3]                         |
-| Bash shell scripts                                            |                         [`shellcheck`][2] [`shfmt`][3]                         |
+| sh, bash, dash, ksh, mksh                                     |                         [`shellcheck`][2] [`shfmt`][3]                         |
 | Bats tests                                                    |                                  [`shfmt`][2]                                  |
 | Python                                                        | [`autoflake`][4] [`autopep8`][5] [`black`][6] [`docformatter`][7] [`isort`][8] |
 | Cython                                                        |              [`autoflake`][4] [`autopep8`][5] [`docformatter`][7]              |

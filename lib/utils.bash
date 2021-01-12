@@ -400,6 +400,18 @@ lint_any() {
       lint_shellcheck "$write" "$path" "bash" || status=$?
       echo
       ;;
+    *.dash)
+      echo "# $path"
+      lint "shfmt" "$write" "$path" "posix" || status=$?
+      lint_shellcheck "$write" "$path" "dash" || status=$?
+      echo
+      ;;
+    *.ksh | *.mksh)
+      echo "# $path"
+      lint "shfmt" "$write" "$path" "mksh" || status=$?
+      lint_shellcheck "$write" "$path" "ksh" || status=$?
+      echo
+      ;;
     *.sh)
       # Inspect hashbang
       case "$(hashbang "$path")" in
@@ -407,6 +419,18 @@ lint_any() {
           echo "# $path"
           lint "shfmt" "$write" "$path" "bash" || status=$?
           lint_shellcheck "$write" "$path" "bash" || status=$?
+          echo
+          ;;
+        *dash)
+          echo "# $path"
+          lint "shfmt" "$write" "$path" "posix" || status=$?
+          lint_shellcheck "$write" "$path" "dash" || status=$?
+          echo
+          ;;
+        *ksh)
+          echo "# $path"
+          lint "shfmt" "$write" "$path" "mksh" || status=$?
+          lint_shellcheck "$write" "$path" "ksh" || status=$?
           echo
           ;;
         *)
