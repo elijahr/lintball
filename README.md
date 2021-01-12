@@ -76,7 +76,7 @@ lintball provides two scripts:
 
 ### Continuous Integration
 
-lintball uses itself for lint checks in CI - see our GitHub Actions [workflow config](/elijahr/lintball/tree/devel/.github/workflows/workflow.yml).
+lintball uses itself for lint checks in CI - see our GitHub Actions [workflow config](https://github.com/elijahr/lintball/blob/devel/.github/workflows/workflow.yml).
 
 ## Updating
 
