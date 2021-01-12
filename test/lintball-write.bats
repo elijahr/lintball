@@ -180,6 +180,19 @@ EOF
   assert_equal "$(cat "py th on/a")" "$expected"
 }
 
+@test "lintball --write cython" {
+  run lintball --write "py th on/a.pyx"
+  assert_success
+  expected="$(
+    cat <<EOF
+cdef void fun(char * a) nogil:
+    cdef:
+        char * dest = a
+EOF
+  )"
+  assert_equal "$(cat "py th on/a.pyx")" "$expected"
+}
+
 @test "lintball --write nim" {
   run lintball --write "a.nim"
   assert_success
