@@ -1,0 +1,10 @@
+*/fixture/*
+*/.git/*
+*/.hg/*
+*/node_modules/*
+*/package-lock.json
+*/.next/*
+*/.serverless_nextjs/*
+*/__pycache__/*
+*/.tmp/*
+*/.build/*

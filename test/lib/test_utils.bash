@@ -9,6 +9,8 @@ setup_test() {
   export PROJECT_DIR
   PROJECT_DIR="$(mktemp -d)/fixture"
   cp -r "${LINTBALL_DIR}/fixture/" "$PROJECT_DIR/"
+  cp "${LINTBALL_DIR}/.gitignore" "$PROJECT_DIR/"
+  cp "${LINTBALL_DIR}/.tool-versions" "$PROJECT_DIR/"
 
   cd "$PROJECT_DIR"
   rm -rf node_modules

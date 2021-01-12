@@ -1,11 +1,25 @@
 
+"""A Python module.
+
+                  This module docstring should be dedented.
+"""
+
+import system
+import path
+import os
 
 
 
 
+def a(arg):
+    """
 
+This should be trimmed.
 
-def a():
+"""
     print(
+      arg,
       "b",
       "c", "d")
+    print(path)
+    print (     system)

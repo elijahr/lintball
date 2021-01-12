@@ -8,11 +8,22 @@ if [ -n "${1:-}" ]; then
   cd "$1"
 fi
 
+if [ ! -f ".lintball-ignore" ]; then
+  cp "${LINTBALL_DIR}/lintball-ignore.defaults" "$(pwd)/.lintball-ignore"
+  echo "${LINTBALL_DIR}/lintball-ignore.defaults → $(pwd)/.lintball-ignore"
+fi
+
 if [ -z "$(git config --local core.hooksPath)" ]; then
-  git config --local core.hooksPath "${LINTBALL_DIR}/.githooks"
-  echo "Configured core.hooksPath to $(pwd)/.githooks"
+  git config --local core.hooksPath "${LINTBALL_DIR}/githooks"
+  echo "Set core.hooksPath → $(pwd)/githooks"
 else
-  echo "Other git hooks already enabled for $(basename "$(pwd)"): $(git config --local core.hooksPath)"
-  echo "To use lintball githooks, manually copy githooks from ${LINTBALL_DIR}/.githooks"
+  echo -e "Git hooks already configured: $(git config --local core.hooksPath)"
+  echo -e "To replace them, run:"
+  echo -e
+  echo -e "git config --local core.hooksPath \"${LINTBALL_DIR}/githooks\""
+  echo -e
+  echo -e "Alternatively, you can replace just an existing pre-commit hook with:"
+  echo -e
+  echo -e "cp \"${LINTBALL_DIR}/githooks/pre-commit\" \"$(git config --local core.hooksPath)\""
   exit 1
 fi

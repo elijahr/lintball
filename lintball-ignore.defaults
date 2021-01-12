@@ -1,0 +1,14 @@
+# Place patterns here which should be ignored by lintball scripts.
+# Patterns are globs, as would be passed to the find command's -path argument.
+*/.git/*
+*/.hg/*
+*/node_modules/*
+*/package-lock.json
+*/.next/*
+*/.serverless_nextjs/*
+*/__pycache__/*
+*/.tmp/*
+*/tmp/*
+*/.build/*
+*/build/*
+*/dist/*

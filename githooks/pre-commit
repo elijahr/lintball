@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+set -ueo pipefail
+
+if [[ "$(basename "$(pwd)")" =~ lintball$ ]]; then
+  # For lintball development
+  LINTBALL_DIR="$(pwd)"
+  export LINTBALL_DIR
+fi
+
+# shellcheck source=SCRIPTDIR/../lib/utils.bash
+source "${LINTBALL_DIR}/lib/utils.bash"
+
+fully_staged() {
+  local staged
+  staged="$(git diff --name-only --cached)"
+  while read -r path; do
+    # shellcheck disable=SC2143
+    if [ -z "$(git diff --name-only | grep -F "$path")" ]; then
+      if [ -f "$path" ]; then
+        # path exists, is staged and has no unstaged changes
+        echo "$path"
+      fi
+    fi
+  done <<<"$staged"
+}
+
+paths="$(fully_staged)"
+
+error_status="$(mktemp)"
+while read -r path; do
+  if [ -n "$path" ]; then
+    if assert_handled_path "$path"; then
+      if lint_any "yes" "$path"; then
+        git add "$path"
+      else
+        echo "1" >"$error_status"
+      fi
+    fi
+  fi
+done <<<"$(eval "$(cmd_find "$paths")")"
+
+status=0
+if [ -n "$(cat "$error_status")" ]; then
+  status=1
+fi
+rm "$error_status"
+exit "$status"

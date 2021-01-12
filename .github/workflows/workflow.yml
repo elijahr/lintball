@@ -7,11 +7,11 @@ on:
 
 jobs:
   test:
+    name: bats tests (nodejs ${{ matrix.node }})
     strategy:
       matrix:
         node: [8, 10, 12, 14, 15]
 
-    name: bats tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -29,19 +29,8 @@ jobs:
 
       - uses: jiro4989/setup-nim-action@v1
 
-      - name: Install shfmt
-        run: brew install shfmt
-
-      - name: Update shellcheck
-        run: |
-          sudo apt install xz-utils
-          scversion="stable"
-          wget -qO- "https://github.com/koalaman/shellcheck/releases/download/${scversion?}/shellcheck-${scversion?}.linux.x86_64.tar.xz" | tar -xJv
-          sudo cp "shellcheck-${scversion}/shellcheck" /usr/bin/
-          shellcheck --version
-
-      - name: Install black & autoflake
-        run: pip install black autoflake
+      - name: Install deps
+        run: ./install.sh --deps
 
       - name: Test
         run: npm run test
@@ -63,8 +52,8 @@ jobs:
           test -n "'$(grep LINTBALL_DIR "${HOME}/.bash_profile")'"
           . "${HOME}/.lintball/lintball.sh"
           test -n "${LINTBALL_DIR:-}"
-          test -n "$(which check-all)"
-          test -n "$(which fix-all)"
+          test -n "$(which lintball)"
+          test -n "$(which lintball --write)"
           test -n "$(which install-lintball-githooks)"
 
       - name: Install fish
@@ -80,6 +69,25 @@ jobs:
           ls -al "$HOME/.lintball/lintball.fish"
           source "$HOME/.lintball/lintball.fish"; or exit 1
           test -n "$LINTBALL_DIR"; or exit
-          test -n "(which check-all)"; or exit 1
-          test -n "(which fix-all)"; or exit 1
+          test -n "(which lintball)"; or exit 1
+          test -n "(which lintball --write)"; or exit 1
           test -n "(which install-lintball-githooks)"; or exit 1
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "15"
+
+      - uses: bahmutov/npm-install@v1
+
+      - name: Install deps
+        run: ./install.sh --deps
+
+      - name: check
+        run: ./bin/lintball .

@@ -11,3 +11,8 @@ for i in (seq 1 (count $PATH))
   end
 end
 set -gx PATH "$LINTBALL_DIR/bin" $PATH
+
+# Add to path in Github Actions
+if test -n "$GITHUB_PATH"
+  echo "$LINTBALL_DIR/bin" >> $GITHUB_PATH
+end

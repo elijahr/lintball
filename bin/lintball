@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+
+set -ueo pipefail
+
+LINTBALL_DIR="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
+
+# shellcheck source=SCRIPTDIR/../lib/utils.bash
+source "${LINTBALL_DIR}/lib/utils.bash"
+
+usage() {
+  local script_name
+  script_name="$(basename "$0")"
+  cat <<EOF
+$script_name: keep your project tidy with one command.
+
+Linters/formatters used:
+
+- prettier     for JavaScript, TypeScript, YAML, & Markdown
+- shellcheck   for bash scripts
+- shfmt        for bash scripts & bats tests
+- black        for Python
+- autopep8    for Python
+- nimpretty    for Nim
+
+Usage: $script_name [options] [path ...]
+
+Options:
+  -h|--help
+      Show this help message & exit.
+  --write
+      Auto fix any fixable issues. By default $script_name will simply notify
+      you of linter issues.
+  --list
+      List files which lintball has a linter for and would attempt to check or
+      fix. Useful for debugging a .lintball-ignore file.
+
+https://github.com/elijahr/lintball
+EOF
+}
+
+LINTBALL_WRITE="no"
+LINTBALL_LIST="no"
+args=()
+while [[ $# -gt 0 ]]; do
+  key="$1"
+
+  case $key in
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    --write)
+      if [ "$LINTBALL_LIST" = "yes" ]; then
+        echo -e "Cannot use --write and --list together"
+        usage
+        exit 1
+      fi
+      LINTBALL_WRITE="yes"
+      shift
+      ;;
+    --list)
+      if [ "$LINTBALL_WRITE" = "yes" ]; then
+        echo -e "Cannot use --write and --list together"
+        usage
+        exit 1
+      fi
+      LINTBALL_LIST="yes"
+      shift
+      ;;
+    -*)
+      echo -e "Unknown switch $1"
+      usage
+      exit 1
+      ;;
+    *)             # unknown option
+      args+=("$1") # save it in an array for later
+      shift        # past argument
+      ;;
+  esac
+done
+set -- "${args[@]}" # restore positional parameters
+
+if [ "$LINTBALL_LIST" = "yes" ]; then
+  while read -r path; do
+    if [ -n "$path" ]; then
+      path="$(normalize_path "$path")"
+      if assert_handled_path "$path"; then
+        echo "$path"
+      fi
+    fi
+  done <<<"$(eval "$(cmd_find "$@")")"
+  exit 0
+fi
+
+error_status="$(mktemp)"
+while read -r path; do
+  if [ -n "$path" ]; then
+    if assert_handled_path "$path"; then
+      lint_any "$LINTBALL_WRITE" "$path" || (echo "1" >"$error_status")
+    fi
+  fi
+done <<<"$(eval "$(cmd_find "$@")")"
+
+status=0
+
+if [ -n "$(cat "$error_status")" ]; then
+  status=1
+fi
+rm "$error_status"
+exit "$status"

@@ -13,6 +13,56 @@ if [ -z "${ASDF_NODEJS_VERSION:-}" ] && [ -n "$(which asdf)" ]; then
   export ASDF_NODEJS_VERSION
 fi
 
+LINTBALL_INSTALL_DEPS="no"
+args=()
+while [[ $# -gt 0 ]]; do
+  key="$1"
+
+  case $key in
+    --deps)
+      LINTBALL_INSTALL_DEPS="yes"
+      shift
+      ;;
+    -*)
+      echo -e "Unknown switch $1"
+      usage
+      exit 1
+      ;;
+    *)             # unknown option
+      args+=("$1") # save it in an array for later
+      shift        # past argument
+      ;;
+  esac
+done
+set -- "${args[@]}" # restore positional parameters
+
+if [ "$LINTBALL_INSTALL_DEPS" = "yes" ]; then
+  pip install black autopep8 isort autoflake docformatter
+  (
+    cd ~/.lintball
+    npm install
+  )
+  if [ -n "$(which brew)" ]; then
+    brew install shfmt shellcheck
+  elif [ -z "$(which apt-get)" ]; then
+    if [ -z "$(which shfmt)" ]; then
+      sudo apt-get update
+      sudo apt-get install -y shfmt
+    fi
+    if [ -z "$(which shellcheck)" ]; then
+      scversion="stable"
+      wget -qO- "https://github.com/koalaman/shellcheck/releases/download/${scversion?}/shellcheck-${scversion?}.linux.x86_64.tar.xz" | tar -xJv
+      cp "shellcheck-${scversion}/shellcheck" /usr/bin/
+    fi
+  else
+    echo -e "Neither brew nor apt-get were found on your system."
+    echo -e "You will need to install shfmt and shellcheck manually."
+    exit 1
+  fi
+  exit 0
+fi
+
+
 LB_DIR="${1:-"${HOME}/.lintball"}"
 
 if [ ! -d "$LB_DIR" ]; then
@@ -22,10 +72,6 @@ if [ ! -d "$LB_DIR" ]; then
     --depth 1 \
     https://github.com/elijahr/lintball.git \
     "$LB_DIR" 2>/dev/null
-  (
-    cd "${LB_DIR}"
-    npm install 2>/dev/null
-  )
 else
   # Update
   echo "lintball already installed, updating..."
@@ -35,7 +81,10 @@ else
     git add .
     git stash
     git reset --hard "origin/${LINTBALL_VERSION:-"devel"}" 2>/dev/null
-    npm install 2>/dev/null
+    if [ -d "node_modules" ]; then
+      # User has installed the node modules, so update them
+      npm install 2>/dev/null
+    fi
   )
 fi
 
@@ -76,6 +125,11 @@ if ! grep -qF "LINTBALL_DIR" "$fish_config"; then
   echo "$fish_insert" >>"$fish_config"
 fi
 echo "lintball → $fish_config"
+
+# Add to path in Github Actions
+if [ -n "${GITHUB_PATH:-}" ]; then
+  echo "${LB_DIR}/bin" >>"$GITHUB_PATH"
+fi
 
 echo
 echo "Restart your shell for changes to take effect."
