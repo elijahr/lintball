@@ -43,10 +43,10 @@ LB_DIR="${1:-"${HOME}/.lintball"}"
 
 if [ ! -d "$LB_DIR" ]; then
   git clone \
-    --branch "${LINTBALL_VERSION:-"devel"}" \
     --depth 1 \
     https://github.com/elijahr/lintball.git \
     "$LB_DIR" 2>/dev/null
+  git checkout "${LINTBALL_VERSION:-"origin/devel"}" 2>/dev/null
   echo "cloned lintball → ${LB_DIR}"
 else
   # Update
@@ -56,7 +56,7 @@ else
     git fetch origin
     git add .
     git stash
-    git reset --hard "origin/${LINTBALL_VERSION:-"devel"}" 2>/dev/null
+    git pull origin "${LINTBALL_VERSION:-"devel"}" 2>/dev/null
     if [ -d "node_modules" ]; then
       # User has installed the node modules, so update them
       npm install 2>/dev/null
