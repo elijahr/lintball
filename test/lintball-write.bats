@@ -185,6 +185,7 @@ EOF
   assert_success
   expected="$(
     cat <<EOF
+
 cdef void fun(char * a) nogil:
     cdef:
         char * dest = a

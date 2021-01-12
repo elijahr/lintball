@@ -72,10 +72,16 @@ cmd_autopep8() {
   path="$2"
   if [ "$write" = "yes" ]; then
     echo "autopep8 \
+      --aggressive \
+      --aggressive \
+      --aggressive \
       --in-place \
       '$path'"
   else
     echo "autopep8 \
+      --aggressive \
+      --aggressive \
+      --aggressive \
       --diff \
       '$path'"
   fi
@@ -167,14 +173,13 @@ lint() {
       printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
       cat "$stdout" 2>/dev/null
       cat "$stderr" 1>&2 2>/dev/null
-      echo "status=$status"
       status=1
     elif [ "$write" = "no" ] && [ "$(head -n1 "$stdout" | head -c4)" = "--- " ] && [ "$(head -n2 "$stdout" | tail -n 1 | head -c4)" = "+++ " ]; then
       # cmd printed a patchfile to stdout, show it
       printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
       cat "$stdout" 2>/dev/null
       cat "$stderr" 1>&2 2>/dev/null
-      echo "status=$status"
+      status=1
     else
       printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "ok"
     fi
@@ -253,7 +258,6 @@ lint_shellcheck() {
       printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
       cat "$stdout" 2>/dev/null
       cat "$stderr" 1>&2 2>/dev/null
-      echo "status=$status"
     fi
   fi
   rm "$stdout"
@@ -305,14 +309,12 @@ lint_nim() {
         printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
         cat "$stdout" 2>/dev/null
         cat "$stderr" 1>&2 2>/dev/null
-        echo "status=$status"
       fi
     fi
   else
     printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
     cat "$stdout" 2>/dev/null
     cat "$stderr" 1>&2 2>/dev/null
-    echo "status=$status"
   fi
   rm "$tmp"
   rm "$stdout"

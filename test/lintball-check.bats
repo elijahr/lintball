@@ -85,7 +85,7 @@ teardown() {
   assert_success
 }
 
-@test "lintball --write cython" {
+@test "lintball cython" {
   run lintball "py th on/a.pyx"
   assert_failure
   run lintball --write "py th on/a.pyx"
