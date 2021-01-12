@@ -91,7 +91,7 @@ if [ "$LINTBALL_LIST" = "yes" ]; then
         echo "$path"
       fi
     fi
-  done <<<"$(eval "$(cmd_find "$@")")"
+  done <<<"$(eval "$(cmd_find "$@")" | sort)"
   exit 0
 fi
 

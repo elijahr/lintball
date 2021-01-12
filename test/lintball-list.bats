@@ -22,15 +22,15 @@ teardown() {
   assert_success
   expected="$(
     cat <<EOF
+./a.md
+./a.nim
 ./a.yml
-./test/a.expected
-./test/a.bats
 ./bash/a
 ./bash/a.bash
-./a.nim
 ./sh/a
 ./sh/a.sh
-./a.md
+./test/a.bats
+./test/a.expected
 EOF
   )"
   assert_output "$expected"
@@ -45,15 +45,15 @@ EOF
   assert_success
   expected="$(
     cat <<EOF
+./a.md
+./a.nim
 ./a.yml
-./test/a.expected
-./test/a.bats
 ./bash/a
 ./bash/a.bash
-./a.nim
 ./sh/a
 ./sh/a.sh
-./a.md
+./test/a.bats
+./test/a.expected
 EOF
   )"
 }

@@ -7,10 +7,12 @@
 */package-lock.json
 */.next/*
 */.serverless_nextjs/*
-*/__pycache__/*
 */.tmp/*
 */tmp/*
 */.build/*
 */build/*
 */dist/*
+*/__pycache__/*
+*/Pipfile.lock
 */vendor/*
+*/Gemfile.lock

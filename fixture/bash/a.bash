@@ -16,5 +16,5 @@ for var in "${c[@]}"
 
 
 do
-echo $var
+echo "$var"
 done

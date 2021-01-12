@@ -99,13 +99,15 @@ By default, lintball will not check any files matching the following patterns:
 */package-lock.json
 */.next/*
 */.serverless_nextjs/*
-*/__pycache__/*
 */.tmp/*
 */tmp/*
 */.build/*
 */build/*
 */dist/*
+*/__pycache__/*
+*/Pipfile.lock
 */vendor/*
+*/Gemfile.lock
 ```
 
 Patterns are globs, as would be passed to the `find` command's `-path` argument.
