@@ -87,7 +87,7 @@ jobs:
       - uses: bahmutov/npm-install@v1
 
       - name: Install deps
-        run: ./install.sh --deps
+        run: brew install shfmt shellcheck
 
       - name: check
         run: ./bin/lintball .
