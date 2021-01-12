@@ -6,18 +6,18 @@ lintball can fix all your code with one command, and comes with a convenient git
 
 ## Supported languages
 
-| language            |                                               tools used                                               |
-| :------------------ | :----------------------------------------------------------------------------------------------------: |
-| JavaScript          |                                            [`prettier`][1]                                             |
-| TypeScript          |                                            [`prettier`][1]                                             |
-| YAML                |                                            [`prettier`][1]                                             |
-| Markdown            |                                            [`prettier`][1]                                             |
-| POSIX shell scripts |                                  [`shellcheck`][2] <br/> [`shfmt`][3]                                  |
-| Bash shell scripts  |                                  [`shellcheck`][2] <br/> [`shfmt`][3]                                  |
-| Bats tests          |                                              [`shfmt`][2]                                              |
-| Python              | [`autoflake`][4] <br/> [`autopep8`][5] <br/> [`black`][6] <br/> [`docformatter`][7] <br/> [`isort`][8] |
-| Cython              |                    [`autoflake`][4] <br/> [`autopep8`][5] <br/> [`docformatter`][7]                    |
-| Nim                 |                                            [`nimpretty`][9]                                            |
+| language            |                                   tools used                                   |
+| :------------------ | :----------------------------------------------------------------------------: |
+| JavaScript          |                                [`prettier`][1]                                 |
+| TypeScript          |                                [`prettier`][1]                                 |
+| YAML                |                                [`prettier`][1]                                 |
+| Markdown            |                                [`prettier`][1]                                 |
+| POSIX shell scripts |                         [`shellcheck`][2] [`shfmt`][3]                         |
+| Bash shell scripts  |                         [`shellcheck`][2] [`shfmt`][3]                         |
+| Bats tests          |                                  [`shfmt`][2]                                  |
+| Python              | [`autoflake`][4] [`autopep8`][5] [`black`][6] [`docformatter`][7] [`isort`][8] |
+| Cython              |              [`autoflake`][4] [`autopep8`][5] [`docformatter`][7]              |
+| Nim                 |                                [`nimpretty`][9]                                |
 
 [1]: https://prettier.io/
 [2]: https://www.shellcheck.net/
