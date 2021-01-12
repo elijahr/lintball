@@ -15,12 +15,15 @@ $script_name: keep your project tidy with one command.
 
 Linters/formatters used:
 
-- prettier     for JavaScript, TypeScript, YAML, & Markdown
-- shellcheck   for bash scripts
-- shfmt        for bash scripts & bats tests
-- black        for Python
-- autopep8    for Python
-- nimpretty    for Nim
+JavaScript, TypeScript, JSON,
+Markdown, HTML, CSS, SASS.......prettier
+YAML............................prettier, yamllint
+sh, bash, dash, ksh, mksh.......shellcheck, shfmt
+Bats tests......................shfmt
+Python..........................autoflake, autopep8, black, docformatter, isort
+Cython..........................autoflake, autopep8, docformatter
+Nim.............................nimpretty
+Ruby............................rubocop
 
 Usage: $script_name [options] [path …]
 

@@ -66,14 +66,15 @@ lintball provides two scripts:
   Running without any options will check your code, skipping over directories such as node_modules.
 
   Options:
-  -h|--help
-      Show this help message & exit.
-  --write
-      Auto fix any fixable issues. By default lintball will simply notify
-      you of linter issues.
-  --list
-      List files which lintball will attempt to fix. Useful for debugging a
-      .lintball-ignore file.
+    -h|--help
+        Show this help message & exit.
+    --write
+        Auto fix any fixable issues. By default $script_name will simply notify
+        you of linter issues.
+    --list
+        List files which lintball has a linter for and would attempt to check or
+        fix. Useful for debugging a .lintball-ignore file.
+
   ```
 
 ### Continuous Integration
