@@ -65,7 +65,7 @@ else
 fi
 
 if [ "$LINTBALL_INSTALL_DEPS" = "yes" ]; then
-  pip3 install black autopep8 isort autoflake docformatter
+  pip3 install black autopep8 isort autoflake docformatter yamllint
   (
     cd "$LB_DIR"
     npm install

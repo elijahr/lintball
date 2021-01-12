@@ -16,7 +16,13 @@ teardown() {
 @test "lintball --write yml" {
   run lintball --write "a.yml"
   assert_success
-  assert_equal "$(cat "a.yml")" $'key: value\nhello: world'
+  expected="$(
+    cat <<EOF
+key: value
+hello: world
+EOF
+  )"
+  assert_equal "$(cat "a.yml")" "$expected"
 }
 
 @test "lintball --write md" {

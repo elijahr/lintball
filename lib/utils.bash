@@ -40,6 +40,26 @@ cmd_prettier() {
   fi
 }
 
+cmd_yamllint() {
+  local write path format config
+  write="$1"
+  path="$2"
+
+  # show colors in output only if interactive shell
+  format="auto"
+  if [[ $- == *i* ]]; then
+    format="colored"
+  fi
+
+  # disable some rules that don't make sense for github workflows files
+  config="{extends: default, rules: {document-start: disable, truthy: disable}}"
+  echo "yamllint \
+    --strict \
+    --config-data '$config' \
+    --format '$format' \
+    '$path'"
+}
+
 cmd_shfmt() {
   local write path lang
   write="$1"
@@ -168,14 +188,12 @@ lint() {
 
   eval "$cmd" 1>"$stdout" 2>"$stderr" || status=$?
   if [ "$(cat "$path")" = "$original" ]; then
-    if [ "$status" -gt 0 ] && [ -n "$(cat "$stderr")" ]; then
+    if [ "$status" -gt 0 ] || {
+      [ "$write" = "no" ] &&
+        [ "$(head -n1 "$stdout" | head -c4)" = "--- " ] &&
+        [ "$(head -n2 "$stdout" | tail -n 1 | head -c4)" = "+++ " ]
+    }; then
       # Some error message
-      printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
-      cat "$stdout" 2>/dev/null
-      cat "$stderr" 1>&2 2>/dev/null
-      status=1
-    elif [ "$write" = "no" ] && [ "$(head -n1 "$stdout" | head -c4)" = "--- " ] && [ "$(head -n2 "$stdout" | tail -n 1 | head -c4)" = "+++ " ]; then
-      # cmd printed a patchfile to stdout, show it
       printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
       cat "$stdout" 2>/dev/null
       cat "$stderr" 1>&2 2>/dev/null
@@ -193,7 +211,7 @@ lint() {
 }
 
 lint_shellcheck() {
-  local write path lang stdout stderr status linter offset
+  local write path lang stdout stderr status linter offset color
   write="$1"
   path="$2"
   lang="$3"
@@ -206,13 +224,19 @@ lint_shellcheck() {
   patcherr="$(mktemp)"
   status=0
 
+  # show colors in output only if interactive shell
+  color="never"
+  if [[ $- == *i* ]]; then
+    color="always"
+  fi
+
   shellcheck \
     --external-sources \
     --format=tty \
     --shell="$lang" \
     --severity=style \
     --exclude=SC2164 \
-    --color=always \
+    --color="$color" \
     "$path" \
     1>"$stdout" \
     2>"$stderr" || status=$?
@@ -332,7 +356,7 @@ hashbang() {
 
 assert_handled_path() {
   case "$1" in
-    *.md | *.yml | *.js | *.jsx | *.ts | *.tsx | *.html | *.css | *.scss | *.json | *.bats | *.bash | *.sh | *.py | *.pyx | *.pxd | *.pxi | *.nim)
+    *.md | *.yml | *.yaml | *.js | *.jsx | *.ts | *.tsx | *.html | *.css | *.scss | *.json | *.bats | *.bash | *.sh | *.py | *.pyx | *.pxd | *.pxi | *.nim)
       return 0
       ;;
     *)
@@ -354,9 +378,15 @@ lint_any() {
   status=0
   path="$(normalize_path "$path")"
   case "$path" in
-    *.md | *.yml | *.js | *.jsx | *.ts | *.tsx | *.html | *.css | *.scss | *.json)
+    *.md | *.js | *.jsx | *.ts | *.tsx | *.html | *.css | *.scss | *.json)
       echo "# $path"
       lint "prettier" "$write" "$path" || status=$?
+      echo
+      ;;
+    *.yml | *.yaml)
+      echo "# $path"
+      lint "prettier" "$write" "$path" || status=$?
+      lint "yamllint" "$write" "$path" || status=$?
       echo
       ;;
     *.bats)

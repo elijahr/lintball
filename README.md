@@ -6,18 +6,17 @@ lintball can fix all your code with one command, and comes with a convenient git
 
 ## Supported languages
 
-| language            |                                   tools used                                   |
-| :------------------ | :----------------------------------------------------------------------------: |
-| JavaScript          |                                [`prettier`][1]                                 |
-| TypeScript          |                                [`prettier`][1]                                 |
-| YAML                |                                [`prettier`][1]                                 |
-| Markdown            |                                [`prettier`][1]                                 |
-| POSIX shell scripts |                         [`shellcheck`][2] [`shfmt`][3]                         |
-| Bash shell scripts  |                         [`shellcheck`][2] [`shfmt`][3]                         |
-| Bats tests          |                                  [`shfmt`][2]                                  |
-| Python              | [`autoflake`][4] [`autopep8`][5] [`black`][6] [`docformatter`][7] [`isort`][8] |
-| Cython              |              [`autoflake`][4] [`autopep8`][5] [`docformatter`][7]              |
-| Nim                 |                                [`nimpretty`][9]                                |
+| language                                                |                                   tools used                                   |
+| :------------------------------------------------------ | :----------------------------------------------------------------------------: |
+| Markdown, JavaScript, TypeScript, JSON, HTML, CSS, SASS |                                [`prettier`][1]                                 |
+| YAML                                                    |                        [`prettier`][1] [`yamllint`][10]                        |
+| CSS/SASS                                                |                                [`prettier`][1]                                 |
+| POSIX shell scripts                                     |                         [`shellcheck`][2] [`shfmt`][3]                         |
+| Bash shell scripts                                      |                         [`shellcheck`][2] [`shfmt`][3]                         |
+| Bats tests                                              |                                  [`shfmt`][2]                                  |
+| Python                                                  | [`autoflake`][4] [`autopep8`][5] [`black`][6] [`docformatter`][7] [`isort`][8] |
+| Cython                                                  |              [`autoflake`][4] [`autopep8`][5] [`docformatter`][7]              |
+| Nim                                                     |                                [`nimpretty`][9]                                |
 
 [1]: https://prettier.io/
 [2]: https://www.shellcheck.net/
@@ -28,6 +27,8 @@ lintball can fix all your code with one command, and comes with a convenient git
 [7]: https://pypi.org/project/docformatter/
 [8]: https://pypi.org/project/isort/
 [9]: https://nim-lang.org/docs/tools.html
+
+[10]:
 
 ## Installation
 

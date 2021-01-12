@@ -65,7 +65,8 @@ jobs:
           set fish_trace 1 2
           set -gx LINTBALL_VERSION (basename "$GITHUB_REF")
           bash ./install.sh; or exit 1
-          test -n "'(grep LINTBALL_DIR "$HOME/.config/fish/config.fish")'"; or exit 1
+          test -n "'(grep LINTBALL_DIR "$HOME/.config/fish/config.fish")'"; \
+            or exit 1
           ls -al "$HOME/.lintball/lintball.fish"
           source "$HOME/.lintball/lintball.fish"; or exit 1
           test -n "$LINTBALL_DIR"; or exit
@@ -86,8 +87,12 @@ jobs:
 
       - uses: bahmutov/npm-install@v1
 
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
       - name: Install deps
-        run: brew install shfmt shellcheck
+        run: ./install.sh --deps
 
       - name: check
         run: ./bin/lintball .
