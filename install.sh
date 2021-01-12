@@ -62,7 +62,7 @@ fi
   fi
   if [ -d "vendor" ]; then
     # User has installed the node modules, so update them
-    bundle install 2>/dev/null
+    gem install rubocop 2>/dev/null
   fi
 )
 
@@ -74,9 +74,8 @@ echo "lintball updated to $(
 if [ "$LINTBALL_INSTALL_DEPS" = "yes" ]; then
   pip3 install black autopep8 isort autoflake docformatter yamllint
   if [ -z "$(which bundler)" ]; then
-    gem install bundler || sudo gem install bundler
+    gem install rubocop || sudo gem install rubocop
   fi
-  bundle install
   (
     cd "$LB_DIR"
     npm install

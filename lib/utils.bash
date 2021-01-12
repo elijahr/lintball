@@ -75,12 +75,12 @@ cmd_rubocop() {
   fi
 
   if [ "$write" = "yes" ]; then
-    echo "bundle exec rubocop \
+    echo "rubocop \
       --auto-correct-all \
       $color \
       '$path'"
   else
-    echo "bundle exec rubocop \
+    echo "rubocop \
       $color \
       '$path'"
   fi
