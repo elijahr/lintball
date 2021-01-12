@@ -27,6 +27,8 @@ teardown() {
 ./a.yml
 ./bash/a
 ./bash/a.bash
+./ruby/a
+./ruby/a.rb
 ./sh/a
 ./sh/a.sh
 ./test/a.bats
@@ -50,6 +52,8 @@ EOF
 ./a.yml
 ./bash/a
 ./bash/a.bash
+./ruby/a
+./ruby/a.rb
 ./sh/a
 ./sh/a.sh
 ./test/a.bats

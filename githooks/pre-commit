@@ -13,7 +13,7 @@ source "${LINTBALL_DIR}/lib/utils.bash"
 
 fully_staged() {
   local staged
-  staged="$(git diff --name-only --cached)"
+  staged="$(git diff --name-only --cached | sort)"
   while read -r path; do
     # shellcheck disable=SC2143
     if [ -z "$(git diff --name-only | grep -F "$path")" ]; then

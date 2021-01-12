@@ -48,6 +48,8 @@ package.json
 py th on/a
 py th on/a.py
 py th on/a.pyx
+ruby/a
+ruby/a.rb
 sh/a
 sh/a.sh
 test/a.bats
@@ -56,7 +58,7 @@ unhandled.txt
 EOF
   )"
   # Everything is staged in index
-  assert_equal "$(git diff --name-only --cached)" "$expected"
+  assert_equal "$(git diff --name-only --cached | sort)" "$expected"
   # Nothing is partially staged
   assert_equal "$(git diff --name-only)" ""
 }
