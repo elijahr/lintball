@@ -90,27 +90,24 @@ if [ "$LINTBALL_LIST" = "yes" ]; then
   while read -r path; do
     if [ -n "$path" ]; then
       path="$(normalize_path "$path")"
-      if assert_handled_path "$path"; then
-        echo "$path"
-      fi
+      assert_handled_path "$path" || continue
+      echo "$path"
     fi
   done <<<"$(eval "$(cmd_find "$@")" | sort)"
   exit 0
 fi
 
-error_status="$(mktemp)"
+tmp="$(mktemp -d)"
 while read -r path; do
   if [ -n "$path" ]; then
-    if assert_handled_path "$path"; then
-      lint_any "$LINTBALL_WRITE" "$path" || (echo "1" >"$error_status")
-    fi
+    assert_handled_path "$path" || continue
+    lint_any "$LINTBALL_WRITE" "$path" || touch "${tmp}/error"
   fi
 done <<<"$(eval "$(cmd_find "$@")")"
 
 status=0
-
-if [ -n "$(cat "$error_status")" ]; then
+if [ -f "${tmp}/error" ]; then
   status=1
 fi
-rm "$error_status"
+rm -r "$tmp"
 exit "$status"

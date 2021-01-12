@@ -27,22 +27,23 @@ fully_staged() {
 
 paths="$(fully_staged)"
 
-error_status="$(mktemp)"
+tmp="$(mktemp -d)"
 while read -r path; do
   if [ -n "$path" ]; then
-    if assert_handled_path "$path"; then
-      if lint_any "yes" "$path"; then
-        git add "$path"
-      else
-        echo "1" >"$error_status"
-      fi
+    status=0
+    assert_handled_path "$path" || continue
+    lint_any "yes" "$path" || status="$?"
+    if [ "$status" -eq 0 ]; then
+      git add "$path"
+    else
+      touch "${tmp}/error"
     fi
   fi
 done <<<"$(eval "$(cmd_find "$paths")")"
 
 status=0
-if [ -n "$(cat "$error_status")" ]; then
+if [ -f "${tmp}/error" ]; then
   status=1
 fi
-rm "$error_status"
+rm -r "$tmp"
 exit "$status"
