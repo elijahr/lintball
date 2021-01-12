@@ -46,7 +46,7 @@ jobs:
         shell: bash
         run: |
           set -uexo pipefail
-          LINTBALL_VERSION="$(basename "$GITHUB_REF")"
+          export LINTBALL_VERSION="$GITHUB_SHA"
           ./install.sh
           test -n "'$(grep LINTBALL_DIR "${HOME}/.bashrc")'"
           test -n "'$(grep LINTBALL_DIR "${HOME}/.bash_profile")'"
@@ -63,7 +63,7 @@ jobs:
         shell: fish {0}
         run: |
           set fish_trace 1 2
-          set -gx LINTBALL_VERSION (basename "$GITHUB_REF")
+          set -gx LINTBALL_VERSION "$GITHUB_SHA"
           bash ./install.sh; or exit 1
           test -n "'(grep LINTBALL_DIR "$HOME/.config/fish/config.fish")'"; \
             or exit 1

@@ -40,10 +40,11 @@ if [ "${#args[@]}" -gt 0 ]; then
 fi
 
 LB_DIR="${1:-"${HOME}/.lintball"}"
+LINTBALL_VERSION="${LINTBALL_VERSION:-"devel"}"
 
 if [ ! -d "$LB_DIR" ]; then
   git clone \
-    --branch "${LINTBALL_VERSION:-"devel"}" \
+    --branch "$LINTBALL_VERSION" \
     --depth 1 \
     https://github.com/elijahr/lintball.git \
     "$LB_DIR" 2>/dev/null
@@ -53,10 +54,9 @@ else
   echo "lintball already installed, updating..."
   (
     cd "${LB_DIR}"
-    git fetch origin
-    git add .
-    git stash
-    git reset --hard "origin/${LINTBALL_VERSION:-"devel"}" 2>/dev/null
+    git config --local pull.ff only
+    git pull
+    git checkout "$LINTBALL_VERSION" 2>/dev/null
     if [ -d "node_modules" ]; then
       # User has installed the node modules, so update them
       npm install 2>/dev/null
