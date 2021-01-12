@@ -48,6 +48,7 @@ if [ ! -d "$LB_DIR" ]; then
     --depth 1 \
     https://github.com/elijahr/lintball.git \
     "$LB_DIR" 2>/dev/null
+  git checkout "${LINTBALL_VERSION:-"origin/devel"}" 2>/dev/null
   echo "cloned lintball → ${LB_DIR}"
 else
   # Update
