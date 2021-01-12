@@ -54,7 +54,7 @@ fi
   cd "${LB_DIR}"
   git fetch origin --tags
   sha="$(git show-ref "$LINTBALL_VERSION" | awk '{ print $1 }')"
-  git stash
+  git stash 1>/dev/null
   git checkout "$sha" 2>/dev/null
   if [ -d "node_modules" ]; then
     # User has installed the node modules, so update them
@@ -65,6 +65,11 @@ fi
     bundle install 2>/dev/null
   fi
 )
+
+echo "lintball updated to $(
+  cd "$LB_DIR"
+  git show-ref "$LINTBALL_VERSION" | awk '{ print $1 }'
+)"
 
 if [ "$LINTBALL_INSTALL_DEPS" = "yes" ]; then
   pip3 install black autopep8 isort autoflake docformatter yamllint
