@@ -66,6 +66,10 @@ fi
 
 if [ "$LINTBALL_INSTALL_DEPS" = "yes" ]; then
   pip3 install black autopep8 isort autoflake docformatter yamllint
+  if [ -z "$(which bundler)" ]; then
+    gem install bundler
+  fi
+  bundle install
   (
     cd "$LB_DIR"
     npm install

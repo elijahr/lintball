@@ -15,6 +15,7 @@ lintball can fix all your code with one command, and comes with a convenient git
 | Python                                                        | [`autoflake`][4] [`autopep8`][5] [`black`][6] [`docformatter`][7] [`isort`][8] |
 | Cython                                                        |              [`autoflake`][4] [`autopep8`][5] [`docformatter`][7]              |
 | Nim                                                           |                                [`nimpretty`][9]                                |
+| Ruby                                                          |                                [`rubocop`][11]                                 |
 
 [1]: https://prettier.io/
 [2]: https://www.shellcheck.net/
@@ -26,6 +27,7 @@ lintball can fix all your code with one command, and comes with a convenient git
 [8]: https://pypi.org/project/isort/
 [9]: https://nim-lang.org/docs/tools.html
 [10]: https://yamllint.readthedocs.io/en/stable/
+[11]: https://github.com/rubocop-hq/rubocop
 
 ## Installation
 
@@ -39,15 +41,13 @@ If you are using lintball with a git-managed project, we suggest using the pre-c
 
 ### Dependencies
 
-By default, lintball will not attempt to install any of its dependencies. The authors of lintball assume that you may not wish to install all of the linters it knows how to use.
-
-For a basic installation with Python, Markdown, JavaScript, TypeScript, HTML, and shell script support, run:
+By default, lintball will not attempt to install any linters. To install all linters:
 
 ```shell
 ~/.lintball/install.sh --deps
 ```
 
-The above install script assumes that you already have Python and NodeJS installed on your system.
+The above install script assumes that you already have Python, Ruby, and NodeJS installed on your system.
 
 If lintball checks are failing because of some missing linter that you do not wish to install, you can add an entry to your `.lintball-ignore` file - see the section on [ignore patterns](#ignore-patterns) below.
 

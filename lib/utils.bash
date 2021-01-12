@@ -15,6 +15,9 @@ fi
 LINTBALL_DIR="${LINTBALL_DIR:-"${HOME}/.lintball"}"
 DOTS="..................................."
 
+# So rubocop works
+export BUNDLE_GEMFILE="${LINTBALL_DIR}/Gemfile"
+
 cmd_prettier() {
   local write path
   write="$1"
@@ -58,6 +61,29 @@ cmd_yamllint() {
     --config-data '$config' \
     --format '$format' \
     '$path'"
+}
+
+cmd_rubocop() {
+  local write path color
+  write="$1"
+  path="$2"
+
+  # show colors in output only if interactive shell
+  color="--no-color"
+  if [[ $- == *i* ]]; then
+    color="--color"
+  fi
+
+  if [ "$write" = "yes" ]; then
+    echo "bundle exec rubocop \
+      --auto-correct-all \
+      $color \
+      '$path'"
+  else
+    echo "bundle exec rubocop \
+      $color \
+      '$path'"
+  fi
 }
 
 cmd_shfmt() {
@@ -355,14 +381,14 @@ hashbang() {
 }
 
 assert_handled_path() {
-  case "$1" in
-    *.md | *.yml | *.yaml | *.js | *.jsx | *.ts | *.tsx | *.html | *.css | *.scss | *.json | *.bats | *.bash | *.sh | *.py | *.pyx | *.pxd | *.pxi | *.nim)
+  case "$(basename "$1")" in
+    *.md | *.yml | *.yaml | *.js | *.jsx | *.ts | *.tsx | *.html | *.css | *.scss | *.json | *.bats | *.bash | *.sh | *.py | *.pyx | *.pxd | *.pxi | *.nim | *.rb | Gemfile)
       return 0
       ;;
     *)
       # Inspect hashbang
       case "$(hashbang "$path")" in
-        */bin/sh | *bash | *bats | *python*)
+        */bin/sh | *bash | *bats | *python* | *ruby*)
           return 0
           ;;
       esac
@@ -377,7 +403,7 @@ lint_any() {
   path="$2"
   status=0
   path="$(normalize_path "$path")"
-  case "$path" in
+  case "$(basename "$path")" in
     *.md | *.js | *.jsx | *.ts | *.tsx | *.html | *.css | *.scss | *.json)
       echo "# $path"
       lint "prettier" "$write" "$path" || status=$?
@@ -462,6 +488,11 @@ lint_any() {
       lint_nim "$write" "$path" || status=$?
       echo
       ;;
+    *.rb | Gemfile)
+      echo "# $path"
+      lint "rubocop" "$write" "$path" || status=$?
+      echo
+      ;;
     *)
       # Inspect hashbang
       case "$(hashbang "$path")" in
@@ -489,6 +520,11 @@ lint_any() {
           lint "autoflake" "$write" "$path" || status=$?
           lint "isort" "$write" "$path" || status=$?
           lint "black" "$write" "$path" || status=$?
+          echo
+          ;;
+        *ruby*)
+          echo "# $path"
+          lint "rubocop" "$write" "$path" || status=$?
           echo
           ;;
       esac

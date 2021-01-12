@@ -216,6 +216,39 @@ EOF
   assert_equal "$(cat "a.nim")" "$(echo "$expected")"
 }
 
+@test "lintball --write ruby" {
+  run lintball --write "ruby/a.rb"
+  assert_success
+  expected="$(
+    cat <<EOF
+# frozen_string_literal: true
+
+d = [123, 456,
+     789]
+
+echo d
+EOF
+  )"
+  assert_equal "$(cat "ruby/a.rb")" "$expected"
+}
+
+@test "lintball --write ruby (inferred from hashbang)" {
+  run lintball --write "ruby/a"
+  assert_success
+  expected="$(
+    cat <<EOF
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+d = [123, 456,
+     789]
+
+echo d
+EOF
+  )"
+  assert_equal "$(cat "ruby/a")" "$expected"
+}
+
 @test "lintball --write unhandled is a no-op" {
   run lintball --write "unhandled.txt"
   assert_success

@@ -101,6 +101,22 @@ teardown() {
   assert_success
 }
 
+@test "lintball ruby" {
+  run lintball "ruby/a.rb"
+  assert_failure
+  run lintball --write "ruby/a.rb"
+  run lintball "ruby/a.rb"
+  assert_success
+}
+
+@test "lintball ruby (inferred from hashbang)" {
+  run lintball "ruby/a"
+  assert_failure
+  run lintball --write "ruby/a"
+  run lintball "ruby/a"
+  assert_success
+}
+
 @test "lintball unhandled is a no-op" {
   run lintball "unhandled.txt"
   assert_success
