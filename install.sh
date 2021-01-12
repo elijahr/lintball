@@ -47,7 +47,7 @@ if [ ! -d "$LB_DIR" ]; then
   git clone https://github.com/elijahr/lintball.git "$LB_DIR" 2>/dev/null
 else
   # Update
-  echo "lintball already installed, updating…"
+  echo "lintball already installed in ${LB_DIR}, updating…"
 fi
 
 (
