@@ -31,7 +31,7 @@ lintball can fix all your code with one command, and comes with a convenient git
 
 ## Installation
 
-```shell
+```sh
 curl -o- https://raw.githubusercontent.com/elijahr/lintball/v0.2.0/install.sh | bash
 ```
 
@@ -41,9 +41,9 @@ If you are using lintball with a git-managed project, we suggest using the pre-c
 
 ### Dependencies
 
-By default, lintball will not attempt to install any linters. You do not need to install all linters to use lintball; lintball will only linters for the types of files in your project. To install all linters:
+By default, lintball will not install any linters. You do not need to install all linters to use lintball; lintball will only use linters that correspond to the files in your project. To install all linters:
 
-```shell
+```sh
 ~/.lintball/install.sh --deps
 ```
 
@@ -90,9 +90,9 @@ cd ~/.lintball; ./install.sh
 
 ### Ignore patterns
 
-By default, lintball will not fix any files matching the the following patterns:
+By default, lintball will not check any files matching the following patterns:
 
-```
+```sh
 */.git/*
 */.hg/*
 */node_modules/*
