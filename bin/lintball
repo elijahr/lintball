@@ -78,7 +78,10 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
-set -- "${args[@]}" # restore positional parameters
+
+if [ "${#args[@]}" -gt 0 ]; then
+  set -- "${args[@]}" # restore positional parameters
+fi
 
 if [ "$LINTBALL_LIST" = "yes" ]; then
   while read -r path; do

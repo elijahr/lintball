@@ -34,12 +34,40 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
-set -- "${args[@]}" # restore positional parameters
+
+if [ "${#args[@]}" -gt 0 ]; then
+  set -- "${args[@]}" # restore positional parameters
+fi
+
+LB_DIR="${1:-"${HOME}/.lintball"}"
+
+if [ ! -d "$LB_DIR" ]; then
+  git clone \
+    --branch "${LINTBALL_VERSION:-"devel"}" \
+    --depth 1 \
+    https://github.com/elijahr/lintball.git \
+    "$LB_DIR" 2>/dev/null
+  echo "cloned lintball → ${LB_DIR}"
+else
+  # Update
+  echo "lintball already installed, updating..."
+  (
+    cd "${LB_DIR}"
+    git fetch origin
+    git add .
+    git stash
+    git reset --hard "origin/${LINTBALL_VERSION:-"devel"}" 2>/dev/null
+    if [ -d "node_modules" ]; then
+      # User has installed the node modules, so update them
+      npm install 2>/dev/null
+    fi
+  )
+fi
 
 if [ "$LINTBALL_INSTALL_DEPS" = "yes" ]; then
-  pip install black autopep8 isort autoflake docformatter
+  pip3 install black autopep8 isort autoflake docformatter
   (
-    cd ~/.lintball
+    cd "$LB_DIR"
     npm install
   )
   if [ -n "$(which brew)" ]; then
@@ -57,68 +85,49 @@ if [ "$LINTBALL_INSTALL_DEPS" = "yes" ]; then
   else
     echo -e "Neither brew nor apt-get were found on your system."
     echo -e "You will need to install shfmt and shellcheck manually."
-    exit 1
   fi
-  exit 0
 fi
 
-
-LB_DIR="${1:-"${HOME}/.lintball"}"
-
-if [ ! -d "$LB_DIR" ]; then
-  echo "Cloning elijahr/lintball..."
-  git clone \
-    --branch "${LINTBALL_VERSION:-"devel"}" \
-    --depth 1 \
-    https://github.com/elijahr/lintball.git \
-    "$LB_DIR" 2>/dev/null
-else
-  # Update
-  echo "lintball already installed, updating..."
-  (
-    cd "${LB_DIR}"
-    git fetch origin
-    git add .
-    git stash
-    git reset --hard "origin/${LINTBALL_VERSION:-"devel"}" 2>/dev/null
-    if [ -d "node_modules" ]; then
-      # User has installed the node modules, so update them
-      npm install 2>/dev/null
-    fi
-  )
-fi
-
-bash_insert="$(
+posix_insert="$(
   cat <<EOF
 if [ -z "\${LINTBALL_DIR:-}" ]; then
   export LINTBALL_DIR="${LB_DIR}"
-  . "${LB_DIR}/lintball.sh"
+  . "\${LINTBALL_DIR}/lintball.sh"
 fi
 EOF
 )"
 
-# Linux bash
-if ! grep -qF "LINTBALL_DIR" "${HOME}/.bashrc"; then
-  echo "$bash_insert" >>"${HOME}/.bashrc"
-fi
-echo "lintball → ${HOME}/.bashrc"
+echo
 
-# macOS bash
-if ! grep -qF "LINTBALL_DIR" "${HOME}/.bash_profile"; then
-  echo "$bash_insert" >>"${HOME}/.bash_profile"
+# bash
+if [ -f "${HOME}/.bashrc" ]; then
+  if ! grep -qF "LINTBALL_DIR" "${HOME}/.bashrc"; then
+    echo "$posix_insert" >>"${HOME}/.bashrc"
+  fi
+  echo "lintball → ${HOME}/.bashrc"
+elif [ -f "${HOME}/.bash_profile" ]; then
+  if ! grep -qF "LINTBALL_DIR" "${HOME}/.bash_profile"; then
+    echo "$posix_insert" >>"${HOME}/.bash_profile"
+  fi
+  echo "lintball → ${HOME}/.bash_profile"
 fi
-echo "lintball → ${HOME}/.bash_profile"
+
+# zsh
+if ! grep -qF "LINTBALL_DIR" "${HOME}/.zshrc"; then
+  echo "$posix_insert" >>"${HOME}/.zshrc"
+fi
+echo "lintball → ${HOME}/.zshrc"
 
 fish_insert="$(
   cat <<EOF
 if test -z "\$LINTBALL_DIR"
   set -gx LINTBALL_DIR "${LB_DIR}"
-  source "${LB_DIR}/lintball.fish"
+  source "\$LINTBALL_DIR/lintball.fish"
 end
 EOF
 )"
 
-# fish shell
+# fish
 fish_config="${XDG_CONFIG_HOME:-"${HOME}/.config"}/fish/config.fish"
 if ! grep -qF "LINTBALL_DIR" "$fish_config"; then
   mkdir -p "$(dirname "$fish_config")"

@@ -35,7 +35,7 @@ lintball can fix all your code with one command, and comes with a convenient git
 curl -o- https://raw.githubusercontent.com/elijahr/lintball/v0.2.0/install.sh | bash
 ```
 
-Running the above command downloads a script and runs it. The script clones the lintball repository to ~/.lintball, and configures your PATH to include the lintball scripts. Currently, bash and fish are supported.
+Running the above command downloads a script and runs it. The script clones the lintball repository to ~/.lintball, and configures your PATH to include the lintball scripts. Currently, fish, bash, and zsh are supported.
 
 If you are using lintball with a git-managed project, we suggest using the pre-commit hook, installed via `install-lintball-githooks`. Your code will be automatically fixed on commit - and any linter errors will block the commit with a helpful error message.
 
