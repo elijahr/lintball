@@ -103,4 +103,11 @@ dist
 # TernJS port file
 .tern-port
 /.vscode
+
+# Ruby packages
 /vendor
+
+extras/piu
+.DS_Store
+/.bundle
+/python-env

@@ -1,81 +1,81 @@
+# yamllint disable rule:line-length
+
 name: Test
 on:
   pull_request:
-    brances: ["*"]
+    branches: ["*"]
   push:
-    brances: ["*"]
+    branches: ["*"]
 
 jobs:
-  test:
-    name: bats tests (nodejs ${{ matrix.node }})
-    strategy:
-      matrix:
-        node: [15]
+  tests:
+    name: bats unit tests
 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          fetch-depth: 0
 
-      - uses: bahmutov/npm-install@v1
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: "3.x"
 
       - uses: actions/setup-python@v2
         with:
-          python-version: "3.9"
+          python-version: "3.x"
 
-      - uses: jiro4989/setup-nim-action@v1
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "15.x"
 
-      - name: Install deps
-        run: ./install.sh --deps
+      - uses: asdf-vm/actions/install@v1
+        with:
+          tool_versions: |
+            nim 1.4.2
 
-      - name: Test
-        run: npm run test
+      # Install packages in a cache-friendly way, uses config from cache.js
+      - uses: ktmud/cached-dependencies@v1
+        with:
+          run: |
+            set -euxo pipefail
 
-  install:
-    name: test installation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+            cache-restore npmDev
+            npm install --include=dev
+            # seems to be necessary for node >= 15
+            [ -n "$(which bats)" ] || npm link bats
+            cache-save npmDev
 
-      - name: Check bash
-        shell: bash
-        run: |
-          set -uexo pipefail
-          export LINTBALL_VERSION="$GITHUB_REF"
-          ./install.sh
-          test -n "'$(grep LINTBALL_DIR "${HOME}/.bashrc")'"
-          test -n "'$(grep LINTBALL_DIR "${HOME}/.bash_profile")'"
-          . "${HOME}/.lintball/lintball.sh"
-          test -n "${LINTBALL_DIR:-}"
-          test -n "$(which lintball)"
-          test -n "$(which lintball --write)"
-          test -n "$(which install-lintball-githooks)"
+            cache-restore pip
+            python3 -m venv "${PWD}/python-env"
+            python-env/bin/pip install -r requirements-pip.txt
+            cache-save pip
 
-      - name: Install fish
-        run: sudo apt-get install fish
+            cache-restore gem
+            gem install bundler
+            cache-save gem
 
-      - name: Check fish
-        shell: fish {0}
-        run: |
-          set fish_trace 1 2
-          set -gx LINTBALL_VERSION "$GITHUB_REF"
-          bash ./install.sh; or exit 1
-          test -n "'(grep LINTBALL_DIR "$HOME/.config/fish/config.fish")'"; \
-            or exit 1
-          ls -al "$HOME/.lintball/lintball.fish"
-          source "$HOME/.lintball/lintball.fish"; or exit 1
-          test -n "$LINTBALL_DIR"; or exit
-          test -n "(which lintball)"; or exit 1
-          test -n "(which lintball --write)"; or exit 1
-          test -n "(which install-lintball-githooks)"; or exit 1
+            bundle config set --local deployment 'true'
+            cache-restore bundler
+            bundle install
+            cache-save bundler
+
+            cache-restore brew
+            brew install $(cat requirements-brew.txt)
+            cache-save brew
+
+            cache-restore apt
+            sudo apt-get update
+            sudo apt-get install -y $(cat requirements-apt.txt)
+            cache-save apt
+
+      - name: Run tests
+        run: npm run test -- --filter "defaults to latest remote tag"
 
   lint:
     name: lint
+
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -83,16 +83,41 @@ jobs:
 
       - uses: actions/setup-node@v2
         with:
-          node-version: "15"
+          node-version: "15.x"
 
-      - uses: bahmutov/npm-install@v1
-
-      - uses: actions/setup-python@v2
+      # Install packages in a cache-friendly way, uses config from cache.js
+      - uses: ktmud/cached-dependencies@v1
         with:
-          python-version: "3.9"
+          run: |
+            set -euxo pipefail
 
-      - name: Install deps
-        run: ./install.sh --deps
+            cache-restore npm
+            npm install
+            cache-save npm
 
-      - name: check
-        run: ./bin/lintball .
+            cache-restore brew
+            brew install $(cat requirements-brew.txt)
+            cache-save brew
+
+      - name: Check for linter issues
+        run: ./bin/lintball check
+
+  install:
+    name: install - sanity check
+    runs-on: ${{ matrix.runs-on }}
+
+    strategy:
+      matrix:
+        runs-on:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+
+    steps:
+      - name: Run install script
+        shell: bash
+        run: curl -o- https://raw.githubusercontent.com/elijahr/lintball/${GITHUB_SHA}/install.sh | bash
+
+      - name: Verify installation
+        shell: bash
+        run: lintball --help

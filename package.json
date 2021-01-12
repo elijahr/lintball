@@ -5,10 +5,12 @@
     "bats-support": "^0.3.0"
   },
   "dependencies": {
-    "prettier": "^2.2.1"
+    "prettier": "^2.2.1",
+    "prettier-eslint-cli": "^5.0.0"
   },
   "scripts": {
     "test": "bats test --tap",
-    "prettier": "cd \"$npm_config_path\" && prettier"
+    "prettier": "cd \"$npm_config_path\" && prettier",
+    "prettier-eslint": "cd \"$npm_config_path\" && prettier-eslint"
   }
 }

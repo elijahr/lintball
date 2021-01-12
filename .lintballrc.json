@@ -1,0 +1,12 @@
+{
+  "ignores": [
+    "*/fixture/*",
+    "*/.git/*",
+    "*/node_modules/*",
+    "*/package-lock.json",
+    "*/lib/jwalk/*",
+    "*/Gemfile",
+    "*/python-env/*",
+    "*/vendor/*"
+  ]
+}

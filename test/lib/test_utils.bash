@@ -1,24 +1,43 @@
-export LINTBALL_DIR
-LINTBALL_DIR="$(realpath "$(dirname "$BATS_TEST_DIRNAME")")"
+PROJECT_DIR="$(realpath "$(dirname "$BATS_TEST_DIRNAME")")"
+export PROJECT_DIR
 
-export ORIGINAL_PATH
+LINTBALL_DIR="$PROJECT_DIR"
+export LINTBALL_DIR
+
 ORIGINAL_PATH="$PATH"
+export ORIGINAL_PATH
 
 setup_test() {
-  export PATH="${LINTBALL_DIR}/bin:$PATH"
-  export PROJECT_DIR
-  PROJECT_DIR="$(mktemp -d)/fixture"
-  cp -r "${LINTBALL_DIR}/fixture/" "$PROJECT_DIR/"
-  cp "${LINTBALL_DIR}/.gitignore" "$PROJECT_DIR/"
-  cp "${LINTBALL_DIR}/.tool-versions" "$PROJECT_DIR/"
+  PATH="${LINTBALL_DIR}/bin:$PATH"
+  export PATH
+  TEST_PROJECT_DIR="$(mktemp -d)/fixture"
+  export TEST_PROJECT_DIR
+  cp -r "${LINTBALL_DIR}/fixture/" "$TEST_PROJECT_DIR/"
+  cp "${LINTBALL_DIR}/.gitignore" "$TEST_PROJECT_DIR/"
+  cp "${LINTBALL_DIR}/.tool-versions" "$TEST_PROJECT_DIR/"
 
-  cd "$PROJECT_DIR"
+  cd "$TEST_PROJECT_DIR" || exit
   rm -rf node_modules
   npm install --include=dev
 }
 
 teardown_test() {
-  rm -rf "$(dirname "$PROJECT_DIR")"
-  unset PROJECT_DIR
-  export PATH="$ORIGINAL_PATH"
+  rm -rf "$(dirname "$TEST_PROJECT_DIR")"
+  unset TEST_PROJECT_DIR
+  PATH="$ORIGINAL_PATH"
+  export PATH
+}
+
+git_branch() {
+  (
+    cd "$LINTBALL_REPO"
+    git rev-parse --abbrev-ref HEAD
+  )
+}
+
+git_sha() {
+  (
+    cd "$LINTBALL_REPO"
+    git rev-parse HEAD
+  )
 }

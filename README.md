@@ -8,16 +8,17 @@ lintball can fix all your code with one command, or a convenient githook that yo
 
 ## Supported languages
 
-| language                                                      |                                   tools used                                   |
-| :------------------------------------------------------------ | :----------------------------------------------------------------------------: |
-| JavaScript, TypeScript, JSON, <br/> Markdown, HTML, CSS, SASS |                                [`prettier`][1]                                 |
-| YAML                                                          |                        [`prettier`][1] [`yamllint`][10]                        |
-| sh, bash, dash, ksh, mksh                                     |                         [`shellcheck`][2] [`shfmt`][3]                         |
-| Bats tests                                                    |                                  [`shfmt`][2]                                  |
-| Python                                                        | [`autoflake`][4] [`autopep8`][5] [`black`][6] [`docformatter`][7] [`isort`][8] |
-| Cython                                                        |              [`autoflake`][4] [`autopep8`][5] [`docformatter`][7]              |
-| Nim                                                           |                                [`nimpretty`][9]                                |
-| Ruby                                                          |                                [`rubocop`][11]                                 |
+| language                        |                                   tools used                                   |
+| :------------------------------ | :----------------------------------------------------------------------------: |
+| Markdown, JSON, HTML, CSS, SASS |                                [`prettier`][1]                                 |
+| YAML                            |                        [`prettier`][1] [`yamllint`][10]                        |
+| JavaScript, TypeScript, JSX     |                            [`prettier-eslint`][12]                             |
+| sh, bash, dash, ksh, mksh       |                         [`shellcheck`][2] [`shfmt`][3]                         |
+| Bats tests                      |                                  [`shfmt`][2]                                  |
+| Python                          | [`autoflake`][4] [`autopep8`][5] [`black`][6] [`docformatter`][7] [`isort`][8] |
+| Cython                          |              [`autoflake`][4] [`autopep8`][5] [`docformatter`][7]              |
+| Nim                             |                                [`nimpretty`][9]                                |
+| Ruby                            |                                [`rubocop`][11]                                 |
 
 [1]: https://prettier.io/
 [2]: https://www.shellcheck.net/
@@ -30,63 +31,127 @@ lintball can fix all your code with one command, or a convenient githook that yo
 [9]: https://nim-lang.org/docs/tools.html
 [10]: https://yamllint.readthedocs.io/en/stable/
 [11]: https://github.com/rubocop-hq/rubocop
+[12]: https://github.com/prettier/prettier-eslint
 
 ## Installation
 
 ```sh
-curl -o- https://raw.githubusercontent.com/elijahr/lintball/v0.3.0/install.sh | bash
+curl -o- https://raw.githubusercontent.com/elijahr/lintball/devel/install.sh | bash
 ```
 
-Running the above command downloads a script and runs it. The script clones the lintball repository to ~/.lintball, and configures your PATH to include the lintball scripts. Currently, fish, bash, and zsh are supported.
+Running the above command downloads a script and runs it. The script downloads the latest release of lintball to ~/.lintball, installs linters, and configures your PATH to include the lintball script. Currently, fish, bash, and zsh are supported.
 
-If you are using lintball with a git-managed project, we suggest using the pre-commit hook, installed via `install-lintball-githooks`. Your code will be automatically fixed on commit - and any linter errors will block the commit with a helpful error message.
-
-### Dependencies
-
-By default, lintball will not install any linters. You do not need to install all linters to use lintball; lintball will only use linters that correspond to the files in your project. To install all linters:
-
-```sh
-~/.lintball/install.sh --deps
-```
-
-The above install script assumes that you already have Python, Ruby, and NodeJS installed on your system.
-
-If lintball checks are failing because of some missing linter that you do not wish to install, you can add an entry to your `.lintball-ignore` file - see the section on [ignore patterns](#ignore-patterns) below.
+If you are using lintball with a git-managed project, we suggest using the pre-commit hook, installed via `lintball githooks`. Your code will be automatically fixed on commit - and any non-auto-fixable issues will block the commit with a helpful error message.
 
 ## Usage
 
-lintball provides two scripts:
+```
+Usage: lintball [options] [command] [command options]
 
-- `install-lintball-githooks` will configure the current working directory to use lintball's pre-commit hook, which fixes all auto-fixable problems found in the staged changes, and exits with an error if any issues cannot be fixed.
-- `lintball`, usage below:
+Options:
 
-  ```
-  Usage: lintball [options] [path …]
+  -h | --help
+      Show this help message & exit.
 
-  Running without any options will check your code, skipping over directories such as node_modules.
+  -v | --version
+      Print version & exit.
 
-  Options:
-    -h|--help
-        Show this help message & exit.
-    --write
-        Auto fix any fixable issues. By default $script_name will simply notify
-        you of linter issues.
-    --list
-        List files which lintball has a linter for and would attempt to check or
-        fix. Useful for debugging a .lintball-ignore file.
+  -c | --config path
+      Use the .lintballrc.json config file at path.
 
-  ```
+Commands:
 
-### Continuous Integration
+  check [path ...]
+      Check for and display linter issues recursively in paths or working dir.
 
-lintball uses itself for lint checks in CI - see our GitHub Actions [workflow config](https://github.com/elijahr/lintball/blob/devel/.github/workflows/workflow.yml).
+  fix [path ...]
+      Auto fix all fixable issues recursively in paths or working dir.
+
+  list [path ...]
+      List files which lintball recognizes for checking or fixing.
+
+  githooks [options] [path]
+      Install lintball githooks in the git repo at path or working dir.
+
+      Options:
+
+        --yes
+          If destination exists, overwrite.
+
+        --no
+          If destination exists, exit without copying.
+
+  lintballrc [options] [path]
+      Place a default .lintballrc.json configuration file in path or working dir.
+
+      Options:
+
+        --yes
+          If destination exists, overwrite.
+
+        --no
+          If destination exists, exit without copying.
+```
 
 ## Updating
 
-You can update your installation of lintball with:
+You can update to the latest version of lintball by running:
 
 ```sh
-cd ~/.lintball; ./install.sh
+~/.lintball/install.sh
+```
+
+## Continuous Integration
+
+An example GitHub Actions workflow for linting your project:
+
+```yml
+# yamllint disable rule:line-length
+
+name: Test
+on:
+  pull_request:
+    branches: ["*"]
+  push:
+    branches: ["*"]
+
+jobs:
+  lint:
+    name: lint
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      ## Uncomment if your project contains JS, CSS, Markdown, HTML, or YAML
+      # - uses: actions/setup-node@v2
+      #   with:
+      #     node-version: "15.x"
+
+      ## Uncomment if your project contains Ruby code
+      # - uses: actions/setup-ruby@v1
+      #   with:
+      #     ruby-version: "3.x"
+
+      ## Uncomment if your project contains Python code
+      # - uses: actions/setup-python@v2
+      #   with:
+      #     python-version: "3.x"
+
+      ## Uncomment if your project contains Nim code
+      # - uses: asdf-vm/actions/install@v1
+      #   with:
+      #     tool_versions: |
+      #       nim 1.4.2
+
+      - name: Install lintball
+        shell: bash
+        run: curl -o- https://raw.githubusercontent.com/elijahr/lintball/devel/install.sh | bash
+
+      - name: Check for linter issues
+        run: lintball check
 ```
 
 ## Configuration
@@ -96,26 +161,27 @@ cd ~/.lintball; ./install.sh
 By default, lintball will not check any files matching the following patterns:
 
 ```sh
+*/.build/*
+*/.bundle/*
+*/.cache/*
 */.git/*
 */.hg/*
-*/node_modules/*
-*/package-lock.json
 */.next/*
 */.serverless_nextjs/*
 */.tmp/*
-*/tmp/*
-*/.build/*
+*/__pycache__/*
 */build/*
 */dist/*
-*/__pycache__/*
-*/Pipfile.lock
-*/vendor/*
 */Gemfile.lock
+*/node_modules/*
+*/package-lock.json
+*/Pipfile.lock
+*/tmp/*
+*/vendor/*
 ```
 
 Patterns are globs, as would be passed to the `find` command's `-path` argument.
-To customize this list, create a `.lintball-ignore` file in your project.
-`install-lintball-githooks` will create this file for you.
+To add or remove items from this list, run `lintball lintballrc` and edit the created `.lintballrc.json` file.
 
 ### Tool configuration
 
@@ -125,6 +191,8 @@ Many of the tools used by lintball can be configured to suit your needs. See:
 - prettier: https://prettier.io/docs/en/configuration.html
 - autopep8: https://pypi.org/project/autopep8/#configuration
 - rubocop: https://docs.rubocop.org/rubocop/1.8/configuration.html
+
+If you need to pass custom arguments to a linter command (such as providing a path to a config file), run `lintball lintballrc` and edit the created `.lintballrc.json` file.
 
 ## Acknowledgements
 

@@ -13,8 +13,8 @@ teardown() {
   teardown_test
 }
 
-@test "lintball --write yml" {
-  run lintball --write "a.yml"
+@test "lintball fix yml" {
+  run lintball fix "a.yml"
   assert_success
   expected="$(
     cat <<EOF
@@ -25,8 +25,8 @@ EOF
   assert_equal "$(cat "a.yml")" "$expected"
 }
 
-@test "lintball --write md" {
-  run lintball --write "a.md"
+@test "lintball fix md" {
+  run lintball fix "a.md"
   assert_success
   expected="$(
     cat <<EOF
@@ -38,8 +38,8 @@ EOF
   assert_equal "$(cat "a.md")" "$expected"
 }
 
-@test "lintball --write sh" {
-  run lintball --write "sh/a.sh"
+@test "lintball fix sh" {
+  run lintball fix "sh/a.sh"
   assert_success
   expected="$(
     cat <<EOF
@@ -57,8 +57,8 @@ EOF
   assert_equal "$(cat "sh/a.sh")" "$expected"
 }
 
-@test "lintball --write sh (inferred from hashbang)" {
-  run lintball --write "sh/a"
+@test "lintball fix sh (inferred from hashbang)" {
+  run lintball fix "sh/a"
   assert_success
   expected="$(
     cat <<EOF
@@ -78,8 +78,8 @@ EOF
   assert_equal "$(cat "sh/a")" "$expected"
 }
 
-@test "lintball --write bash" {
-  run lintball --write "bash/a.bash"
+@test "lintball fix bash" {
+  run lintball fix "bash/a.bash"
   assert_success
   expected="$(
     cat <<EOF
@@ -103,8 +103,8 @@ EOF
   assert_equal "$(cat "bash/a.bash")" "$expected"
 }
 
-@test "lintball --write bash (inferred from hashbang)" {
-  run lintball --write "bash/a"
+@test "lintball fix bash (inferred from hashbang)" {
+  run lintball fix "bash/a"
   assert_success
   expected="$(
     cat <<EOF
@@ -130,14 +130,14 @@ EOF
   assert_equal "$(cat "bash/a")" "$expected"
 }
 
-@test "lintball --write bats" {
-  run lintball --write "test"
+@test "lintball fix bats" {
+  run lintball fix "test"
   assert_success
   assert_equal "$(cat "test/c.bats")" "$(cat "test/c.expected")"
 }
 
-@test "lintball --write python" {
-  run lintball --write "py th on/a.py"
+@test "lintball fix python" {
+  run lintball fix "py th on/a.py"
   assert_success
   expected="$(
     cat <<EOF
@@ -160,8 +160,8 @@ EOF
   assert_equal "$(cat "py th on/a.py")" "$expected"
 }
 
-@test "lintball --write python (inferred from hashbang)" {
-  run lintball --write "py th on/a"
+@test "lintball fix python (inferred from hashbang)" {
+  run lintball fix "py th on/a"
   assert_success
   expected="$(
     cat <<EOF
@@ -186,8 +186,8 @@ EOF
   assert_equal "$(cat "py th on/a")" "$expected"
 }
 
-@test "lintball --write cython" {
-  run lintball --write "py th on/a.pyx"
+@test "lintball fix cython" {
+  run lintball fix "py th on/a.pyx"
   assert_success
   expected="$(
     cat <<EOF
@@ -200,8 +200,8 @@ EOF
   assert_equal "$(cat "py th on/a.pyx")" "$expected"
 }
 
-@test "lintball --write nim" {
-  run lintball --write "a.nim"
+@test "lintball fix nim" {
+  run lintball fix "a.nim"
   assert_success
   expected="$(
     cat <<EOF
@@ -216,8 +216,8 @@ EOF
   assert_equal "$(cat "a.nim")" "$(echo "$expected")"
 }
 
-@test "lintball --write ruby" {
-  run lintball --write "ruby/a.rb"
+@test "lintball fix ruby" {
+  run lintball fix "ruby/a.rb"
   assert_success
   expected="$(
     cat <<EOF
@@ -232,8 +232,8 @@ EOF
   assert_equal "$(cat "ruby/a.rb")" "$expected"
 }
 
-@test "lintball --write ruby (inferred from hashbang)" {
-  run lintball --write "ruby/a"
+@test "lintball fix ruby (inferred from hashbang)" {
+  run lintball fix "ruby/a"
   assert_success
   expected="$(
     cat <<EOF
@@ -249,23 +249,15 @@ EOF
   assert_equal "$(cat "ruby/a")" "$expected"
 }
 
-@test "lintball --write unhandled is a no-op" {
-  run lintball --write "unhandled.txt"
+@test "lintball fix unhandled is a no-op" {
+  run lintball fix "unhandled.txt"
   assert_success
 }
 
-@test "lintball --write does not fix ignored files" {
-  prev="$(cat "py th on/a.py")"
-  echo "# this is a comment" >".lintball-ignore"
-  echo "*/py th on/*   # this is another comment" >>".lintball-ignore"
-  run lintball --write "py th on/a.py"
+@test "lintball fix does not fix ignored files" {
+  mkdir -p vendor
+  cp ruby/a.rb vendor/
+  run lintball fix vendor/a.rb
   assert_success
-  assert_equal "$(cat "py th on/a.py")" "$prev"
-}
-
-@test "lintball --write --list fails" {
-  run lintball --write --list
-  assert_failure
-  run lintball --list --write
-  assert_failure
+  assert_equal "$(cat "vendor/a.rb")" "$(cat "ruby/a.rb")"
 }

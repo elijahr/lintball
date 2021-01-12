@@ -1,155 +1,165 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2143
 
 set -ueo pipefail
 
 if [ -n "${CI:-}" ]; then
-  # in CI systems, show debug output
+  # on CI systems show debug output
   set -x
 fi
 
-# Use latest installed nodejs, via asdf
-if [ -z "${ASDF_NODEJS_VERSION:-}" ] && [ -n "$(which asdf)" ]; then
-  ASDF_NODEJS_VERSION="$(asdf list nodejs | sort | tail -n 1 | xargs || true)"
-  export ASDF_NODEJS_VERSION
-fi
-
-LINTBALL_INSTALL_DEPS="no"
-args=()
-while [[ $# -gt 0 ]]; do
-  key="$1"
-
-  case $key in
-    --deps)
-      LINTBALL_INSTALL_DEPS="yes"
-      shift
-      ;;
-    -*)
-      echo -e "Unknown switch $1"
-      usage
-      exit 1
-      ;;
-    *)             # unknown option
-      args+=("$1") # save it in an array for later
-      shift        # past argument
-      ;;
-  esac
-done
-
-if [ "${#args[@]}" -gt 0 ]; then
-  set -- "${args[@]}" # restore positional parameters
-fi
-
 LB_DIR="${1:-"${HOME}/.lintball"}"
-LINTBALL_VERSION="${LINTBALL_VERSION:-"refs/heads/devel"}"
+LINTBALL_REPO="${LINTBALL_REPO:-"https://github.com/elijahr/lintball.git"}"
 
-if [ ! -d "$LB_DIR" ]; then
-  echo "cloning lintball → ${LB_DIR}…"
-  git clone https://github.com/elijahr/lintball.git "$LB_DIR" 2>/dev/null
-else
-  # Update
-  echo "lintball already installed in ${LB_DIR}, updating…"
-fi
+update_lintball() {
 
-(
-  cd "${LB_DIR}"
-  git fetch origin --tags
-  sha="$(git show-ref "$LINTBALL_VERSION" | awk '{ print $1 }')"
-  git stash 1>/dev/null
-  git checkout "$sha" 2>/dev/null
-  if [ -d "node_modules" ]; then
-    # User has installed the node modules, so update them
-    npm install 2>/dev/null
+  if [ ! -d "$LB_DIR" ]; then
+    echo "cloning lintball → ${LB_DIR}…"
+    git clone "$LINTBALL_REPO" "$LB_DIR" 2>/dev/null
+  else
+    # Update
+    echo "lintball already installed in ${LB_DIR}, updating…"
   fi
-  if [ -d "vendor" ]; then
-    # User has installed the node modules, so update them
-    gem install rubocop 2>/dev/null
-  fi
-)
 
-echo "lintball updated to $(
-  cd "$LB_DIR"
-  git show-ref "$LINTBALL_VERSION" | awk '{ print $1 }'
-)"
+  (
+    local version
+    cd "$LB_DIR"
 
-if [ "$LINTBALL_INSTALL_DEPS" = "yes" ]; then
-  pip3 install black autopep8 isort autoflake docformatter yamllint
-  if [ -z "$(which bundler)" ]; then
-    gem install rubocop || sudo gem install rubocop
-  fi
+    version="${LINTBALL_VERSION:-"$(git ls-remote --tags "$LINTBALL_REPO" | awk '{ print $2 }' | sort | tail -n1)"}"
+
+    # Strip ref info
+    version="${version//refs\/heads\//}"
+    version="${version//refs\/tags\//}"
+    version="${version//refs\/remotes\/origin\//}"
+
+    git fetch origin
+    git fetch origin --tags
+    git stash 1>/dev/null
+
+    if [ -n "$(git ls-remote "$LINTBALL_REPO" | grep -F "refs/heads/$version")" ]; then
+      # branch
+      git reset --hard "origin/$version"
+    else
+      # must be an sha or tag
+      version="$version"
+      git reset --hard "$version"
+    fi
+
+    echo "lintball updated to $version"
+  )
+}
+
+update_deps() {
   (
     cd "$LB_DIR"
-    npm install
-  )
-  if [ -n "$(which brew)" ]; then
-    brew install shfmt shellcheck
-  elif [ -z "$(which apt-get)" ]; then
-    if [ -z "$(which shfmt)" ]; then
-      sudo apt-get update
-      sudo apt-get install -y shfmt
-    fi
-    if [ -z "$(which shellcheck)" ]; then
-      scversion="stable"
-      wget -qO- "https://github.com/koalaman/shellcheck/releases/download/${scversion?}/shellcheck-${scversion?}.linux.x86_64.tar.xz" | tar -xJv
-      cp "shellcheck-${scversion}/shellcheck" /usr/bin/
-    fi
-  else
-    echo -e "Neither brew nor apt-get were found on your system."
-    echo -e "You will need to install shfmt and shellcheck manually."
-  fi
-fi
 
-posix_insert="$(
-  cat <<EOF
+    if [ -z "$(which shellcheck)" ] || [ -z "$(which shellcheck)" ]; then
+      if [ -n "$(which brew)" ]; then
+        # shellcheck disable=SC2046
+        brew install $(cat "requirements-brew.txt")
+      else
+        echo -e
+        echo -e "Warning: shellcheck or shfmt not installed on this system."
+        echo -e "lintball will not be able to lint shell scripts until you manually"
+        echo -e "install these packages."
+        echo
+      fi
+    fi
+
+    local pyexe
+    if [ ! -d "${LB_DIR}/python-env" ]; then
+      if [ -n "$(which python3)" ]; then
+        pyexe="python3"
+      elif [ -n "$(which python)" ]; then
+        if python -c "import sys; sys.exit(0 if sys.version_info >= (3,3,0) else 1)"; then
+          pyexe="python"
+        fi
+      fi
+      if [ -n "$pyexe" ]; then
+        "$pyexe" -m venv "python-env"
+      else
+        echo -e "Warning: cannot install pip requirements - could not find a suitable Python version (>=3.3.0)."
+      fi
+    fi
+
+    if [ -f "${LB_DIR}/python-env/bin/pip" ]; then
+      python-env/bin/pip install -r requirements-pip.txt
+    fi
+
+    if [ -n "$(which npm)" ]; then
+      npm install
+    else
+      echo -e "Warning: cannot install npm requirements - could not find an npm executable."
+    fi
+
+    if [ -n "$(which bundle)" ]; then
+      bundle config set --local deployment 'true'
+      bundle install
+    else
+      echo -e "Warning: cannot install bundler requirements - could not find a bundle executable."
+      echo -e "If ruby is installed, try gem install bundler and re-run this script."
+    fi
+  )
+}
+
+add_inits() {
+  local posix_insert fish_insert fish_config
+
+  posix_insert="$(
+    cat <<EOF
 if [ -z "\${LINTBALL_DIR:-}" ]; then
   export LINTBALL_DIR="${LB_DIR}"
   . "\${LINTBALL_DIR}/lintball.sh"
 fi
 EOF
-)"
+  )"
 
-echo
+  echo
 
-# bash
-if [ -f "${HOME}/.bashrc" ]; then
+  # bash
   if ! grep -qF "LINTBALL_DIR" "${HOME}/.bashrc"; then
     echo "$posix_insert" >>"${HOME}/.bashrc"
   fi
   echo "lintball → ${HOME}/.bashrc"
-elif [ -f "${HOME}/.bash_profile" ]; then
+
   if ! grep -qF "LINTBALL_DIR" "${HOME}/.bash_profile"; then
     echo "$posix_insert" >>"${HOME}/.bash_profile"
   fi
   echo "lintball → ${HOME}/.bash_profile"
-fi
 
-# zsh
-if ! grep -qF "LINTBALL_DIR" "${HOME}/.zshrc"; then
-  echo "$posix_insert" >>"${HOME}/.zshrc"
-fi
-echo "lintball → ${HOME}/.zshrc"
+  # zsh
+  if ! grep -qF "LINTBALL_DIR" "${HOME}/.zshrc"; then
+    echo "$posix_insert" >>"${HOME}/.zshrc"
+  fi
+  echo "lintball → ${HOME}/.zshrc"
 
-fish_insert="$(
-  cat <<EOF
+  fish_insert="$(
+    cat <<EOF
 if test -z "\$LINTBALL_DIR"
   set -gx LINTBALL_DIR "${LB_DIR}"
   source "\$LINTBALL_DIR/lintball.fish"
 end
 EOF
-)"
+  )"
 
-# fish
-fish_config="${XDG_CONFIG_HOME:-"${HOME}/.config"}/fish/config.fish"
-if ! grep -qF "LINTBALL_DIR" "$fish_config"; then
-  mkdir -p "$(dirname "$fish_config")"
-  echo "$fish_insert" >>"$fish_config"
-fi
-echo "lintball → $fish_config"
+  # fish
+  fish_config="${XDG_CONFIG_HOME:-"${HOME}/.config"}/fish/config.fish"
+  if ! grep -qF "LINTBALL_DIR" "$fish_config"; then
+    mkdir -p "$(dirname "$fish_config")"
+    echo "$fish_insert" >>"$fish_config"
+  fi
+  echo "lintball → $fish_config"
 
-# Add to path in Github Actions
-if [ -n "${GITHUB_PATH:-}" ]; then
-  echo "${LB_DIR}/bin" >>"$GITHUB_PATH"
-fi
+  # Add to path in Github Actions
+  if [ -n "${GITHUB_PATH:-}" ]; then
+    echo "${LB_DIR}/bin" >>"$GITHUB_PATH"
+  fi
 
-echo
-echo "Restart your shell for changes to take effect."
-echo
+  echo
+  echo "Restart your shell for changes to take effect."
+  echo
+}
+
+update_lintball
+update_deps
+add_inits
