@@ -19,6 +19,7 @@ runs:
       run: |
         set -uexo pipefail
 
+        export LINTBALL_VERSION="${{ inputs.lintball-version }}"
         curl -o- https://raw.githubusercontent.com/elijahr/lintball/${{ inputs.lintball-version }}/install.sh | bash
 
         find "${HOME}/.lintball"
