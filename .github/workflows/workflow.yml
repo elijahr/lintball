@@ -16,8 +16,9 @@ jobs:
 
       - name: Install deps
         run: |
+          set -uexo pipefail
           ./extras/install-deps.sh
-          npm install --include=dev
+          npm install --include=dev --verbose
 
       - name: Test
         run: npm run test
