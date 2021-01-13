@@ -28,6 +28,7 @@ fi
   cd "${LB_DIR}"
   git fetch origin "$LINTBALL_VERSION"
   if [[ $LINTBALL_VERSION =~ ^refs/ ]]; then
+    echo "git show-ref origin ""$LINTBALL_VERSION"" is $(git show-ref origin "$LINTBALL_VERSION")"
     sha="$(git show-ref origin "$LINTBALL_VERSION" | awk '{ print $1 }')"
   else
     sha="$LINTBALL_VERSION"
