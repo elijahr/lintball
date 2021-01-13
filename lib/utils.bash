@@ -354,7 +354,6 @@ lint_nimpretty() {
   linter="nimpretty"
   offset="${#linter}"
 
-  echo "# nimpretty $path"
   if [ -z "$(which nimpretty)" ]; then
     printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "😵 not installed"
     return 1
@@ -365,10 +364,10 @@ lint_nimpretty() {
   stderr="$(mktemp)"
   status=0
 
-  nimpretty \
-    "$path" \
-    --out:"$tmp" \
-    "${NIMPRETTY_ARGS:-}" \
+  eval "nimpretty \
+    ""$path"" \
+    --out:'$tmp' \
+    ${NIMPRETTY_ARGS:-}" \
     1>"$stdout" \
     2>"$stderr" || status=$?
   if [ "$status" -eq 0 ]; then
