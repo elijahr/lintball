@@ -31,6 +31,9 @@ fi
     git show-ref
     echo "git show-ref origin ""$LINTBALL_VERSION"" is $(git show-ref origin "$LINTBALL_VERSION")"
     sha="$(git show-ref origin "$LINTBALL_VERSION" | awk '{ print $1 }')"
+    if [ -z "$sha" ]; then
+      sha="$(git show-ref origin "${LINTBALL_VERSION//heads/remotes\/origin}" | awk '{ print $1 }')"
+    fi
   else
     sha="$LINTBALL_VERSION"
   fi
