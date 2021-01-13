@@ -26,6 +26,7 @@ fi
 
 (
   cd "${LB_DIR}"
+  git fetch origin
   git fetch origin --tags
   if [[ $LINTBALL_VERSION =~ ^refs/ ]]; then
     sha="$(git show-ref "$LINTBALL_VERSION" | awk '{ print $1 }')"
