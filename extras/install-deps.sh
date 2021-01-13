@@ -98,6 +98,9 @@ fi
 
 echo
 echo "# Installing Python requirements..."
+if [ -n "$(which apt-get)" ]; then
+  piu i python3-setuptools
+fi
 if [ -z "$(which pip3)" ]; then
   pip install -r requirements.txt || sudo pip install -r requirements.txt
 else
