@@ -20,9 +20,8 @@ jobs:
           ./extras/install-deps.sh
           npm install --include=dev --verbose
           # workaround for bats not properly symlinking bin
-          bats="$(pwd)/node_modules/bin/bats"
+          bats="$(pwd)/node_modules/.bin/bats"
           if [ ! -f "$bats" ]; then
-            find "$(pwd)/node_modules"
             ln -s "$(pwd)/node_modules/bats/bin/bats" "$bats"
           fi
 
