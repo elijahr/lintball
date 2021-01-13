@@ -29,12 +29,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - uses: ./actions/setup
+        with:
+          lintball-version: ${{ github.sha }}
+
       - name: Check bash
         shell: bash
         run: |
           set -uexo pipefail
-          export LINTBALL_VERSION="$GITHUB_REF"
-          ./install.sh
           test -n "'$(grep LINTBALL_DIR "${HOME}/.bashrc")'"
           test -n "'$(grep LINTBALL_DIR "${HOME}/.bash_profile")'"
           . "${HOME}/.lintball/lintball.sh"
@@ -51,7 +53,6 @@ jobs:
         run: |
           set fish_trace 1 2
           set -gx LINTBALL_VERSION "$GITHUB_REF"
-          bash ./install.sh; or exit 1
           test -n "'(grep LINTBALL_DIR "$HOME/.config/fish/config.fish")'"; \
             or exit 1
           ls -al "$HOME/.lintball/lintball.fish"
