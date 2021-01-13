@@ -14,7 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - uses: elijahr/lintball/setup@fix-github-actions
+      - uses: ./setup
         with:
           lintball-version: ${{ github.sha }}
 
@@ -67,7 +67,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - uses: elijahr/lintball/setup@fix-github-actions
+      - uses: ./setup
         with:
           lintball-version: ${{ github.sha }}
 
