@@ -22,43 +22,32 @@ deps=()
 
 # Try to get a more up to date requirements from brew
 if [ -n "$(which brew)" ]; then
-  brew install shellcheck nim
+  brew install shfmt shellcheck nim
 else
-  deps+=("shellcheck" "nim")
+  deps+=("shellcheck" "shfmt" "nim")
 fi
 
-if [ -z "$(which shfmt)" ]; then
-  echo "# shfmt: not found, will install"
-  # ubuntu/debian don't have shfmt, so try alt package managers that may be
-  # present on those systems such as snap and brew.
-  if [ -n "$(which snap)" ]; then
-    snap install shfmt || sudo snap install shfmt
-  elif [ -n "$(which brew)" ]; then
-    brew install shfmt
-  else
-    deps+=("shfmt")
-  fi
-else
-  echo "# shfmt: found"
-fi
 if [ -z "$(which python3)" ]; then
   echo "# python3: not found, will install"
   deps+=("python3")
 else
   echo "# python3: found"
 fi
+
 if [ -z "$(which ruby)" ]; then
   echo "# ruby: not found, will install"
   deps+=("ruby")
 else
   echo "# ruby: found"
 fi
+
 if [ -z "$(which node)" ]; then
   echo "# node: not found, will install"
   deps+=("nodejs")
 else
   echo "# node: found"
 fi
+
 if [ "${#deps[@]}" -gt 0 ]; then
   eval "piu i ${deps[*]}"
 fi
