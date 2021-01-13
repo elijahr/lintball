@@ -20,11 +20,11 @@ echo "# Installing system packages: ${deps[*]}"
 piu c
 deps=()
 
-# Try to get a more up to date shellcheck from brew
+# Try to get a more up to date requirements from brew
 if [ -n "$(which brew)" ]; then
-  brew install shellcheck
+  brew install shellcheck nim
 else
-  deps+=("shellcheck")
+  deps+=("shellcheck" "nim")
 fi
 
 if [ -z "$(which shfmt)" ]; then
@@ -58,12 +58,6 @@ if [ -z "$(which node)" ]; then
   deps+=("nodejs")
 else
   echo "# node: found"
-fi
-if [ -z "$(which nim)" ]; then
-  echo "# nim: not found, will install"
-  deps+=("nim")
-else
-  echo "# nim: found"
 fi
 if [ "${#deps[@]}" -gt 0 ]; then
   eval "piu i ${deps[*]}"
