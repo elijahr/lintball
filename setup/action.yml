@@ -1,0 +1,67 @@
+# yamllint disable rule:line-length
+
+inputs:
+  lintball-version:
+    description: "lintball version"
+    required: false
+    default: "v0.3.0"
+
+  install-dependencies:
+    description: "Install all dependencies"
+    required: false
+    default: true
+
+  token:
+    description: "Optional - value of secrets.GITHUB_TOKEN; used on Windows to prevent throttling of shfmt release downloads."
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install lintball
+      run: curl -o- https://raw.githubusercontent.com/elijahr/lintball/${{ inputs.lintball-version }}/install.sh | bash
+
+    - uses: actions/setup-node@v2
+      if: ${{ inputs.install-dependencies }}
+      with:
+        node-version: 15
+
+    - uses: actions/setup-python@v2
+      if: ${{ inputs.install-dependencies }}
+      with:
+        python-version: 3.9
+
+    - uses: actions/setup-ruby@v1
+      if: ${{ inputs.install-dependencies }}
+      with:
+        ruby-version: 3
+
+    - uses: jiro4989/setup-nim-action@v1
+      if: ${{ inputs.install-dependencies }}
+      with:
+        nim-version: 1.4.2
+
+    - name: Install packages
+      if: ${{ inputs.install-dependencies }}
+      run: |
+        cd "${HOME}/.lintball"
+        npm install
+        pip install -r requirements.txt
+        gem install rubocop
+
+    - name: Install ShellCheck & shfmt
+      if: ${{ runner.os != 'Windows' && inputs.install-dependencies }}
+      run: brew install shellcheck shfmt
+
+    - name: Install ShellCheck & shfmt
+      if: ${{ runner.os == 'Windows' && inputs.install-dependencies }}
+      run: |
+        choco install shellcheck
+        mkdir -p shfmt
+        cd shfmt
+        if ( "${{ inputs.token }}" ) {
+          curl -LsSf -H "Authorization: token ${{ inputs.token }}" -o- https://github.com/mvdan/sh/releases/download/v3.2.1/shfmt_v3.2.1_windows_amd64.exe > shfmt.exe
+        } else {
+          curl -LsSf -o- https://github.com/mvdan/sh/releases/download/v3.2.1/shfmt_v3.2.1_windows_amd64.exe > shfmt.exe
+        }
+        echo "$(pwd)" >> $GITHUB_PATH

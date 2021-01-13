@@ -29,6 +29,7 @@ cmd_prettier() {
       prettier \
       --path='$(pwd)' \
       -- \
+      ${PRETTIER_ARGS:-} \
       --write \
       '$path'"
   else
@@ -39,6 +40,33 @@ cmd_prettier() {
       --path='$(pwd)' \
       -- \
       --check \
+      ${PRETTIER_ARGS:-} \
+      '$path'"
+  fi
+}
+
+cmd_prettier_eslint() {
+  local write path
+  write="$1"
+  path="$2"
+  if [ "$write" = "yes" ]; then
+    echo "npm \
+      --prefix='$LINTBALL_DIR' \
+      run \
+      prettier-eslint \
+      --path='$(pwd)' \
+      -- \
+      --write \
+      ${PRETTIER_ESLINT_ARGS:-} \
+      '$path'"
+  else
+    echo "npm \
+      --prefix='$LINTBALL_DIR' \
+      run \
+      prettier-eslint \
+      --path='$(pwd)' \
+      -- \
+      ${PRETTIER_ESLINT_ARGS:-} \
       '$path'"
   fi
 }
@@ -60,6 +88,7 @@ cmd_yamllint() {
     --strict \
     --config-data '$config' \
     --format '$format' \
+    ${YAMLLINT_ARGS:-} \
     '$path'"
 }
 
@@ -78,10 +107,12 @@ cmd_rubocop() {
     echo "rubocop \
       --auto-correct-all \
       $color \
+      ${RUBOCOP_ARGS:-} \
       '$path'"
   else
     echo "rubocop \
       $color \
+      ${RUBOCOP_ARGS:-} \
       '$path'"
   fi
 }
@@ -100,6 +131,7 @@ cmd_shfmt() {
       -ci \
       -ln '$lang' \
       -w \
+      ${SHFMT_ARGS:-} \
       '$path'"
   else
     echo "shfmt \
@@ -108,6 +140,7 @@ cmd_shfmt() {
       -s \
       -ci \
       -ln '$lang' \
+      ${SHFMT_ARGS:-} \
       '$path'"
   fi
 }
@@ -122,6 +155,7 @@ cmd_autopep8() {
       --aggressive \
       --aggressive \
       --in-place \
+      ${AUTOPEP8_ARGS:-} \
       '$path'"
   else
     echo "autopep8 \
@@ -129,6 +163,7 @@ cmd_autopep8() {
       --aggressive \
       --aggressive \
       --diff \
+      ${AUTOPEP8_ARGS:-} \
       '$path'"
   fi
 }
@@ -140,10 +175,12 @@ cmd_docformatter() {
   if [ "$write" = "yes" ]; then
     echo "docformatter \
       --in-place \
+      ${DOCFORMATTER_ARGS:-} \
       '$path'"
   else
     echo "docformatter \
       --check \
+      ${DOCFORMATTER_ARGS:-} \
       '$path'"
   fi
 }
@@ -155,11 +192,13 @@ cmd_isort() {
   if [ "$write" = "yes" ]; then
     echo "isort \
       --profile black \
+      ${ISORT_ARGS:-} \
       '$path'"
   else
     echo "isort \
       --profile black \
       --check-only \
+      ${ISORT_ARGS:-} \
       '$path'"
   fi
 }
@@ -175,6 +214,7 @@ cmd_autoflake() {
       --remove-all-unused-imports \
       --remove-duplicate-keys \
       --remove-unused-variables \
+      ${AUTOFLAKE_ARGS:-} \
       '$path'"
   else
     echo "autoflake \
@@ -183,6 +223,7 @@ cmd_autoflake() {
       --remove-all-unused-imports \
       --remove-duplicate-keys \
       --remove-unused-variables \
+      ${AUTOFLAKE_ARGS:-} \
       '$path'"
   fi
 }
@@ -192,9 +233,9 @@ cmd_black() {
   write="$1"
   path="$2"
   if [ "$write" = "yes" ]; then
-    echo "black '$path'"
+    echo "black ${BLACK_ARGS:-} '$path'"
   else
-    echo "black --check '$path'"
+    echo "black --check ${BLACK_ARGS:-} '$path'"
   fi
 }
 
@@ -256,14 +297,15 @@ lint_shellcheck() {
     color="always"
   fi
 
-  shellcheck \
+  eval "shellcheck \
     --external-sources \
     --format=tty \
-    --shell="$lang" \
+    --shell=$lang \
     --severity=style \
     --exclude=SC2164 \
-    --color="$color" \
-    "$path" \
+    --color=$color \
+    ${SHELLCHECK_ARGS:-} \
+    '$path'" \
     1>"$stdout" \
     2>"$stderr" || status=$?
 
@@ -275,23 +317,22 @@ lint_shellcheck() {
     # stderr contains an error message
     if [ "$write" = "yes" ] && [ -n "$(cat "$stdout" 2>/dev/null)" ]; then
       # patchable, so generate a patchfile and apply it
-      shellcheck \
-        --format="diff" \
+      eval "shellcheck \
+        --format=diff \
         --external-sources \
-        --shell="$lang" \
+        --shell=$lang \
         --severity=style \
         --exclude=SC2164 \
         --color=never \
-        "$path" \
+        ${SHELLCHECK_ARGS:-} \
+        '$path'" \
         1>"$patchfile" \
         2>"$patcherr"
       if [ -n "$(cat "$patchfile")" ]; then
         # Fix patchfile
         sed -i '' 's/^--- a\/\.\//--- a\//' "$patchfile"
         sed -i '' 's/^+++ b\/\.\//+++ b\//' "$patchfile"
-        echo ">>> patchfile $(cat "$patchfile")"
         git apply "$patchfile" 1>/dev/null
-        echo "<<<"
         printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "wrote"
         status=0
       else
@@ -317,7 +358,7 @@ lint_shellcheck() {
   return $status
 }
 
-lint_nim() {
+lint_nimpretty() {
   local write path tmp patch stdout stderr status linter offset
   write="$1"
   path="$2"
@@ -339,6 +380,7 @@ lint_nim() {
   nimpretty \
     "$path" \
     --out:"$tmp" \
+    "${NIMPRETTY_ARGS:-}" \
     1>"$stdout" \
     2>"$stderr" || status=$?
   if [ "$status" -eq 0 ]; then
@@ -404,9 +446,14 @@ lint_any() {
   status=0
   path="$(normalize_path "$path")"
   case "$(basename "$path")" in
-    *.md | *.js | *.jsx | *.ts | *.tsx | *.html | *.css | *.scss | *.json)
+    *.md | *.html | *.css | *.scss | *.json)
       echo "# $path"
       lint "prettier" "$write" "$path" || status=$?
+      echo
+      ;;
+    *.js | *.jsx | *.ts | *.tsx)
+      echo "# $path"
+      lint "prettier-eslint" "$write" "$path" || status=$?
       echo
       ;;
     *.yml | *.yaml)
@@ -485,7 +532,7 @@ lint_any() {
       ;;
     *.nim)
       echo "# $path"
-      lint_nim "$write" "$path" || status=$?
+      lint_nimpretty "$write" "$path" || status=$?
       echo
       ;;
     *.rb | Gemfile)
@@ -572,6 +619,15 @@ cmd_find() {
 normalize_path() {
   local path
   path="$1"
+
+  # Strip redundant slashes
+  while [[ $path =~ \/\/ ]]; do
+    path="${path//\/\//\/}"
+  done
+
+  # Strip trailing slash
+  path="$(echo "$path" | sed 's/\/$//')"
+
   if [[ $path =~ ^[^/\.] ]]; then
     # ensure relative paths (foo/bar) are prepended with ./ (./foo/bar) to
     # ensure that */foo/* ignore patterns will match.

@@ -11,12 +11,14 @@ usage() {
   local script_name
   script_name="$(basename "$0")"
   cat <<EOF
+
 $script_name: keep your project tidy with one command.
 
 Linters/formatters used:
 
-JavaScript, TypeScript, JSON,
+JSON,
 Markdown, HTML, CSS, SASS.......prettier
+JavaScript, TypeScript, JSX.....prettier-eslint
 YAML............................prettier, yamllint
 sh, bash, dash, ksh, mksh.......shellcheck, shfmt
 Bats tests......................shfmt
@@ -30,14 +32,41 @@ Usage: $script_name [options] [path …]
 Options:
   -h|--help
       Show this help message & exit.
+  --version
+      Print version & exit.
   --write
       Auto fix any fixable issues. By default $script_name will simply notify
       you of linter issues.
   --list
-      List files which lintball has a linter for and would attempt to check or
+      List files which lintball has a linter for & would attempt to check or
       fix. Useful for debugging a .lintball-ignore file.
+  --prettier "[options]"
+      Pass options to prettier.
+  --prettier-eslint "[options]"
+      Pass options to prettier-eslint.
+  --yamllint "[options]"
+      Pass options to yamllint.
+  --shfmt "[options]"
+      Pass options to shfmt.
+  --shellcheck "[options]"
+      Pass options to shellcheck.
+  --docformatter "[options]"
+      Pass options to docformatter.
+  --autopep8 "[options]"
+      Pass options to autopep8.
+  --autoflake "[options]"
+      Pass options to autoflake.
+  --isort "[options]"
+      Pass options to isort.
+  --black "[options]"
+      Pass options to black.
+  --nimpretty "[options]"
+      Pass options to nimpretty.
+  --rubocop "[options]"
+      Pass options to rubocop.
 
 https://github.com/elijahr/lintball
+
 EOF
 }
 
@@ -50,6 +79,10 @@ while [[ $# -gt 0 ]]; do
   case $key in
     -h | --help)
       usage
+      exit 0
+      ;;
+    --version)
+      echo "v0.3.0"
       exit 0
       ;;
     --write)
@@ -68,6 +101,15 @@ while [[ $# -gt 0 ]]; do
         exit 1
       fi
       LINTBALL_LIST="yes"
+      shift
+      ;;
+    --prettier | --prettier-eslint | --yamllint | --shfmt | --shellcheck | --docformatter | --autopep8 | --autoflake | --isort | --black | --nimpretty | --rubocop)
+      # PRETTIER_ARGS, PRETTIER_ESLINT_ARGS, YAMLLINT_ARGS, SHFMT_ARGS,
+      # SHELLCHECK_ARGS, DOCFORMATTER_ARGS, AUTOPEP8_ARGS, AUTOFLAKE_ARGS,
+      # ISORT_ARGS, BLACK_ARGS, NIMPRETTY_ARGS, RUBOCOP_ARGS
+      argsvar="$(echo "${1//-/_}" | cut -c3- | tr '[:lower:]' '[:upper:]')_ARGS"
+      shift
+      export "${argsvar}=$1"
       shift
       ;;
     -*)

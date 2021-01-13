@@ -13,32 +13,6 @@ if [ -z "${ASDF_NODEJS_VERSION:-}" ] && [ -n "$(which asdf)" ]; then
   export ASDF_NODEJS_VERSION
 fi
 
-LINTBALL_INSTALL_DEPS="no"
-args=()
-while [[ $# -gt 0 ]]; do
-  key="$1"
-
-  case $key in
-    --deps)
-      LINTBALL_INSTALL_DEPS="yes"
-      shift
-      ;;
-    -*)
-      echo -e "Unknown switch $1"
-      usage
-      exit 1
-      ;;
-    *)             # unknown option
-      args+=("$1") # save it in an array for later
-      shift        # past argument
-      ;;
-  esac
-done
-
-if [ "${#args[@]}" -gt 0 ]; then
-  set -- "${args[@]}" # restore positional parameters
-fi
-
 LB_DIR="${1:-"${HOME}/.lintball"}"
 LINTBALL_VERSION="${LINTBALL_VERSION:-"refs/heads/devel"}"
 
@@ -56,47 +30,12 @@ fi
   sha="$(git show-ref "$LINTBALL_VERSION" | awk '{ print $1 }')"
   git stash 1>/dev/null
   git checkout "$sha" 2>/dev/null
-  if [ -d "node_modules" ]; then
-    # User has installed the node modules, so update them
-    npm install 2>/dev/null
-  fi
-  if [ -d "vendor" ]; then
-    # User has installed the node modules, so update them
-    gem install rubocop 2>/dev/null
-  fi
 )
 
 echo "lintball updated to $(
   cd "$LB_DIR"
   git show-ref "$LINTBALL_VERSION" | awk '{ print $1 }'
 )"
-
-if [ "$LINTBALL_INSTALL_DEPS" = "yes" ]; then
-  pip3 install black autopep8 isort autoflake docformatter yamllint
-  if [ -z "$(which bundler)" ]; then
-    gem install rubocop || sudo gem install rubocop
-  fi
-  (
-    cd "$LB_DIR"
-    npm install
-  )
-  if [ -n "$(which brew)" ]; then
-    brew install shfmt shellcheck
-  elif [ -z "$(which apt-get)" ]; then
-    if [ -z "$(which shfmt)" ]; then
-      sudo apt-get update
-      sudo apt-get install -y shfmt
-    fi
-    if [ -z "$(which shellcheck)" ]; then
-      scversion="stable"
-      wget -qO- "https://github.com/koalaman/shellcheck/releases/download/${scversion?}/shellcheck-${scversion?}.linux.x86_64.tar.xz" | tar -xJv
-      cp "shellcheck-${scversion}/shellcheck" /usr/bin/
-    fi
-  else
-    echo -e "Neither brew nor apt-get were found on your system."
-    echo -e "You will need to install shfmt and shellcheck manually."
-  fi
-fi
 
 posix_insert="$(
   cat <<EOF

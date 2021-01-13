@@ -8,16 +8,17 @@ lintball can fix all your code with one command, or a convenient githook that yo
 
 ## Supported languages
 
-| language                                                      |                                   tools used                                   |
-| :------------------------------------------------------------ | :----------------------------------------------------------------------------: |
-| JavaScript, TypeScript, JSON, <br/> Markdown, HTML, CSS, SASS |                                [`prettier`][1]                                 |
-| YAML                                                          |                        [`prettier`][1] [`yamllint`][10]                        |
-| sh, bash, dash, ksh, mksh                                     |                         [`shellcheck`][2] [`shfmt`][3]                         |
-| Bats tests                                                    |                                  [`shfmt`][2]                                  |
-| Python                                                        | [`autoflake`][4] [`autopep8`][5] [`black`][6] [`docformatter`][7] [`isort`][8] |
-| Cython                                                        |              [`autoflake`][4] [`autopep8`][5] [`docformatter`][7]              |
-| Nim                                                           |                                [`nimpretty`][9]                                |
-| Ruby                                                          |                                [`rubocop`][11]                                 |
+| language                        |                                   tools used                                   |
+| :------------------------------ | :----------------------------------------------------------------------------: |
+| Markdown, JSON, HTML, CSS, SASS |                                [`prettier`][1]                                 |
+| YAML                            |                        [`prettier`][1] [`yamllint`][10]                        |
+| JavaScript, TypeScript, JSX     |                            [`prettier-eslint`][12]                             |
+| sh, bash, dash, ksh, mksh       |                         [`shellcheck`][2] [`shfmt`][3]                         |
+| Bats tests                      |                                  [`shfmt`][2]                                  |
+| Python                          | [`autoflake`][4] [`autopep8`][5] [`black`][6] [`docformatter`][7] [`isort`][8] |
+| Cython                          |              [`autoflake`][4] [`autopep8`][5] [`docformatter`][7]              |
+| Nim                             |                                [`nimpretty`][9]                                |
+| Ruby                            |                                [`rubocop`][11]                                 |
 
 [1]: https://prettier.io/
 [2]: https://www.shellcheck.net/
@@ -30,6 +31,7 @@ lintball can fix all your code with one command, or a convenient githook that yo
 [9]: https://nim-lang.org/docs/tools.html
 [10]: https://yamllint.readthedocs.io/en/stable/
 [11]: https://github.com/rubocop-hq/rubocop
+[12]: https://github.com/prettier/prettier-eslint
 
 ## Installation
 
@@ -46,10 +48,8 @@ If you are using lintball with a git-managed project, we suggest using the pre-c
 By default, lintball will not install any linters. You do not need to install all linters to use lintball; lintball will only use linters that correspond to the files in your project. To install all linters:
 
 ```sh
-~/.lintball/install.sh --deps
+~/.lintball/extras/install-deps.sh
 ```
-
-The above install script assumes that you already have Python, Ruby, and NodeJS installed on your system.
 
 If lintball checks are failing because of some missing linter that you do not wish to install, you can add an entry to your `.lintball-ignore` file - see the section on [ignore patterns](#ignore-patterns) below.
 
@@ -74,7 +74,30 @@ lintball provides two scripts:
     --list
         List files which lintball has a linter for and would attempt to check or
         fix. Useful for debugging a .lintball-ignore file.
-
+    --prettier "[options]"
+        Pass options to prettier.
+    --prettier-eslint "[options]"
+        Pass options to prettier-eslint.
+    --yamllint "[options]"
+        Pass options to yamllint.
+    --shfmt "[options]"
+        Pass options to shfmt.
+    --shellcheck "[options]"
+        Pass options to shellcheck.
+    --docformatter "[options]"
+        Pass options to docformatter.
+    --autopep8 "[options]"
+        Pass options to autopep8.
+    --autoflake "[options]"
+        Pass options to autoflake.
+    --isort "[options]"
+        Pass options to isort.
+    --black "[options]"
+        Pass options to black.
+    --nimpretty "[options]"
+        Pass options to nimpretty.
+    --rubocop "[options]"
+        Pass options to rubocop.
   ```
 
 ### Continuous Integration
