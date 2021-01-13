@@ -19,19 +19,14 @@ echo
 echo "# Installing system packages: ${deps[*]}"
 piu c
 deps=()
-if [ -z "$(which shellcheck)" ]; then
-  echo "# shellcheck: not found, will install"
-  # Try to get a more up to date shellcheck from snap/brew
-  if [ -n "$(which snap)" ]; then
-    snap install shellcheck || sudo snap install shellcheck
-  elif [ -n "$(which brew)" ]; then
-    brew install shellcheck
-  else
-    deps+=("shellcheck")
-  fi
+
+# Try to get a more up to date shellcheck from brew
+if [ -n "$(which brew)" ]; then
+  brew install shellcheck
 else
-  echo "# shellcheck: found"
+  deps+=("shellcheck")
 fi
+
 if [ -z "$(which shfmt)" ]; then
   echo "# shfmt: not found, will install"
   # ubuntu/debian don't have shfmt, so try alt package managers that may be
@@ -102,8 +97,10 @@ if [ -n "$(which apt-get)" ]; then
   piu i python3-setuptools
 fi
 if [ -z "$(which pip3)" ]; then
+  pip install wheel || sudo pip install wheel
   pip install -r requirements.txt || sudo pip install -r requirements.txt
 else
+  pip3 install wheel || sudo pip3 install wheel
   pip3 install -r requirements.txt || sudo pip3 install -r requirements.txt
 fi
 echo "# Python requirements installed"
