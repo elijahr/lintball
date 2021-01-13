@@ -14,9 +14,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - uses: ./actions/setup
-        with:
-          lintball-version: ${{ github.sha }}
+      - name: Install deps
+        run: |
+          ./extras/install-deps.sh
+          npm install --include=dev
 
       - name: Test
         run: npm run test
