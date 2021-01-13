@@ -28,7 +28,7 @@ fi
   cd "${LB_DIR}"
   git fetch origin "$LINTBALL_VERSION"
   if [[ $LINTBALL_VERSION =~ ^refs/ ]]; then
-    sha="$(git show-ref "$LINTBALL_VERSION" | awk '{ print $1 }')"
+    sha="$(git show-ref origin "$LINTBALL_VERSION" | awk '{ print $1 }')"
   else
     sha="$LINTBALL_VERSION"
   fi
@@ -38,7 +38,7 @@ fi
 
 echo "lintball updated to $(
   cd "$LB_DIR"
-  git show-ref "$LINTBALL_VERSION" | awk '{ print $1 }'
+  git show-ref origin "$LINTBALL_VERSION" | awk '{ print $1 }'
 )"
 
 posix_insert="$(
