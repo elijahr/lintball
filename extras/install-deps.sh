@@ -15,16 +15,34 @@ echo
 
 PATH="$EXTRAS_DIR:$PATH"
 
+echo
+echo "# Installing system packages: ${deps[*]}"
+piu c
 deps=()
 if [ -z "$(which shellcheck)" ]; then
   echo "# shellcheck: not found, will install"
-  deps+=("shellcheck")
+  # Try to get a more up to date shellcheck from snap/brew
+  if [ -n "$(which snap)" ]; then
+    snap install shellcheck || sudo snap install shellcheck
+  elif [ -n "$(which brew)" ]; then
+    brew install shellcheck
+  else
+    deps+=("shellcheck")
+  fi
 else
   echo "# shellcheck: found"
 fi
 if [ -z "$(which shfmt)" ]; then
   echo "# shfmt: not found, will install"
-  deps+=("shfmt")
+  # ubuntu/debian don't have shfmt, so try alt package managers that may be
+  # present on those systems such as snap and brew.
+  if [ -n "$(which snap)" ]; then
+    snap install shfmt || sudo snap install shfmt
+  elif [ -n "$(which brew)" ]; then
+    brew install shfmt
+  else
+    deps+=("shfmt")
+  fi
 else
   echo "# shfmt: found"
 fi
@@ -53,13 +71,10 @@ else
   echo "# nim: found"
 fi
 if [ "${#deps[@]}" -gt 0 ]; then
-  echo
-  echo "# Installing system packages: ${deps[*]}"
-  piu c
   eval "piu i ${deps[*]}"
-  echo "# System packages installed"
-  echo
 fi
+echo "# System packages installed"
+echo
 
 cd "$LINTBALL_DIR"
 
