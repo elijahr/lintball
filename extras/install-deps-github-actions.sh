@@ -25,6 +25,7 @@ echo
 echo
 echo "# Installing Ruby requirements..."
 sudo gem install rubocop
+echo "/home/linuxbrew/.linuxbrew/lib/ruby/gems/3.0.0/bin" >>"$GITHUB_PATH"
 echo "# Ruby requirements installed"
 echo
 
