@@ -15,41 +15,27 @@ echo
 
 PATH="$EXTRAS_DIR:$PATH"
 
-echo
-echo "# Installing system packages: ${deps[*]}"
-piu c
-deps=()
-
-# Try to get a more up to date requirements from brew
+# Try to get more up to date requirements from brew, since brew
+# is available on both macOS and Github Actions' Ubuntu, and brew
+# has more up to date versions.
 if [ -n "$(which brew)" ]; then
-  brew install shfmt shellcheck nim
+  brew install shfmt shellcheck nim python3 ruby node.js
 else
-  deps+=("shellcheck" "shfmt" "nim")
-fi
-
-if [ -z "$(which python3)" ]; then
-  echo "# python3: not found, will install"
-  deps+=("python3")
-else
-  echo "# python3: found"
-fi
-
-if [ -z "$(which ruby)" ]; then
-  echo "# ruby: not found, will install"
-  deps+=("ruby")
-else
-  echo "# ruby: found"
-fi
-
-if [ -z "$(which node)" ]; then
-  echo "# node: not found, will install"
-  deps+=("nodejs")
-else
-  echo "# node: found"
-fi
-
-if [ "${#deps[@]}" -gt 0 ]; then
-  eval "piu i ${deps[*]}"
+  all_deps=("shfmt" "shellcheck" "nim" "python3" "ruby")
+  deps=()
+  for dep in "${all_deps[@]}"; do
+    if [ -z "$(which "$dep")" ]; then
+      echo "# $dep: not found, will install"
+      deps+=("$dep")
+    fi
+  done
+  if [ -z "$(which node)" ]; then
+    echo "# nodejs: not found, will install"
+    deps+=("nodejs")
+  fi
+  if [ "${#deps[@]}" -gt 0 ]; then
+    eval "piu i ${deps[*]}"
+  fi
 fi
 echo "# System packages installed"
 echo
