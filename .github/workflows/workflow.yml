@@ -14,7 +14,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - uses: elijahr/lintball/setup@fix-github-actions
+      - uses: elijahr/lintball/setup@${{ github.sha }}
+        with:
+          lintball-version: ${{ github.sha }}
 
       - name: Test
         run: npm run test
@@ -65,7 +67,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - uses: elijahr/lintball/setup@fix-github-actions
+      - uses: elijahr/lintball/setup@${{ github.sha }}
+        with:
+          lintball-version: ${{ github.sha }}
 
       - name: check
         run: lintball
