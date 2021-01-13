@@ -25,5 +25,5 @@ runs:
         find "${HOME}/.lintball"
 
         if [ "${{ inputs.install-dependencies }}" = "true" ]; then
-          bash "${HOME}/.lintball/extras/install-deps.sh"
+          bash "${HOME}/.lintball/extras/install-deps-github-actions.sh"
         fi

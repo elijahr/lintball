@@ -44,7 +44,7 @@ cd "$LINTBALL_DIR"
 
 echo
 echo "# Installing Node requirements..."
-npm install --verbose
+npm install
 echo "# Node requirements installed"
 echo
 
