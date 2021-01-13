@@ -7,12 +7,6 @@ if [ -n "${CI:-}" ]; then
   set -x
 fi
 
-# Use latest installed nodejs, via asdf
-if [ -z "${ASDF_NODEJS_VERSION:-}" ] && [ -n "$(which asdf)" ]; then
-  ASDF_NODEJS_VERSION="$(asdf list nodejs | sort | tail -n 1 | xargs || true)"
-  export ASDF_NODEJS_VERSION
-fi
-
 LB_DIR="${1:-"${HOME}/.lintball"}"
 LINTBALL_VERSION="${LINTBALL_VERSION:-"refs/heads/devel"}"
 

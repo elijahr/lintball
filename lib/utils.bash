@@ -1,17 +1,5 @@
 #!/usr/bin/env bash
 
-# Use latest installed nodejs, via asdf
-if [ -z "${ASDF_NODEJS_VERSION:-}" ] && [ -n "$(which asdf)" ]; then
-  ASDF_NODEJS_VERSION="$(asdf list nodejs | sort | tail -n 1 | xargs || true)"
-  export ASDF_NODEJS_VERSION
-fi
-
-# Use latest installed nim, via asdf
-if [ -z "${ASDF_NIM_VERSION:-}" ] && [ -n "$(which asdf)" ]; then
-  ASDF_NIM_VERSION="$(asdf list nim | sort | tail -n 1 | xargs || true)"
-  export ASDF_NIM_VERSION
-fi
-
 LINTBALL_DIR="${LINTBALL_DIR:-"${HOME}/.lintball"}"
 DOTS="..................................."
 
