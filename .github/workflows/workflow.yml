@@ -14,10 +14,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install deps
+      - uses: asdf-vm/actions/setup
+
+      - name: Restore cached installs
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.asdf/installs
+            ~/.asdf/plugins
+          key: asdf-installs-${{ runner.os }}
+
+      - name: Install Python, Ruby, Nim, and NodeJS
+        uses: asdf-vm/actions/install@v1
+
+      - name: Install bats
         run: |
-          set -uexo pipefail
-          ./extras/install-deps.sh
           npm install --include=dev --verbose
           npm link bats
 
@@ -30,10 +41,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - uses: ./actions/setup
-        with:
-          lintball-version: ${{ github.sha }}
 
       - name: Check bash
         shell: bash
@@ -70,6 +77,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - uses: asdf-vm/actions/setup
+
+      - name: Restore cached installs
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.asdf/installs
+            ~/.asdf/plugins
+          key: asdf-installs-${{ runner.os }}
+
+      - name: Install Python, Ruby, Nim, and NodeJS
+        uses: asdf-vm/actions/install@v1
 
       - uses: ./actions/setup
         with:

@@ -12,38 +12,52 @@ fi
 source "${LINTBALL_DIR}/lib/utils.bash"
 
 fully_staged() {
-  local staged
+  local staged line
   staged="$(git diff --name-only --cached | sort)"
-  while read -r path; do
+  echo "$staged" | while read -r line; do
     # shellcheck disable=SC2143
-    if [ -z "$(git diff --name-only | grep -F "$path")" ]; then
-      if [ -f "$path" ]; then
+    if [ -z "$(git diff --name-only | grep -F "$line")" ]; then
+      if [ -f "$line" ]; then
         # path exists, is staged and has no unstaged changes
-        echo "$path"
+        echo "$line"
       fi
     fi
-  done <<<"$staged"
+  done
 }
 
-paths="$(fully_staged)"
+main() {
+  local paths line
+  paths="$(fully_staged)"
 
-tmp="$(mktemp -d)"
-while read -r path; do
-  if [ -n "$path" ]; then
-    status=0
-    assert_handled_path "$path" || continue
-    lint_any "yes" "$path" || status="$?"
-    if [ "$status" -eq 0 ]; then
-      git add "$path"
-    else
-      touch "${tmp}/error"
+  tmp="$(mktemp -d)"
+  eval "$(cmd_find "$paths")" | while read -r line; do
+    if [ -n "$line" ] && assert_handled_path "$line"; then
+      status=0
+      lint_any "yes" "$line" || status="$?"
+      if [ "$status" -eq 0 ]; then
+        git add "$line"
+      else
+        touch "${tmp}/error"
+      fi
     fi
-  fi
-done <<<"$(eval "$(cmd_find "$paths")")"
+  done
 
-status=0
-if [ -f "${tmp}/error" ]; then
-  status=1
+  status=0
+  if [ -f "${tmp}/error" ]; then
+    status=1
+  fi
+  rm -r "$tmp"
+  exit "$status"
+}
+
+if [ -z "${LINTBALL_CONFIG:-}" ]; then
+  LINTBALL_CONFIG="$(find_config)"
 fi
-rm -r "$tmp"
-exit "$status"
+
+if [ -n "$LINTBALL_CONFIG" ]; then
+  echo "# Using config file ${LINTBALL_CONFIG}"
+  echo
+  load_config "$LINTBALL_CONFIG" || exit 1
+fi
+
+main

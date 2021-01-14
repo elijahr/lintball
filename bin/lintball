@@ -39,39 +39,18 @@ Options:
       you of linter issues.
   --list
       List files which lintball has a linter for & would attempt to check or
-      fix. Useful for debugging a .lintball-ignore file.
-  --prettier "[options]"
-      Pass options to prettier.
-  --prettier-eslint "[options]"
-      Pass options to prettier-eslint.
-  --yamllint "[options]"
-      Pass options to yamllint.
-  --shfmt "[options]"
-      Pass options to shfmt.
-  --shellcheck "[options]"
-      Pass options to shellcheck.
-  --docformatter "[options]"
-      Pass options to docformatter.
-  --autopep8 "[options]"
-      Pass options to autopep8.
-  --autoflake "[options]"
-      Pass options to autoflake.
-  --isort "[options]"
-      Pass options to isort.
-  --black "[options]"
-      Pass options to black.
-  --nimpretty "[options]"
-      Pass options to nimpretty.
-  --rubocop "[options]"
-      Pass options to rubocop.
+      fix. Useful for debugging a .lintballrc.json file.
+  --config path
+      Use the .lintballrc.json config file at path.
 
 https://github.com/elijahr/lintball
 
 EOF
 }
 
-LINTBALL_WRITE="no"
-LINTBALL_LIST="no"
+export LINTBALL_WRITE="no"
+export LINTBALL_LIST="no"
+export LINTBALL_CONFIG=""
 args=()
 while [[ $# -gt 0 ]]; do
   key="$1"
@@ -91,7 +70,7 @@ while [[ $# -gt 0 ]]; do
         usage
         exit 1
       fi
-      LINTBALL_WRITE="yes"
+      export LINTBALL_WRITE="yes"
       shift
       ;;
     --list)
@@ -100,16 +79,12 @@ while [[ $# -gt 0 ]]; do
         usage
         exit 1
       fi
-      LINTBALL_LIST="yes"
+      export LINTBALL_LIST="yes"
       shift
       ;;
-    --prettier | --prettier-eslint | --yamllint | --shfmt | --shellcheck | --docformatter | --autopep8 | --autoflake | --isort | --black | --nimpretty | --rubocop)
-      # PRETTIER_ARGS, PRETTIER_ESLINT_ARGS, YAMLLINT_ARGS, SHFMT_ARGS,
-      # SHELLCHECK_ARGS, DOCFORMATTER_ARGS, AUTOPEP8_ARGS, AUTOFLAKE_ARGS,
-      # ISORT_ARGS, BLACK_ARGS, NIMPRETTY_ARGS, RUBOCOP_ARGS
-      argsvar="$(echo "${1//-/_}" | cut -c3- | tr '[:lower:]' '[:upper:]')_ARGS"
+    --config)
       shift
-      export "${argsvar}=$1"
+      LINTBALL_CONFIG="$1"
       shift
       ;;
     -*)
@@ -128,28 +103,46 @@ if [ "${#args[@]}" -gt 0 ]; then
   set -- "${args[@]}" # restore positional parameters
 fi
 
-if [ "$LINTBALL_LIST" = "yes" ]; then
-  while read -r path; do
-    if [ -n "$path" ]; then
-      path="$(normalize_path "$path")"
-      assert_handled_path "$path" || continue
-      echo "$path"
+if [ -z "$LINTBALL_CONFIG" ]; then
+  LINTBALL_CONFIG="$(find_config)"
+fi
+
+if [ -n "$LINTBALL_CONFIG" ]; then
+  echo "# Using config file ${LINTBALL_CONFIG}"
+  echo
+  load_config "$LINTBALL_CONFIG" || exit 1
+fi
+
+list() {
+  local line
+  eval "$(cmd_find "$@")" | while read -r line; do
+    if assert_handled_path "$line"; then
+      line="$(normalize_path "$line")"
+      echo "$line"
     fi
-  done <<<"$(eval "$(cmd_find "$@")" | sort)"
+  done
   exit 0
-fi
+}
 
-tmp="$(mktemp -d)"
-while read -r path; do
-  if [ -n "$path" ]; then
-    assert_handled_path "$path" || continue
-    lint_any "$LINTBALL_WRITE" "$path" || touch "${tmp}/error"
+main() {
+  local tmp line
+  tmp="$(mktemp -d)"
+  eval "$(cmd_find "$@")" | while read -r line; do
+    if assert_handled_path "$line"; then
+      lint_any "$LINTBALL_WRITE" "$line" || touch "${tmp}/error"
+    fi
+  done
+
+  status=0
+  if [ -f "${tmp}/error" ]; then
+    status=1
   fi
-done <<<"$(eval "$(cmd_find "$@")")"
+  rm -r "$tmp"
+  exit "$status"
+}
 
-status=0
-if [ -f "${tmp}/error" ]; then
-  status=1
+if [ "$LINTBALL_LIST" = "yes" ]; then
+  list "$@"
+else
+  main "$@"
 fi
-rm -r "$tmp"
-exit "$status"

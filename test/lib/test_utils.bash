@@ -12,7 +12,7 @@ setup_test() {
   cp "${LINTBALL_DIR}/.gitignore" "$PROJECT_DIR/"
   cp "${LINTBALL_DIR}/.tool-versions" "$PROJECT_DIR/"
 
-  cd "$PROJECT_DIR"
+  cd "$PROJECT_DIR" || exit
   rm -rf node_modules
   npm install --include=dev
 }

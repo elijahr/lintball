@@ -108,3 +108,4 @@ dist
 /vendor
 
 extras/piu
+.DS_Store

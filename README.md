@@ -74,35 +74,11 @@ lintball provides two scripts:
     --list
         List files which lintball has a linter for and would attempt to check or
         fix. Useful for debugging a .lintball-ignore file.
-    --prettier "[options]"
-        Pass options to prettier.
-    --prettier-eslint "[options]"
-        Pass options to prettier-eslint.
-    --yamllint "[options]"
-        Pass options to yamllint.
-    --shfmt "[options]"
-        Pass options to shfmt.
-    --shellcheck "[options]"
-        Pass options to shellcheck.
-    --docformatter "[options]"
-        Pass options to docformatter.
-    --autopep8 "[options]"
-        Pass options to autopep8.
-    --autoflake "[options]"
-        Pass options to autoflake.
-    --isort "[options]"
-        Pass options to isort.
-    --black "[options]"
-        Pass options to black.
-    --nimpretty "[options]"
-        Pass options to nimpretty.
-    --rubocop "[options]"
-        Pass options to rubocop.
   ```
 
 ### Continuous Integration
 
-lintball uses itself for lint checks in CI - see our GitHub Actions [workflow config](https://github.com/elijahr/lintball/blob/devel/.github/workflows/workflow.yml).
+lintball provides a GitHub Action for
 
 ## Updating
 

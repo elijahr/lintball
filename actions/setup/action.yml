@@ -22,8 +22,6 @@ runs:
         export LINTBALL_VERSION="${{ inputs.lintball-version }}"
         curl -o- https://raw.githubusercontent.com/elijahr/lintball/${{ inputs.lintball-version }}/install.sh | bash
 
-        find "${HOME}/.lintball"
-
         if [ "${{ inputs.install-dependencies }}" = "true" ]; then
-          bash "${HOME}/.lintball/extras/install-deps-github-actions.sh"
+          bash "${HOME}/.lintball/extras/install-deps.sh"
         fi

@@ -1,7 +1,0 @@
-# Place patterns here which should be ignored by lintball scripts.
-# Patterns are globs, as would be passed to the find command's -path argument.
-*/fixture/*
-*/.git/*
-*/node_modules/*
-*/package-lock.json
-*/extras/piu

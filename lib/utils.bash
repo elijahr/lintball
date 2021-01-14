@@ -3,8 +3,7 @@
 LINTBALL_DIR="${LINTBALL_DIR:-"${HOME}/.lintball"}"
 DOTS="..................................."
 
-# So rubocop works
-export BUNDLE_GEMFILE="${LINTBALL_DIR}/Gemfile"
+LINTBALL_IGNORES=()
 
 cmd_prettier() {
   local write path
@@ -17,8 +16,7 @@ cmd_prettier() {
       prettier \
       --path='$(pwd)' \
       -- \
-      ${PRETTIER_ARGS:-} \
-      --write \
+      $(eval echo "${LINTBALL__WRITE_ARGS__PRETTIER}") \
       '$path'"
   else
     echo "npm \
@@ -28,7 +26,7 @@ cmd_prettier() {
       --path='$(pwd)' \
       -- \
       --check \
-      ${PRETTIER_ARGS:-} \
+      $(eval echo "${LINTBALL__CHECK_ARGS__PRETTIER}") \
       '$path'"
   fi
 }
@@ -44,8 +42,7 @@ cmd_prettier_eslint() {
       prettier-eslint \
       --path='$(pwd)' \
       -- \
-      --write \
-      ${PRETTIER_ESLINT_ARGS:-} \
+      $(eval echo "${LINTBALL__WRITE_ARGS__PRETTIER_ESLINT}") \
       '$path'"
   else
     echo "npm \
@@ -54,13 +51,13 @@ cmd_prettier_eslint() {
       prettier-eslint \
       --path='$(pwd)' \
       -- \
-      ${PRETTIER_ESLINT_ARGS:-} \
+      $(eval echo "${LINTBALL__CHECK_ARGS__PRETTIER_ESLINT}") \
       '$path'"
   fi
 }
 
 cmd_yamllint() {
-  local write path format config
+  local write path format
   write="$1"
   path="$2"
 
@@ -69,15 +66,17 @@ cmd_yamllint() {
   if [[ $- == *i* ]]; then
     format="colored"
   fi
-
-  # disable some rules that don't make sense for github workflows files
-  config="{extends: default, rules: {document-start: disable, truthy: disable}}"
-  echo "yamllint \
-    --strict \
-    --config-data '$config' \
-    --format '$format' \
-    ${YAMLLINT_ARGS:-} \
-    '$path'"
+  if [ "$write" = "yes" ]; then
+    echo "yamllint \
+      --format '$format' \
+      $(eval echo "${LINTBALL__WRITE_ARGS__YAMLLINT}") \
+      '$path'"
+  else
+    echo "yamllint \
+      --format '$format' \
+      $(eval echo "${LINTBALL__CHECK_ARGS__YAMLLINT}") \
+      '$path'"
+  fi
 }
 
 cmd_rubocop() {
@@ -93,14 +92,13 @@ cmd_rubocop() {
 
   if [ "$write" = "yes" ]; then
     echo "rubocop \
-      --auto-correct-all \
       $color \
-      ${RUBOCOP_ARGS:-} \
+      $(eval echo "${LINTBALL__WRITE_ARGS__RUBOCOP}") \
       '$path'"
   else
     echo "rubocop \
       $color \
-      ${RUBOCOP_ARGS:-} \
+      $(eval echo "${LINTBALL__CHECK_ARGS__RUBOCOP}") \
       '$path'"
   fi
 }
@@ -113,22 +111,11 @@ cmd_shfmt() {
 
   if [ "$write" = "yes" ]; then
     echo "shfmt \
-      -d \
-      -i 2 \
-      -s \
-      -ci \
-      -ln '$lang' \
-      -w \
-      ${SHFMT_ARGS:-} \
+      $(eval echo "${LINTBALL__WRITE_ARGS__SHFMT}") \
       '$path'"
   else
     echo "shfmt \
-      -d \
-      -i 2 \
-      -s \
-      -ci \
-      -ln '$lang' \
-      ${SHFMT_ARGS:-} \
+      $(eval echo "${LINTBALL__CHECK_ARGS__SHFMT}") \
       '$path'"
   fi
 }
@@ -139,19 +126,11 @@ cmd_autopep8() {
   path="$2"
   if [ "$write" = "yes" ]; then
     echo "autopep8 \
-      --aggressive \
-      --aggressive \
-      --aggressive \
-      --in-place \
-      ${AUTOPEP8_ARGS:-} \
+      $(eval echo "${LINTBALL__WRITE_ARGS__AUTOPEP8}") \
       '$path'"
   else
     echo "autopep8 \
-      --aggressive \
-      --aggressive \
-      --aggressive \
-      --diff \
-      ${AUTOPEP8_ARGS:-} \
+      $(eval echo "${LINTBALL__CHECK_ARGS__AUTOPEP8}") \
       '$path'"
   fi
 }
@@ -162,13 +141,11 @@ cmd_docformatter() {
   path="$2"
   if [ "$write" = "yes" ]; then
     echo "docformatter \
-      --in-place \
-      ${DOCFORMATTER_ARGS:-} \
+      $(eval echo "${LINTBALL__WRITE_ARGS__DOCFORMATTER}") \
       '$path'"
   else
     echo "docformatter \
-      --check \
-      ${DOCFORMATTER_ARGS:-} \
+      $(eval echo "${LINTBALL__CHECK_ARGS__DOCFORMATTER}") \
       '$path'"
   fi
 }
@@ -179,14 +156,11 @@ cmd_isort() {
   path="$2"
   if [ "$write" = "yes" ]; then
     echo "isort \
-      --profile black \
-      ${ISORT_ARGS:-} \
+      $(eval echo "${LINTBALL__WRITE_ARGS__ISORT}") \
       '$path'"
   else
     echo "isort \
-      --profile black \
-      --check-only \
-      ${ISORT_ARGS:-} \
+      $(eval echo "${LINTBALL__CHECK_ARGS__ISORT}") \
       '$path'"
   fi
 }
@@ -197,21 +171,11 @@ cmd_autoflake() {
   path="$2"
   if [ "$write" = "yes" ]; then
     echo "autoflake \
-      --in-place \
-      --expand-star-imports \
-      --remove-all-unused-imports \
-      --remove-duplicate-keys \
-      --remove-unused-variables \
-      ${AUTOFLAKE_ARGS:-} \
+      $(eval echo "${LINTBALL__WRITE_ARGS__AUTOFLAKE}") \
       '$path'"
   else
     echo "autoflake \
-      --check \
-      --expand-star-imports \
-      --remove-all-unused-imports \
-      --remove-duplicate-keys \
-      --remove-unused-variables \
-      ${AUTOFLAKE_ARGS:-} \
+      $(eval echo "${LINTBALL__CHECK_ARGS__AUTOFLAKE}") \
       '$path'"
   fi
 }
@@ -221,55 +185,27 @@ cmd_black() {
   write="$1"
   path="$2"
   if [ "$write" = "yes" ]; then
-    echo "black ${BLACK_ARGS:-} '$path'"
+    echo "black \
+      $(eval echo "${LINTBALL__WRITE_ARGS__BLACK}") \
+      '$path'"
   else
-    echo "black --check ${BLACK_ARGS:-} '$path'"
+    echo "black \
+      $(eval echo "${LINTBALL__CHECK_ARGS__BLACK}") \
+      '$path'"
   fi
-}
-
-lint() {
-  local linter write path original cmd stdout stderr status offset
-  linter="$1"
-  write="$2"
-  path="$3"
-  lang="${4:-}"
-
-  offset="${#linter}"
-  original="$(cat "$path")"
-  stdout="$(mktemp)"
-  stderr="$(mktemp)"
-  cmd="$(cmd_"$linter" "$write" "$path" "$lang")"
-  status=0
-
-  eval "$cmd" 1>"$stdout" 2>"$stderr" || status=$?
-  if [ "$(cat "$path")" = "$original" ]; then
-    if [ "$status" -gt 0 ] || {
-      [ "$write" = "no" ] &&
-        [ "$(head -n1 "$stdout" | head -c4)" = "--- " ] &&
-        [ "$(head -n2 "$stdout" | tail -n 1 | head -c4)" = "+++ " ]
-    }; then
-      # Some error message
-      printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
-      cat "$stdout" 2>/dev/null
-      cat "$stderr" 1>&2 2>/dev/null
-      status=1
-    else
-      printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "ok"
-    fi
-  else
-    status=0
-    printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "wrote"
-  fi
-  rm "$stdout"
-  rm "$stderr"
-  return $status
 }
 
 lint_shellcheck() {
-  local write path lang stdout stderr status linter offset color
+  local write path args lang stdout stderr status linter offset color
   write="$1"
   path="$2"
   lang="$3"
+
+  if [ "$write" = "yes" ]; then
+    args="${LINTBALL__WRITE_ARGS__SHELLCHECK}"
+  else
+    args="${LINTBALL__CHECK_ARGS__SHELLCHECK}"
+  fi
 
   linter="shellcheck"
   offset="${#linter}"
@@ -285,17 +221,15 @@ lint_shellcheck() {
     color="always"
   fi
 
+  set -f
   eval "shellcheck \
-    --external-sources \
     --format=tty \
-    --shell=$lang \
-    --severity=style \
-    --exclude=SC2164 \
     --color=$color \
-    ${SHELLCHECK_ARGS:-} \
+    $(eval echo "$args") \
     '$path'" \
     1>"$stdout" \
     2>"$stderr" || status=$?
+  set +f
 
   if [ "$status" -eq 0 ]; then
     # File has no issues
@@ -305,17 +239,15 @@ lint_shellcheck() {
     # stderr contains an error message
     if [ "$write" = "yes" ] && [ -n "$(cat "$stdout" 2>/dev/null)" ]; then
       # patchable, so generate a patchfile and apply it
+      set -f
       eval "shellcheck \
         --format=diff \
-        --external-sources \
-        --shell=$lang \
-        --severity=style \
-        --exclude=SC2164 \
         --color=never \
-        ${SHELLCHECK_ARGS:-} \
+        $(eval echo "$args") \
         '$path'" \
         1>"$patchfile" \
         2>"$patcherr"
+      set +f
       if [ -n "$(cat "$patchfile")" ]; then
         # Fix patchfile
         sed -i '' 's/^--- a\/\.\//--- a\//' "$patchfile"
@@ -347,9 +279,15 @@ lint_shellcheck() {
 }
 
 lint_nimpretty() {
-  local write path tmp patch stdout stderr status linter offset
+  local write path args tmp patch stdout stderr status linter offset
   write="$1"
   path="$2"
+
+  if [ "$write" = "yes" ]; then
+    args="${LINTBALL__WRITE_ARGS__NIMPRETTY}"
+  else
+    args="${LINTBALL__CHECK_ARGS__NIMPRETTY}"
+  fi
 
   linter="nimpretty"
   offset="${#linter}"
@@ -364,12 +302,14 @@ lint_nimpretty() {
   stderr="$(mktemp)"
   status=0
 
+  set -f
   eval "nimpretty \
     ""$path"" \
     --out:'$tmp' \
-    ${NIMPRETTY_ARGS:-}" \
+    $(eval echo "$args")" \
     1>"$stdout" \
     2>"$stderr" || status=$?
+  set +f
   if [ "$status" -eq 0 ]; then
     if [ "$(cat "$tmp")" = "$(cat "$path")" ]; then
       printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "ok"
@@ -401,22 +341,66 @@ lint_nimpretty() {
   return $status
 }
 
-hashbang() {
+lint() {
+  local linter write path original cmd stdout stderr status offset
+  linter="$1"
+  write="$2"
+  path="$3"
+  lang="${4:-}"
+
+  offset="${#linter}"
+  original="$(cat "$path")"
+  stdout="$(mktemp)"
+  stderr="$(mktemp)"
+  cmd="$(cmd_"$linter" "$write" "$path" "$lang")"
+  status=0
+
+  set -f
+  eval "$cmd" 1>"$stdout" 2>"$stderr" || status=$?
+  set +f
+  if [ "$(cat "$path")" = "$original" ]; then
+    if [ "$status" -gt 0 ] || {
+      [ "$write" = "no" ] &&
+        [ "$(head -n1 "$stdout" | head -c4)" = "--- " ] &&
+        [ "$(head -n2 "$stdout" | tail -n 1 | head -c4)" = "+++ " ]
+    }; then
+      # Some error message
+      printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
+      cat "$stdout" 2>/dev/null
+      cat "$stderr" 1>&2 2>/dev/null
+      status=1
+    else
+      printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "ok"
+    fi
+  else
+    status=0
+    printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "wrote"
+  fi
+  rm "$stdout"
+  rm "$stderr"
+  return $status
+}
+
+shebang() {
   local path
   path="$1"
-  if [ "$(head -c2 "$path" 2>/dev/null)" = "#!" ]; then
-    head -n1 "$path"
-  fi
+  (
+    export LC_CTYPE=C
+    if [ "$(tr '\0' '\n' <"$path" | head -c2 2>/dev/null)" = "#!" ]; then
+      head -n1 "$path"
+    fi
+  )
 }
 
 assert_handled_path() {
-  case "$(basename "$1")" in
+  local path="$1"
+  case "$(basename "$path")" in
     *.md | *.yml | *.yaml | *.js | *.jsx | *.ts | *.tsx | *.html | *.css | *.scss | *.json | *.bats | *.bash | *.sh | *.py | *.pyx | *.pxd | *.pxi | *.nim | *.rb | Gemfile)
       return 0
       ;;
     *)
-      # Inspect hashbang
-      case "$(hashbang "$path")" in
+      # Inspect shebang
+      case "$(shebang "$path")" in
         */bin/sh | *bash | *bats | *python* | *ruby*)
           return 0
           ;;
@@ -430,6 +414,8 @@ lint_any() {
   local write path status
   write="$1"
   path="$2"
+  echo "$path"
+
   status=0
   path="$(normalize_path "$path")"
   case "$(basename "$path")" in
@@ -473,8 +459,8 @@ lint_any() {
       echo
       ;;
     *.sh)
-      # Inspect hashbang
-      case "$(hashbang "$path")" in
+      # Inspect shebang
+      case "$(shebang "$path")" in
         *bash)
           echo "# $path"
           lint "shfmt" "$write" "$path" "bash" || status=$?
@@ -528,8 +514,8 @@ lint_any() {
       echo
       ;;
     *)
-      # Inspect hashbang
-      case "$(hashbang "$path")" in
+      # Inspect shebang
+      case "$(shebang "$path")" in
         */bin/sh)
           echo "# $path"
           lint "shfmt" "$write" "$path" "posix" || status=$?
@@ -568,39 +554,23 @@ lint_any() {
 }
 
 cmd_find() {
-  local ignorefile dir
+  local line
   printf 'find '
   if [ "$#" -eq 0 ]; then
     printf '"." '
   else
-    while read -r path; do
-      printf '"%s" ' "$(normalize_path "$path")"
-    done <<<"$@"
+    echo "$@" | while read -r line; do
+      printf '"%s" ' "$(normalize_path "$line")"
+    done
   fi
 
   printf '"-type" "f" '
 
-  # Traverse up the directory tree looking for .lintball-ignore,
-  # default to lintball's lintball-ignore.defaults file.
-  ignorefile="${LINTBALL_DIR}/lintball-ignore.defaults"
-  dir="$(pwd)"
-  while [ "$dir" != "/" ]; do
-    if [ -f "${dir}/.lintball-ignore" ]; then
-      ignorefile="${dir}/.lintball-ignore"
-      break
-    else
-      dir="$(dirname "$dir")"
-    fi
+  for ignore in "${LINTBALL_IGNORES[@]}"; do
+    printf '"-a" "(" "-not" "-path" "%s" ")" ' "$ignore"
   done
 
-  while read -r ignore; do
-    # ignore comment lines
-    if [[ $ignore =~ ^[^\#] ]]; then
-      # strip trailing comments
-      ignore="$(echo "$ignore" | sed 's/\(.*\)#.*/\1/' | xargs)"
-      printf '"-a" "(" "-not" "-path" "%s" ")" ' "$ignore"
-    fi
-  done <<<"$(cat "$ignorefile")"
+  printf '"-print" '
 }
 
 normalize_path() {
@@ -623,3 +593,51 @@ normalize_path() {
     echo "$path"
   fi
 }
+
+load_config() {
+  local path name value line
+  path="$(normalize_path "$1")"
+
+  if [ ! -f "$path" ]; then
+    echo -e "No config file at ${path}"
+    return 1
+  fi
+
+  # Clear the ignores array
+  LINTBALL_IGNORES=()
+
+  while read -r line; do
+    case "$line" in
+      write_args* | check_args*)
+        if [ "$(echo "$line" | cut -f2)" = "object" ]; then
+          continue
+        fi
+        name="LINTBALL__$(echo "$line" | awk '{ print $1 "__" $2 }' | sed 's/[^a-z0-9]/_/g' | tr '[:lower:]' '[:upper:]')"
+        value="$(echo "$line" | awk -F $'\t' 'BEGIN {OFS = FS}{print $4}')"
+        export "${name}=${value}"
+        ;;
+      ignores*)
+        if [ "$(echo "$line" | cut -f2)" = "array" ]; then
+          continue
+        fi
+        LINTBALL_IGNORES+=("$(echo "$line" | awk '{ print $4 }')")
+        ;;
+    esac
+  done <<<"$(bash "${LINTBALL_DIR}/lib/jwalk/lib/jwalk.sh" <"$path")"
+}
+
+find_config() {
+  local dir
+  # Traverse up the directory tree looking for .lintballrc.json
+  dir="$(pwd)"
+  while [ "$dir" != "/" ]; do
+    if [ -f "${dir}/.lintballrc.json" ]; then
+      echo "${dir}/.lintballrc.json"
+      break
+    else
+      dir="$(dirname "$dir")"
+    fi
+  done
+}
+
+load_config "${LINTBALL_DIR}/configs/lintballrc.json"
