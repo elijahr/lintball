@@ -46,8 +46,7 @@ jobs:
         run: |
           set -uexo pipefail
           npm install --include=dev --verbose
-          find node_modules
-          npm link bats
+          npm link bats || true
 
   #     - name: Test
   #       run: npm run test
