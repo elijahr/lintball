@@ -20,14 +20,16 @@ jobs:
       - uses: asdf-vm/actions/setup@v1
 
       - name: Restore cached installs
+        id: asdf-cache
         uses: actions/cache@v2
         with:
           path: |
             ~/.asdf/installs
             ~/.asdf/plugins
-          key: asdf-installs-${{ runner.os }}
+          key: asdf-${{ runner.os }}-${{ hashFiles('.tool-versions') }}
 
       - name: Install Python, Ruby, Nim, and NodeJS
+        if: steps.asdf-cache.outputs.cache-hit != 'true'
         uses: asdf-vm/actions/install@v1
 
       - name: Install bats
@@ -35,64 +37,64 @@ jobs:
           npm install --include=dev --verbose
           npm link bats
 
-      - name: Test
-        run: npm run test
+  #     - name: Test
+  #       run: npm run test
 
-  install:
-    name: test installation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+  # install:
+  #   name: test installation
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - name: Check bash
-        shell: bash
-        run: |
-          set -uexo pipefail
-          test -n "'$(grep LINTBALL_DIR "${HOME}/.bashrc")'"
-          test -n "'$(grep LINTBALL_DIR "${HOME}/.bash_profile")'"
-          . "${HOME}/.lintball/lintball.sh"
-          test -n "${LINTBALL_DIR:-}"
-          test -n "$(which lintball)"
+  #     - name: Check bash
+  #       shell: bash
+  #       run: |
+  #         set -uexo pipefail
+  #         test -n "'$(grep LINTBALL_DIR "${HOME}/.bashrc")'"
+  #         test -n "'$(grep LINTBALL_DIR "${HOME}/.bash_profile")'"
+  #         . "${HOME}/.lintball/lintball.sh"
+  #         test -n "${LINTBALL_DIR:-}"
+  #         test -n "$(which lintball)"
 
-      - name: Install fish
-        run: sudo apt-get install fish
+  #     - name: Install fish
+  #       run: sudo apt-get install fish
 
-      - name: Check fish
-        shell: fish {0}
-        run: |
-          set fish_trace 1 2
-          set -gx LINTBALL_VERSION "$GITHUB_REF"
-          test -n "'(grep LINTBALL_DIR "$HOME/.config/fish/config.fish")'"; \
-            or exit 1
-          ls -al "$HOME/.lintball/lintball.fish"
-          source "$HOME/.lintball/lintball.fish"; or exit 1
-          test -n "$LINTBALL_DIR"; or exit
-          test -n "(which lintball)"; or exit 1
+  #     - name: Check fish
+  #       shell: fish {0}
+  #       run: |
+  #         set fish_trace 1 2
+  #         set -gx LINTBALL_VERSION "$GITHUB_REF"
+  #         test -n "'(grep LINTBALL_DIR "$HOME/.config/fish/config.fish")'"; \
+  #           or exit 1
+  #         ls -al "$HOME/.lintball/lintball.fish"
+  #         source "$HOME/.lintball/lintball.fish"; or exit 1
+  #         test -n "$LINTBALL_DIR"; or exit
+  #         test -n "(which lintball)"; or exit 1
 
-  lint:
-    name: lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+  # lint:
+  #   name: lint
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - uses: asdf-vm/actions/setup@v1
+  #     - uses: asdf-vm/actions/setup@v1
 
-      - name: Restore cached installs
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.asdf/installs
-            ~/.asdf/plugins
-          key: asdf-installs-${{ runner.os }}
+  #     - name: Restore cached installs
+  #       uses: actions/cache@v2
+  #       with:
+  #         path: |
+  #           ~/.asdf/installs
+  #           ~/.asdf/plugins
+  #         key: asdf-installs-${{ runner.os }}
 
-      - name: Install Python, Ruby, Nim, and NodeJS
-        uses: asdf-vm/actions/install@v1
+  #     - name: Install Python, Ruby, Nim, and NodeJS
+  #       uses: asdf-vm/actions/install@v1
 
-      - uses: ./actions/setup
-        with:
-          lintball-version: ${{ github.sha }}
+  #     - uses: ./actions/setup
+  #       with:
+  #         lintball-version: ${{ github.sha }}
 
-      - name: check
-        run: lintball
+  #     - name: check
+  #       run: lintball check
