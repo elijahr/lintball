@@ -350,7 +350,7 @@ lint_nimpretty() {
 
 lint() {
   local linter write path original cmd stdout stderr status offset
-  linter="$1"
+  linter="${1//-/_}"
   write="$2"
   path="$3"
   lang="${4:-}"

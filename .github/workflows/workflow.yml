@@ -19,33 +19,39 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - uses: asdf-vm/actions/setup@v1
-
-      - name: Restore cached installs
-        id: asdf-cache
-        uses: actions/cache@v2
+      - uses: actions/setup-ruby@v1
         with:
-          path: |
-            ~/.asdf/installs
-            ~/.asdf/plugins
-          key: asdf-${{ runner.os }}-${{ hashFiles('.tool-versions') }}
+          ruby-version: "3.x"
 
-      - name: Install Python, Ruby, Nim, and NodeJS
-        if: steps.asdf-cache.outputs.cache-hit != 'true'
-        uses: asdf-vm/actions/install@v1
-
-      - name: Restore cached node modules
-        id: node-modules-cache
-        uses: actions/cache@v2
+      - uses: actions/setup-python@v2
         with:
-          path: node_modules
-          key: asdf-${{ runner.os }}-${{ hashFiles('.tool-versions') }}-${{ hashFiles('package-lock.json') }}
+          python-version: "3.x"
 
-      - name: Install bats
-        if: steps.node-modules-cache.outputs.cache-hit != 'true'
-        run: |
-          npm install --include=dev --verbose
-          which bats || npm link bats
+      - uses: actions/setup-node@v2
+        with:
+          python-version: "15.x"
 
-      - name: Test
-        run: npm run test
+      # Install nim
+      - uses: asdf-vm/actions/install@v1
+
+      - uses: ktmud/cached-dependencies@v1
+        with:
+          run: |
+            cache-restore npm
+            npm install -g --include=dev
+            cache-save npm
+
+            cache-restore pip
+            pip install -r requirements.txt
+            cache-save pip
+
+            # cache-restore bundle
+            gem install bundler
+            bundle install --deployment
+            # cache-save bundle
+
+      - name: Start SSH session
+        uses: luchihoratiu/debug-via-ssh@main
+        with:
+          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+          SSH_PASS: ${{ secrets.NGROK_AUTH_TOKEN }}
