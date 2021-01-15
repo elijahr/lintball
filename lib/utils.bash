@@ -867,6 +867,14 @@ parse_args() {
 parse_subcommand_args() {
   local command path
 
+  if [ -z "${1:-}" ]; then
+    echo -e
+    echo -e "Missing subcommand"
+    echo -e
+    usage
+    exit 1
+  fi
+
   if [ -n "$LINTBALL_CONFIG" ]; then
     echo
     echo "# Using config file ${LINTBALL_CONFIG}"
