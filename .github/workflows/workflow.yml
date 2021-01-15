@@ -36,15 +36,16 @@ jobs:
 
       - run: |
           set -euxo pipefail
-          npm install --include=dev #&
+          npm install --include=dev
+          # which bats || npm link bats
 
-          pip install -r requirements.txt #&
+          pip install -r requirements.txt
 
           gem install bundler
           bundle config set --local deployment 'true'
-          bundle install #&
-          # wait
-          # which bats || npm link bats
+          bundle install
+
+          echo "GITHUB_PATH=$GITHUB_PATH"
 
       - name: Start SSH session
         uses: luchihoratiu/debug-via-ssh@main
