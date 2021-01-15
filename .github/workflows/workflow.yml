@@ -38,7 +38,7 @@ jobs:
         with:
           run: |
             cache-restore npm
-            npm install -g --include=dev
+            npm install --include=dev
             cache-save npm
 
             cache-restore pip
