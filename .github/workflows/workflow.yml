@@ -44,7 +44,7 @@ jobs:
           bundle config set --local deployment 'true'
           bundle install #&
           # wait
-          which bats || npm link bats
+          # which bats || npm link bats
 
       - name: Start SSH session
         uses: luchihoratiu/debug-via-ssh@main
