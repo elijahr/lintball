@@ -34,21 +34,16 @@ jobs:
       # Install nim
       - uses: asdf-vm/actions/install@v1
 
-      - uses: ktmud/cached-dependencies@v1
-        with:
-          run: |
-            cache-restore npm
-            npm install --include=dev
-            cache-save npm
+      - run: |
+          set -euxo pipefail
+          npm install --include=dev #&
 
-            cache-restore pip
-            pip install -r requirements.txt
-            cache-save pip
+          pip install -r requirements.txt #&
 
-            # cache-restore bundle
-            gem install bundler
-            bundle install --deployment
-            # cache-save bundle
+          gem install bundler
+          bundle install --deployment #&
+          # wait
+          which bats || npm link bats
 
       - name: Start SSH session
         uses: luchihoratiu/debug-via-ssh@main
