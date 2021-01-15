@@ -1,3 +1,5 @@
+# yamllint disable rule:line-length
+
 name: Test
 on:
   pull_request:
@@ -32,7 +34,15 @@ jobs:
         if: steps.asdf-cache.outputs.cache-hit != 'true'
         uses: asdf-vm/actions/install@v1
 
+      - name: Restore cached node modules
+        id: node-modules-cache
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: asdf-${{ runner.os }}-${{ hashFiles('.tool-versions') }}-${{ hashFiles('package-lock.json') }}
+
       - name: Install bats
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: |
           npm install --include=dev --verbose
           npm link bats
