@@ -44,8 +44,9 @@ jobs:
       - name: Install bats
         if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: |
-          find $HOME/.asdf
+          set -uexo pipefail
           npm install --include=dev --verbose
+          find node_modules
           npm link bats
 
   #     - name: Test
