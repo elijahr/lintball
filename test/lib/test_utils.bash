@@ -1,13 +1,14 @@
-export LINTBALL_DIR
 LINTBALL_DIR="$(realpath "$(dirname "$BATS_TEST_DIRNAME")")"
+export LINTBALL_DIR
 
-export ORIGINAL_PATH
 ORIGINAL_PATH="$PATH"
+export ORIGINAL_PATH
 
 setup_test() {
-  export PATH="${LINTBALL_DIR}/bin:$PATH"
-  export PROJECT_DIR
+  PATH="${LINTBALL_DIR}/bin:$PATH"
+  export PATH
   PROJECT_DIR="$(mktemp -d)/fixture"
+  export PROJECT_DIR
   cp -r "${LINTBALL_DIR}/fixture/" "$PROJECT_DIR/"
   cp "${LINTBALL_DIR}/.gitignore" "$PROJECT_DIR/"
   cp "${LINTBALL_DIR}/.tool-versions" "$PROJECT_DIR/"

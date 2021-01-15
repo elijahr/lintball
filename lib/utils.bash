@@ -5,6 +5,13 @@ DOTS="..................................."
 
 LINTBALL_IGNORES=()
 
+LINTBALL_WRITE="no"
+LINTBALL_LIST="no"
+LINTBALL_CONFIG=""
+LINTBALL_ANSWER=""
+
+export LINTBALL_DIR LINTBALL_WRITE LINTBALL_LIST LINTBALL_CONFIG LINTBALL_ANSWER
+
 cmd_prettier() {
   local write path
   write="$1"
@@ -385,7 +392,8 @@ shebang() {
   local path
   path="$1"
   (
-    export LC_CTYPE=C
+    LC_CTYPE="C"
+    export LC_CTYPE
     if [ "$(tr '\0' '\n' <"$path" | head -c2 2>/dev/null)" = "#!" ]; then
       head -n1 "$path"
     fi
@@ -414,7 +422,6 @@ lint_any() {
   local write path status
   write="$1"
   path="$2"
-  echo "$path"
 
   status=0
   path="$(normalize_path "$path")"
@@ -640,4 +647,268 @@ find_config() {
   done
 }
 
-load_config "${LINTBALL_DIR}/configs/lintballrc.json"
+usage() {
+  cat <<EOF
+
+lintball: keep your project tidy with one command.
+
+Linters/formatters used:
+
+JSON,
+Markdown, HTML, CSS, SASS.......prettier
+JavaScript, TypeScript, JSX.....prettier-eslint
+YAML............................prettier, yamllint
+sh, bash, dash, ksh, mksh.......shellcheck, shfmt
+Bats tests......................shfmt
+Python..........................autoflake, autopep8, black, docformatter, isort
+Cython..........................autoflake, autopep8, docformatter
+Nim.............................nimpretty
+Ruby............................rubocop
+
+
+Usage: lintball [options] [command] [command options]
+
+Options:
+
+  -h | --help
+      Show this help message & exit.
+
+  -v | --version
+      Print version & exit.
+
+  -c | --config path
+      Use the .lintballrc.json config file at path.
+
+Commands:
+
+  check [path ...]
+      Check for and display linter issues recursively in paths or working dir.
+
+  fix [path ...]
+      Auto fix all fixable issues recursively in paths or working dir.
+
+  list [path ...]
+      List files which lintball recognizes for checking or fixing.
+
+  copy-githooks [options] [path]
+      Install lintball githooks in the git repo at path or working dir.
+
+      Options:
+
+        --yes
+          If destination exists, overwrite.
+
+        --no
+          If destination exists, exit without copying.
+
+  copy-lintballrc [options] [path]
+      Place a default .lintballrc.json configuration file in path or working dir.
+
+      Options:
+
+        --yes
+          If destination exists, overwrite.
+
+        --no
+          If destination exists, exit without copying.
+
+
+https://github.com/elijahr/lintball
+
+EOF
+}
+
+confirm_copy() {
+  local src dest
+  src="$1"
+  dest="$2"
+  if [ -d "$src" ] || [ -d "$dest" ]; then
+    echo -e
+    echo -e "Source and destination must be file paths, not directories."
+    echo -e
+    return 1
+  fi
+  if [ -f "$dest" ]; then
+    if [ -n "$LINTBALL_ANSWER" ]; then
+      answer="$LINTBALL_ANSWER"
+    else
+      read -rp "${dest} exists. Replace? [y/N] " answer
+    fi
+    case $answer in
+      [yY]*) ;;
+      *)
+        echo -e
+        echo -e "Cancelled"
+        echo -e
+        return 1
+        ;;
+    esac
+  fi
+  if [ ! -d "$(dirname "$dest")" ]; then
+    mkdir -p "$(dirname "$dest")"
+  fi
+  cp -Rf "$src" "$dest"
+  echo "Copied $src → $dest"
+}
+
+find_git_dir() {
+  local dir
+  # Traverse up the directory tree looking for .git
+  dir="$1"
+  while [ "$dir" != "/" ]; do
+    if [ -d "${dir}/.git" ]; then
+      echo "${dir}/.git"
+      break
+    else
+      dir="$(dirname "$dir")"
+    fi
+  done
+}
+
+lintball_copy_githooks() {
+  local git_dir hooks_path hook status
+  git_dir="$(find_git_dir "$1" || true)"
+  if [ -z "$git_dir" ]; then
+    echo -e
+    echo -e "Could not find a .git directory at or above $1"
+    echo -e
+    exit 1
+  fi
+
+  hooks_path="$(git --git-dir="$git_dir" config --local core.hooksPath || true)"
+  if [ -z "$hooks_path" ]; then
+    hooks_path="${1}/.githooks"
+  fi
+  for hook in "${LINTBALL_DIR}/githooks/"*; do
+    status=0
+    confirm_copy "$hook" "${hooks_path}/$(basename "$hook")" || status=$?
+    if [ "$status" -gt 0 ]; then
+      exit $status
+    fi
+  done
+  git --git-dir="$git_dir" config --local core.hooksPath "$hooks_path"
+  echo
+  echo "Set git hooks path → $hooks_path"
+  echo
+  exit 0
+}
+
+lintball_copy_lintballrc() {
+  confirm_copy "${LINTBALL_DIR}/configs/lintballrc.json" "${1}/.lintballrc.json" || exit $?
+}
+
+lintball_check_or_fix() {
+  local fix tmp line
+  fix="$1"
+  shift
+  tmp="$(mktemp -d)"
+  eval "$(cmd_find "$@")" | while read -r line; do
+    if assert_handled_path "$line"; then
+      lint_any "$fix" "$line" || touch "${tmp}/error"
+    fi
+  done
+
+  status=0
+  if [ -f "${tmp}/error" ]; then
+    status=1
+  fi
+  rm -r "$tmp"
+  exit "$status"
+}
+
+lintball_check() {
+  lintball_check_or_fix "no" "$@"
+}
+
+lintball_fix() {
+  lintball_check_or_fix "yes" "$@"
+}
+
+lintball_list() {
+  local line
+  eval "$(cmd_find "$@")" | while read -r line; do
+    if assert_handled_path "$line"; then
+      line="$(normalize_path "$line")"
+      echo "$line"
+    fi
+  done
+}
+
+parse_args() {
+  case "${1:-}" in
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    -v | --version)
+      echo "v0.3.0"
+      exit 0
+      ;;
+    -c | --config)
+      shift
+      LINTBALL_CONFIG="$1"
+      export LINTBALL_CONFIG
+      shift
+      parse_subcommand_args "$@"
+      ;;
+    -*)
+      echo -e "Unknown switch $1"
+      usage
+      exit 1
+      ;;
+    *)
+      LINTBALL_CONFIG="$(find_config)"
+      export LINTBALL_CONFIG
+      parse_subcommand_args "$@"
+      ;;
+  esac
+}
+
+parse_subcommand_args() {
+  local command path
+
+  if [ -n "$LINTBALL_CONFIG" ]; then
+    echo
+    echo "# Using config file ${LINTBALL_CONFIG}"
+    echo
+    load_config "$LINTBALL_CONFIG" || exit 1
+  fi
+
+  case "$1" in
+    check | fix | list)
+      command="lintball_$1"
+      shift
+      eval "$command" "$@"
+      ;;
+    copy-githooks | copy-lintballrc)
+      command="lintball_${1//-/_}"
+      shift
+      case "${1:-}" in
+        -y | --yes)
+          LINTBALL_ANSWER="yes"
+          export LINTBALL_ANSWER
+          shift
+          ;;
+        -n | --no)
+          LINTBALL_ANSWER="no"
+          export LINTBALL_ANSWER
+          shift
+          ;;
+      esac
+      if [ "$#" -gt 1 ]; then
+        echo -e
+        echo -e "Illegal number of parameters"
+        echo -e
+        usage
+      fi
+      path="${1:-$PWD}"
+      eval "$command" "$path"
+      ;;
+    *)
+      echo -e
+      echo -e "Unknown subcommand '$1'"
+      echo -e
+      usage
+      ;;
+  esac
+}

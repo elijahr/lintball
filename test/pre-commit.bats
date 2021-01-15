@@ -64,11 +64,10 @@ EOF
 }
 
 @test "pre-commit does not fix ignored files" {
-  prev="$(cat "py th on/a.py")"
-  echo "# this is a comment" >".lintball-ignore"
-  echo "*/py th on/*   # this is another comment" >>".lintball-ignore"
-  git add .
+  mkdir -p vendor
+  cp ruby/a.rb vendor/
+  git add -f vendor/a.rb
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
-  assert_equal "$(cat "py th on/a.py")" "$prev"
+  assert_equal "$(cat "vendor/a.rb")" "$(cat "ruby/a.rb")"
 }

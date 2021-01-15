@@ -13,119 +13,118 @@ teardown() {
   teardown_test
 }
 
-@test "lintball yml" {
-  run lintball "a.yml"
+@test "lintball check yml" {
+  run lintball check "a.yml"
   assert_failure
-  run lintball --write "a.yml"
-  run lintball "a.yml"
+  run lintball fix "a.yml"
+  run lintball check "a.yml"
   assert_success
 }
 
-@test "lintball md" {
-  run lintball "a.md"
+@test "lintball check md" {
+  run lintball check "a.md"
   assert_failure
-  run lintball --write "a.md"
-  run lintball "a.md"
+  run lintball fix "a.md"
+  run lintball check "a.md"
   assert_success
 }
 
-@test "lintball sh" {
-  run lintball "sh/a.sh"
+@test "lintball check sh" {
+  run lintball check "sh/a.sh"
   assert_failure
-  run lintball --write "sh/a.sh"
-  run lintball "sh/a.sh"
+  run lintball fix "sh/a.sh"
+  run lintball check "sh/a.sh"
   assert_success
 }
 
-@test "lintball sh (inferred from hashbang)" {
-  run lintball "sh/a"
+@test "lintball check sh (inferred from hashbang)" {
+  run lintball check "sh/a"
   assert_failure
-  run lintball --write "sh/a"
-  run lintball "sh/a"
+  run lintball fix "sh/a"
+  run lintball check "sh/a"
   assert_success
 }
 
-@test "lintball bash" {
-  run lintball "bash/a.bash"
+@test "lintball check bash" {
+  run lintball check "bash/a.bash"
   assert_failure
-  run lintball --write "bash/a.bash"
-  run lintball "bash/a.bash"
+  run lintball fix "bash/a.bash"
+  run lintball check "bash/a.bash"
   assert_success
 }
 
-@test "lintball bash (inferred from hashbang)" {
-  run lintball "bash/a"
+@test "lintball check bash (inferred from hashbang)" {
+  run lintball check "bash/a"
   assert_failure
-  run lintball --write "bash/a"
-  run lintball "bash/a"
+  run lintball fix "bash/a"
+  run lintball check "bash/a"
   assert_success
 }
 
-@test "lintball bats" {
-  run lintball "test"
+@test "lintball check bats" {
+  run lintball check "test"
   assert_failure
-  run lintball --write "test"
-  run lintball "test"
+  run lintball fix "test"
+  run lintball check "test"
   assert_success
 }
 
-@test "lintball python" {
-  run lintball "py th on/a.py"
+@test "lintball check python" {
+  run lintball check "py th on/a.py"
   assert_failure
-  run lintball --write "py th on/a.py"
-  run lintball "py th on/a.py"
+  run lintball fix "py th on/a.py"
+  run lintball check "py th on/a.py"
   assert_success
 }
 
-@test "lintball python (inferred from hashbang)" {
-  run lintball "py th on/a"
+@test "lintball check python (inferred from hashbang)" {
+  run lintball check "py th on/a"
   assert_failure
-  run lintball --write "py th on/a"
-  run lintball "py th on/a"
+  run lintball fix "py th on/a"
+  run lintball check "py th on/a"
   assert_success
 }
 
-@test "lintball cython" {
-  run lintball "py th on/a.pyx"
+@test "lintball check cython" {
+  run lintball check "py th on/a.pyx"
   assert_failure
-  run lintball --write "py th on/a.pyx"
-  run lintball "py th on/a.pyx"
+  run lintball fix "py th on/a.pyx"
+  run lintball check "py th on/a.pyx"
   assert_success
 }
 
-@test "lintball nim" {
-  run lintball "a.nim"
+@test "lintball check nim" {
+  run lintball check "a.nim"
   assert_failure
-  run lintball --write "a.nim"
-  run lintball "a.nim"
+  run lintball fix "a.nim"
+  run lintball check "a.nim"
   assert_success
 }
 
-@test "lintball ruby" {
-  run lintball "ruby/a.rb"
+@test "lintball check ruby" {
+  run lintball check "ruby/a.rb"
   assert_failure
-  run lintball --write "ruby/a.rb"
-  run lintball "ruby/a.rb"
+  run lintball fix "ruby/a.rb"
+  run lintball check "ruby/a.rb"
   assert_success
 }
 
-@test "lintball ruby (inferred from hashbang)" {
-  run lintball "ruby/a"
+@test "lintball check ruby (inferred from hashbang)" {
+  run lintball check "ruby/a"
   assert_failure
-  run lintball --write "ruby/a"
-  run lintball "ruby/a"
+  run lintball fix "ruby/a"
+  run lintball check "ruby/a"
   assert_success
 }
 
-@test "lintball unhandled is a no-op" {
-  run lintball "unhandled.txt"
+@test "lintball check unhandled is a no-op" {
+  run lintball check "unhandled.txt"
   assert_success
 }
 
-@test "lintball does not check ignored files" {
-  prev="$(cat "py th on/a.py")"
-  echo "# this is a comment" >".lintball-ignore"
-  echo "*/py th on/*   # this is another comment" >>".lintball-ignore"
-  run lintball "py th on/a.py"
+@test "lintball check does not check ignored files" {
+  mkdir -p vendor
+  cp ruby/a.rb vendor/
+  run lintball check vendor/a.rb
   assert_success
 }

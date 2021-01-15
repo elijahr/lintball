@@ -50,6 +50,8 @@ main() {
   exit "$status"
 }
 
+load_config "${LINTBALL_DIR}/configs/lintballrc.json"
+
 if [ -z "${LINTBALL_CONFIG:-}" ]; then
   LINTBALL_CONFIG="$(find_config)"
 fi

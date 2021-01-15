@@ -10,7 +10,7 @@
     "isort": "--profile black --check-only",
     "autoflake": "--check --expand-star-imports --remove-all-unused-imports --remove-duplicate-keys --remove-unused-variables",
     "black": "--check",
-    "shellcheck": "--external-sources -shell=$lang --severity=style --exclude=SC2164",
+    "shellcheck": "--external-sources --shell=$lang --severity=style --exclude=SC2164",
     "nimpretty": ""
   },
   "write_args": {

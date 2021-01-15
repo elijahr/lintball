@@ -54,8 +54,6 @@ jobs:
           . "${HOME}/.lintball/lintball.sh"
           test -n "${LINTBALL_DIR:-}"
           test -n "$(which lintball)"
-          test -n "$(which lintball --write)"
-          test -n "$(which install-lintball-githooks)"
 
       - name: Install fish
         run: sudo apt-get install fish
@@ -71,8 +69,6 @@ jobs:
           source "$HOME/.lintball/lintball.fish"; or exit 1
           test -n "$LINTBALL_DIR"; or exit
           test -n "(which lintball)"; or exit 1
-          test -n "(which lintball --write)"; or exit 1
-          test -n "(which install-lintball-githooks)"; or exit 1
 
   lint:
     name: lint

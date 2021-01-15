@@ -41,7 +41,7 @@ curl -o- https://raw.githubusercontent.com/elijahr/lintball/v0.3.0/install.sh | 
 
 Running the above command downloads a script and runs it. The script clones the lintball repository to ~/.lintball, and configures your PATH to include the lintball scripts. Currently, fish, bash, and zsh are supported.
 
-If you are using lintball with a git-managed project, we suggest using the pre-commit hook, installed via `install-lintball-githooks`. Your code will be automatically fixed on commit - and any linter errors will block the commit with a helpful error message.
+If you are using lintball with a git-managed project, we suggest using the pre-commit hook, installed via `lintball copy-githooks`. Your code will be automatically fixed on commit - and any linter errors will block the commit with a helpful error message.
 
 ### Dependencies
 
@@ -51,30 +51,41 @@ By default, lintball will not install any linters. You do not need to install al
 ~/.lintball/extras/install-deps.sh
 ```
 
-If lintball checks are failing because of some missing linter that you do not wish to install, you can add an entry to your `.lintball-ignore` file - see the section on [ignore patterns](#ignore-patterns) below.
+If lintball checks are failing because of some missing linter that you do not wish to install, you can create a custom `.lintballrc.json` file - see the section on [ignore patterns](#ignore-patterns) below.
 
 ## Usage
 
-lintball provides two scripts:
+```
+Usage: lintball [options] [command] [command options]
 
-- `install-lintball-githooks` will configure the current working directory to use lintball's pre-commit hook, which fixes all auto-fixable problems found in the staged changes, and exits with an error if any issues cannot be fixed.
-- `lintball`, usage below:
+Options:
 
-  ```
-  Usage: lintball [options] [path …]
+  -h | --help
+      Show this help message & exit.
 
-  Running without any options will check your code, skipping over directories such as node_modules.
+  -v | --version
+      Print version & exit.
 
-  Options:
-    -h|--help
-        Show this help message & exit.
-    --write
-        Auto fix any fixable issues. By default $script_name will simply notify
-        you of linter issues.
-    --list
-        List files which lintball has a linter for and would attempt to check or
-        fix. Useful for debugging a .lintball-ignore file.
-  ```
+  -c | --config path
+      Use the .lintballrc.json config file at path.
+
+Commands:
+
+  check [path ...]
+      Check for and display linter issues recursively in paths or working dir.
+
+  fix [path ...]
+      Auto fix all fixable issues recursively in paths or working dir.
+
+  list [path ...]
+      List files which lintball recognizes for checking or fixing.
+
+  copy-githooks [path]
+      Install lintball githooks in the git repo at path or working dir.
+
+  copy-lintballrc [path]
+      Place a default .lintballrc.json configuration file in path or working dir.
+```
 
 ### Continuous Integration
 
@@ -95,26 +106,26 @@ cd ~/.lintball; ./install.sh
 By default, lintball will not check any files matching the following patterns:
 
 ```sh
+*/.build/*
+*/.cache/*
 */.git/*
 */.hg/*
-*/node_modules/*
-*/package-lock.json
 */.next/*
 */.serverless_nextjs/*
 */.tmp/*
-*/tmp/*
-*/.build/*
+*/__pycache__/*
 */build/*
 */dist/*
-*/__pycache__/*
-*/Pipfile.lock
-*/vendor/*
 */Gemfile.lock
+*/node_modules/*
+*/package-lock.json
+*/Pipfile.lock
+*/tmp/*
+*/vendor/*
 ```
 
 Patterns are globs, as would be passed to the `find` command's `-path` argument.
-To customize this list, create a `.lintball-ignore` file in your project.
-`install-lintball-githooks` will create this file for you.
+To add or remove items from this list, run `lintball copy-lintballrc` and edit the created `.lintballrc.json` file.
 
 ### Tool configuration
 

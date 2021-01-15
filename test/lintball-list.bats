@@ -13,51 +13,55 @@ teardown() {
   teardown_test
 }
 
-@test "lintball ignores ignored files" {
-  echo "# this is a comment" >".lintball-ignore"
-  echo "*/py th on/*   # this is another comment" >>".lintball-ignore"
-  echo "*/*.json" >>".lintball-ignore"
-  echo "*/node_modules/*" >>".lintball-ignore"
-  run lintball --list
+@test "lintball list ignores ignored files" {
+  mkdir -p vendor
+  cp ruby/a.rb vendor/
+  run lintball list
   assert_success
   expected="$(
     cat <<EOF
-./a.md
-./a.nim
 ./a.yml
+./test/a.expected
+./test/a.bats
+./py th on/a.py
+./py th on/a
+./py th on/a.pyx
 ./bash/a
 ./bash/a.bash
-./ruby/a
-./ruby/a.rb
+./a.nim
 ./sh/a
 ./sh/a.sh
-./test/a.bats
-./test/a.expected
+./package.json
+./a.md
+./ruby/a
+./ruby/a.rb
 EOF
   )"
   assert_output "$expected"
 }
 
-@test "lintball ignores ignored files whose path is explicitly passed as and arg" {
-  echo "# this is a comment" >".lintball-ignore"
-  echo "*/py th on/*   # this is another comment" >>".lintball-ignore"
-  echo "*/*.json" >>".lintball-ignore"
-  echo "*/node_modules/*" >>".lintball-ignore"
-  run lintball --list "py th on/a.py"
+@test "lintball list ignores ignored files whose path is explicitly passed as an arg" {
+  mkdir -p vendor
+  cp ruby/a.rb vendor/
+  run lintball list "vendor/a.rb"
   assert_success
   expected="$(
     cat <<EOF
-./a.md
-./a.nim
 ./a.yml
+./test/a.expected
+./test/a.bats
+./py th on/a.py
+./py th on/a
+./py th on/a.pyx
 ./bash/a
 ./bash/a.bash
-./ruby/a
-./ruby/a.rb
+./a.nim
 ./sh/a
 ./sh/a.sh
-./test/a.bats
-./test/a.expected
+./package.json
+./a.md
+./ruby/a
+./ruby/a.rb
 EOF
   )"
 }
