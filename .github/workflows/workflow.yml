@@ -7,9 +7,6 @@ on:
   push:
     brances: ["*"]
 
-env:
-  NODEJS_CHECK_SIGNATURES: no
-
 jobs:
   test:
     name: bats tests

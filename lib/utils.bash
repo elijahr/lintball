@@ -830,7 +830,7 @@ lintball_fix() {
 
 lintball_list() {
   local line
-  eval "$(cmd_find "$@")" | while read -r line; do
+  eval "$(cmd_find "$@" | sort -n)" | while read -r line; do
     if assert_handled_path "$line"; then
       line="$(normalize_path "$line")"
       echo "$line"
