@@ -20,21 +20,21 @@ teardown() {
   assert_success
   expected="$(
     cat <<EOF
+./a.md
+./a.nim
 ./a.yml
-./test/a.expected
-./test/a.bats
-./py th on/a.py
-./py th on/a
-./py th on/a.pyx
 ./bash/a
 ./bash/a.bash
-./a.nim
-./sh/a
-./sh/a.sh
 ./package.json
-./a.md
+./py th on/a
+./py th on/a.py
+./py th on/a.pyx
 ./ruby/a
 ./ruby/a.rb
+./sh/a
+./sh/a.sh
+./test/a.bats
+./test/a.expected
 EOF
   )"
   assert_output "$expected"
@@ -47,21 +47,21 @@ EOF
   assert_success
   expected="$(
     cat <<EOF
+./a.md
+./a.nim
 ./a.yml
-./test/a.expected
-./test/a.bats
-./py th on/a.py
-./py th on/a
-./py th on/a.pyx
 ./bash/a
 ./bash/a.bash
-./a.nim
-./sh/a
-./sh/a.sh
 ./package.json
-./a.md
+./py th on/a
+./py th on/a.py
+./py th on/a.pyx
 ./ruby/a
 ./ruby/a.rb
+./sh/a
+./sh/a.sh
+./test/a.bats
+./test/a.expected
 EOF
   )"
 }
