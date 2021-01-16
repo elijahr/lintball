@@ -8,8 +8,8 @@ on:
     brances: ["*"]
 
 jobs:
-  test:
-    name: bats tests
+  tests:
+    name: tests
 
     runs-on: ubuntu-latest
     steps:
@@ -26,7 +26,7 @@ jobs:
 
       - uses: actions/setup-node@v2
         with:
-          python-version: "15.x"
+          node-version: "15.x"
 
       # Install nim
       - uses: asdf-vm/actions/install@v1
@@ -37,9 +37,9 @@ jobs:
           run: |
             set -euxo pipefail
 
-            cache-restore npm
+            cache-restore npm-dev
             npm install --include=dev
-            cache-save npm
+            cache-save npm-dev
 
             cache-restore pip
             pip install -r requirements.txt
@@ -59,3 +59,34 @@ jobs:
 
       - name: Run tests
         run: npm run test
+
+  lint:
+    name: lint
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "15.x"
+
+      # Install nim
+      - uses: asdf-vm/actions/install@v1
+
+      # Install packages in a cache-friendly way, uses config from cache.js
+      - uses: ktmud/cached-dependencies@master
+        with:
+          run: |
+            set -euxo pipefail
+
+            cache-restore npm
+            npm install
+            cache-save npm
+
+      - name: Install ShellCheck & shfmt
+        run: brew install shellcheck shfmt
+
+      - name: Check for linter issues
+        run: ./bin/lintball check
