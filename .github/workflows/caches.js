@@ -45,4 +45,10 @@ module.exports = {
     keyPrefix: "gem-",
     restoreKeys: "gem-",
   },
+  brew: {
+    path: `${HOME}/.cache/Homebrew`,
+    hashFiles: ["brew-requirements.txt"],
+    keyPrefix: "brew-",
+    restoreKeys: "brew-",
+  },
 };
