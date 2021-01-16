@@ -37,9 +37,9 @@ jobs:
           run: |
             set -euxo pipefail
 
-            cache-restore npm-dev
+            cache-restore npmdev
             npm install --include=dev
-            cache-save npm-dev
+            cache-save npmdev
 
             cache-restore pip
             pip install -r requirements.txt

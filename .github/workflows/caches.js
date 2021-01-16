@@ -11,11 +11,11 @@ module.exports = {
     keyPrefix: "npm-",
     restoreKeys: "npm-",
   },
-  "npm-dev": {
+  npmdev: {
     path: [`${process.env.HOME}/.npm`],
     hashFiles: ["package-lock.json"],
-    keyPrefix: "npm-dev-",
-    restoreKeys: "npm-dev-",
+    keyPrefix: "npmdev-",
+    restoreKeys: "npmdev-",
   },
   bundler: {
     path: [`${process.env.GITHUB_WORKSPACE}/vendor/bundle/ruby/3.0.0/cache`],
