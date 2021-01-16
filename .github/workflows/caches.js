@@ -1,4 +1,5 @@
 const os = require("os");
+const execSync = require("child_process").execSync;
 
 const { HOME = "~", GITHUB_WORKSPACE } = process.env;
 
@@ -13,6 +14,17 @@ const pathByPlatform = {
     pip: `${HOME}\\AppData\\Local\\pip\\Cache`,
   },
 };
+
+const RUBY_VERSION = execSync(
+  "bash -c \"gem environment | grep -F 'RUBY VERSION' | awk '{ print \\$4 }'\""
+)
+  .toString()
+  .trim();
+const GEM_INSTALLATION_DIRECTORY = execSync(
+  "bash -c \"gem environment | grep -F 'INSTALLATION DIRECTORY' | head -n1 | awk '{ print \\$4 }'\""
+)
+  .toString()
+  .trim();
 
 module.exports = {
   pip: {
@@ -34,13 +46,13 @@ module.exports = {
     restoreKeys: "npmDev-",
   },
   bundler: {
-    path: `${GITHUB_WORKSPACE}/vendor/bundle/ruby/3.0.0/cache`,
+    path: `${GITHUB_WORKSPACE}/vendor/bundle/ruby/${RUBY_VERSION}/cache`,
     hashFiles: ["Gemfile.lock"],
     keyPrefix: "bundler-",
     restoreKeys: "bundler-",
   },
   gem: {
-    path: "/opt/hostedtoolcache/Ruby/3.0.0/x64/lib/ruby/gems/3.0.0/cache",
+    path: `${GEM_INSTALLATION_DIRECTORY}/cache`,
     hashFiles: [],
     keyPrefix: "gem-",
     restoreKeys: "gem-",
