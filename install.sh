@@ -56,6 +56,13 @@ echo "lintball updated to $(
       python3 -m venv "python-env"
     fi
     python-env/bin/pip install -r requirements-pip.txt
+  elif [ -n "$(which python)" ]; then
+    if python -c "import sys; sys.exit(0 if sys.version_info >= (3,3,0) else 1)"; then
+      if [ ! -d "${LB_DIR}/python-env" ]; then
+        python -m venv "python-env"
+      fi
+      python-env/bin/pip install -r requirements-pip.txt
+    fi
   fi
 
   if [ -n "$(which npm)" ]; then
