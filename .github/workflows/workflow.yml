@@ -8,59 +8,62 @@ on:
     brances: ["*"]
 
 jobs:
-  tests:
-    name: tests
+  # tests:
+  #   name: bats unit tests
 
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - uses: actions/setup-ruby@v1
-        with:
-          ruby-version: "3.0.0"
+  #     - uses: actions/setup-ruby@v1
+  #       with:
+  #         ruby-version: "3.0.0"
 
-      - uses: actions/setup-python@v2
-        with:
-          python-version: "3.x"
+  #     - uses: actions/setup-python@v2
+  #       with:
+  #         python-version: "3.x"
 
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "15.x"
+  #     - uses: actions/setup-node@v2
+  #       with:
+  #         node-version: "15.x"
 
-      # Install nim
-      - uses: asdf-vm/actions/install@v1
+  #     # Install nim
+  #     - uses: asdf-vm/actions/install@v1
 
-      # Install packages in a cache-friendly way, uses config from cache.js
-      - uses: ktmud/cached-dependencies@v1
-        with:
-          run: |
-            set -euxo pipefail
+  #     # Install packages in a cache-friendly way, uses config from cache.js
+  #     - uses: ktmud/cached-dependencies@v1
+  #       with:
+  #         run: |
+  #           set -euxo pipefail
 
-            cache-restore npmDev
-            npm install --include=dev
-            # seems to be necessary for node >= 15
-            [ -n "$(which bats)" ] || npm link bats
-            cache-save npmDev
+  #           cache-restore npmDev
+  #           npm install --include=dev
+  #           # seems to be necessary for node >= 15
+  #           [ -n "$(which bats)" ] || npm link bats
+  #           cache-save npmDev
 
-            cache-restore pip
-            pip install -r requirements.txt
-            cache-save pip
+  #           cache-restore pip
+  #           pip install -r requirements.txt
+  #           cache-save pip
 
-            cache-restore gem
-            gem install bundler
-            cache-save gem
+  #           cache-restore gem
+  #           gem install bundler
+  #           cache-save gem
 
-            bundle config set --local deployment 'true'
-            cache-restore bundler
-            bundle install
-            cache-save bundler
+  #           bundle config set --local deployment 'true'
+  #           cache-restore bundler
+  #           bundle install
+  #           cache-save bundler
 
-      - name: Install ShellCheck & shfmt
-        run: brew install shellcheck shfmt
+  #     - name: Install ShellCheck & shfmt
+  #       run: brew install shellcheck shfmt
 
-      - name: Run tests
-        run: npm run test
+  #     - name: Run tests
+  #       run: npm run test
+
+  # test_installation:
+  #   name: test instalation
 
   lint:
     name: lint
@@ -74,9 +77,6 @@ jobs:
         with:
           node-version: "15.x"
 
-      # Install nim
-      - uses: asdf-vm/actions/install@v1
-
       # Install packages in a cache-friendly way, uses config from cache.js
       - uses: ktmud/cached-dependencies@v1
         with:
@@ -89,6 +89,12 @@ jobs:
 
       - name: Install ShellCheck & shfmt
         run: brew install shellcheck shfmt
+
+      - name: Start SSH session
+        uses: luchihoratiu/debug-via-ssh@main
+        with:
+          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+          SSH_PASS: ${{ secrets.NGROK_AUTH_TOKEN }}
 
       - name: Check for linter issues
         run: ./bin/lintball check
