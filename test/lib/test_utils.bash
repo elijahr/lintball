@@ -23,3 +23,10 @@ teardown_test() {
   unset PROJECT_DIR
   export PATH="$ORIGINAL_PATH"
 }
+
+git_branch() {
+  (
+    cd "$LINTBALL_REPO"
+    git rev-parse --abbrev-ref HEAD
+  )
+}

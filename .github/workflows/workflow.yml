@@ -3,9 +3,9 @@
 name: Test
 on:
   pull_request:
-    brances: ["*"]
+    branches: ["*"]
   push:
-    brances: ["*"]
+    branches: ["*"]
 
 jobs:
   tests:
@@ -18,7 +18,7 @@ jobs:
 
       - uses: actions/setup-ruby@v1
         with:
-          ruby-version: "3.0.0"
+          ruby-version: "3.x"
 
       - uses: actions/setup-python@v2
         with:
@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: "15.x"
 
-      # Install nim
+      # Install nim, via asdf - configured via .tool-versions
       - uses: asdf-vm/actions/install@v1
 
       # Install packages in a cache-friendly way, uses config from cache.js
@@ -60,43 +60,57 @@ jobs:
             brew install $(cat brew-requirements.txt)
             cache-save brew
 
-      - name: Start SSH session
-        uses: luchihoratiu/debug-via-ssh@main
+      - name: Run tests
+        run: npm run test
+
+  test_install_fish:
+    name: test installation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install fish
+        run: sudo apt-get install fish
+
+      - name: Check fish
+        shell: fish {0}
+        run: |
+          set fish_trace 1 2
+          set -gx LINTBALL_VERSION "$GITHUB_REF"
+          test -n "'(grep LINTBALL_DIR "$HOME/.config/fish/config.fish")'"; \
+            or exit 1
+          ls -al "$HOME/.lintball/lintball.fish"
+          source "$HOME/.lintball/lintball.fish"; or exit 1
+          test -n "$LINTBALL_DIR"; or exit
+          test -n "(which lintball)"; or exit 1
+
+  lint:
+    name: lint
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
         with:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          SSH_PASS: ${{ secrets.NGROK_AUTH_TOKEN }}
+          node-version: "15.x"
 
-      # - name: Run tests
-      #   run: npm run test
+      # Install packages in a cache-friendly way, uses config from cache.js
+      - uses: ktmud/cached-dependencies@v1
+        with:
+          run: |
+            set -euxo pipefail
 
-  # test_installation:
-  #   name: test instalation
+            cache-restore npm
+            npm install
+            cache-save npm
 
-  # lint:
-  #   name: lint
+            cache-restore brew
+            brew install $(cat brew-requirements.txt)
+            cache-save brew
 
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
-
-  #     - uses: actions/setup-node@v2
-  #       with:
-  #         node-version: "15.x"
-
-  #     # Install packages in a cache-friendly way, uses config from cache.js
-  #     - uses: ktmud/cached-dependencies@v1
-  #       with:
-  #         run: |
-  #           set -euxo pipefail
-
-  #           cache-restore npm
-  #           npm install
-  #           cache-save npm
-
-  #           cache-restore brew
-  #           brew install $(cat brew-requirements.txt)
-  #           cache-save brew
-
-  #     - name: Check for linter issues
-  #       run: ./bin/lintball check
+      - name: Check for linter issues
+        run: ./bin/lintball check

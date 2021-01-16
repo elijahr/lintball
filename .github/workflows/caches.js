@@ -6,9 +6,11 @@ const { HOME = "~", GITHUB_WORKSPACE } = process.env;
 const pathByPlatform = {
   linux: {
     pip: `${HOME}/.cache/pip`,
+    brew: `${HOME}/.cache/Homebrew`,
   },
   darwin: {
     pip: `${HOME}/Library/Caches/pip`,
+    brew: `${HOME}/Library/Caches/Homebrew/`,
   },
   win32: {
     pip: `${HOME}\\AppData\\Local\\pip\\Cache`,
@@ -58,7 +60,7 @@ module.exports = {
     restoreKeys: "gem-",
   },
   brew: {
-    path: `${HOME}/.cache/Homebrew`,
+    path: pathByPlatform[os.platform()].brew,
     hashFiles: ["brew-requirements.txt"],
     keyPrefix: "brew-",
     restoreKeys: "brew-",

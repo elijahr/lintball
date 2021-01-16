@@ -9,10 +9,11 @@ fi
 
 LB_DIR="${1:-"${HOME}/.lintball"}"
 LINTBALL_VERSION="${LINTBALL_VERSION:-"refs/heads/devel"}"
+LINTBALL_REPO="${LINTBALL_REPO:-"https://github.com/elijahr/lintball.git"}"
 
 if [ ! -d "$LB_DIR" ]; then
   echo "cloning lintball → ${LB_DIR}…"
-  git clone https://github.com/elijahr/lintball.git "$LB_DIR" 2>/dev/null
+  git clone "$LINTBALL_REPO" "$LB_DIR" 2>/dev/null
 else
   # Update
   echo "lintball already installed in ${LB_DIR}, updating…"
@@ -47,17 +48,15 @@ EOF
 echo
 
 # bash
-if [ -f "${HOME}/.bashrc" ]; then
-  if ! grep -qF "LINTBALL_DIR" "${HOME}/.bashrc"; then
-    echo "$posix_insert" >>"${HOME}/.bashrc"
-  fi
-  echo "lintball → ${HOME}/.bashrc"
-elif [ -f "${HOME}/.bash_profile" ]; then
-  if ! grep -qF "LINTBALL_DIR" "${HOME}/.bash_profile"; then
-    echo "$posix_insert" >>"${HOME}/.bash_profile"
-  fi
-  echo "lintball → ${HOME}/.bash_profile"
+if ! grep -qF "LINTBALL_DIR" "${HOME}/.bashrc"; then
+  echo "$posix_insert" >>"${HOME}/.bashrc"
 fi
+echo "lintball → ${HOME}/.bashrc"
+
+if ! grep -qF "LINTBALL_DIR" "${HOME}/.bash_profile"; then
+  echo "$posix_insert" >>"${HOME}/.bash_profile"
+fi
+echo "lintball → ${HOME}/.bash_profile"
 
 # zsh
 if ! grep -qF "LINTBALL_DIR" "${HOME}/.zshrc"; then
