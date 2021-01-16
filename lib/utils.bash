@@ -102,12 +102,12 @@ cmd_rubocop() {
   fi
 
   if [ "$write" = "yes" ]; then
-    echo "rubocop \
+    echo "bundle exec rubocop \
       $color \
       $(eval echo "${LINTBALL__WRITE_ARGS__RUBOCOP}") \
       '$path'"
   else
-    echo "rubocop \
+    echo "bundle exec rubocop \
       $color \
       $(eval echo "${LINTBALL__CHECK_ARGS__RUBOCOP}") \
       '$path'"
