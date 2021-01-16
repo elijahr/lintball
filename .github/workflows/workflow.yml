@@ -32,7 +32,7 @@ jobs:
       - uses: asdf-vm/actions/install@v1
 
       # Install packages in a cache-friendly way, uses config from cache.js
-      - uses: ktmud/cached-dependencies@master
+      - uses: ktmud/cached-dependencies@v1
         with:
           run: |
             set -euxo pipefail
@@ -78,7 +78,7 @@ jobs:
       - uses: asdf-vm/actions/install@v1
 
       # Install packages in a cache-friendly way, uses config from cache.js
-      - uses: ktmud/cached-dependencies@master
+      - uses: ktmud/cached-dependencies@v1
         with:
           run: |
             set -euxo pipefail
