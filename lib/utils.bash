@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
 LINTBALL_DIR="${LINTBALL_DIR:-"${HOME}/.lintball"}"
+
+BUNDLE_GEMFILE="${LINTBALL_DIR}/Gemfile"
+export BUNDLE_GEMFILE
+
 DOTS="..................................."
 
 LINTBALL_IGNORES=()

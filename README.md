@@ -107,6 +107,7 @@ By default, lintball will not check any files matching the following patterns:
 
 ```sh
 */.build/*
+*/.bundle/*
 */.cache/*
 */.git/*
 */.hg/*

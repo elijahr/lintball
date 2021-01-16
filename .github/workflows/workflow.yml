@@ -21,7 +21,7 @@ jobs:
 
       - uses: actions/setup-ruby@v1
         with:
-          ruby-version: "3.x"
+          ruby-version: "3.0.0"
 
       - uses: actions/setup-python@v2
         with:
@@ -34,21 +34,28 @@ jobs:
       # Install nim
       - uses: asdf-vm/actions/install@v1
 
-      - run: |
-          set -euxo pipefail
-          npm install --include=dev
-          # which bats || npm link bats
-
-          pip install -r requirements.txt
-
-          gem install bundler
-          bundle config set --local deployment 'true'
-          bundle install
-
-          echo "GITHUB_PATH=$GITHUB_PATH"
-
-      - name: Start SSH session
-        uses: luchihoratiu/debug-via-ssh@main
+      # Install packages in a cache-friendly way, uses config from cache.js
+      - uses: ktmud/cached-dependencies@v1
         with:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          SSH_PASS: ${{ secrets.NGROK_AUTH_TOKEN }}
+          run: |
+            set -euxo pipefail
+
+            cache-restore npm
+            npm install --include=dev
+            cache-save npm
+
+            cache-restore pip
+            pip install -r requirements.txt
+            cache-save pip
+
+            cache-restore gem
+            gem install bundler
+            cache-save gem
+
+            bundle config set --local deployment 'true'
+            cache-restore bundler
+            bundle install
+            cache-save bundler
+
+      - name: Run tests
+        run: npm run test

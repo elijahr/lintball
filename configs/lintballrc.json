@@ -29,6 +29,7 @@
   },
   "ignores": [
     "*/.build/*",
+    "*/.bundle/*",
     "*/.cache/*",
     "*/.git/*",
     "*/.hg/*",

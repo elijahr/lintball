@@ -1,24 +1,25 @@
 module.exports = {
   pip: {
     path: [`${process.env.HOME}/.cache/pip`],
-    hashFiles: ["requirements*.txt"],
+    hashFiles: ["requirements.txt"],
     keyPrefix: "pip-",
     restoreKeys: "pip-",
   },
   npm: {
     path: [`${process.env.HOME}/.npm`],
-    hashFiles: [
-      `package-lock.json`,
-      `*/*/package-lock.json`,
-      `!node_modules/*/package-lock.json`,
-    ],
+    hashFiles: ["package-lock.json"],
+    keyPrefix: "npm-",
+    restoreKeys: "npm-",
   },
-  // npm: {
-  //   path: [`${process.env.HOME}/.npm`],
-  //   hashFiles: [
-  //     `package-lock.json`,
-  //     `*/*/package-lock.json`,
-  //     `!node_modules/*/package-lock.json`,
-  //   ],
-  // },
+  bundler: {
+    path: [`${process.env.GITHUB_WORKSPACE}/vendor/bundle/ruby/3.0.0/cache`],
+    hashFiles: ["Gemfile.lock"],
+    keyPrefix: "bundler-",
+    restoreKeys: "bundler-",
+  },
+  gem: {
+    path: ["/opt/hostedtoolcache/Ruby/3.0.0/x64/lib/ruby/gems/3.0.0/cache"],
+    keyPrefix: "gem-",
+    restoreKeys: "gem-",
+  },
 };
