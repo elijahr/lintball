@@ -1,1 +1,1 @@
-shellcheck shfmt
+shellcheck shfmt fish zsh
