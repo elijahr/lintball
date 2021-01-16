@@ -1,1 +1,0 @@
-shellcheck shfmt fish zsh

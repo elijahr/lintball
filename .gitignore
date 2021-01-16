@@ -110,3 +110,4 @@ dist
 extras/piu
 .DS_Store
 /.bundle
+/python-env

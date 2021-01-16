@@ -3,7 +3,7 @@
 set -ueo pipefail
 
 if [ -n "${CI:-}" ]; then
-  # in CI systems, show debug output
+  # on CI systems show debug output
   set -x
 fi
 
@@ -35,6 +35,38 @@ echo "lintball updated to $(
   cd "$LB_DIR"
   git show-ref origin "$LINTBALL_VERSION" | awk '{ print $1 }'
 )"
+
+(
+  cd "$LB_DIR"
+  if [ -z "$(which shellcheck)" ] || [ -z "$(which shellcheck)" ]; then
+    if [ -n "$(which brew)" ]; then
+      # shellcheck disable=SC2046
+      brew install $(cat "requirements-brew.txt")
+    else
+      echo
+      echo "notice: shellcheck or shfmt not installed on this system."
+      echo "lintball will not be able to lint shell scripts until you manually"
+      echo "install these packages."
+      echo
+    fi
+  fi
+
+  if [ -n "$(which python3)" ]; then
+    if [ ! -d "${LB_DIR}/python-env" ]; then
+      python3 -m venv "python-env"
+    fi
+    python-env/bin/pip install -r requirements-pip.txt
+  fi
+
+  if [ -n "$(which npm)" ]; then
+    npm install
+  fi
+
+  if [ -n "$(which bundle)" ]; then
+    bundle config set --local deployment 'true'
+    bundle install
+  fi
+)
 
 posix_insert="$(
   cat <<EOF

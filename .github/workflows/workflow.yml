@@ -44,7 +44,8 @@ jobs:
             cache-save npmDev
 
             cache-restore pip
-            pip install -r requirements.txt
+            python3 -m venv "${PWD}/python-env"
+            python-env/bin/pip install -r requirements-pip.txt
             cache-save pip
 
             cache-restore gem
@@ -57,8 +58,13 @@ jobs:
             cache-save bundler
 
             cache-restore brew
-            brew install $(cat brew-requirements.txt)
+            brew install $(cat requirements-brew.txt)
             cache-save brew
+
+            cache-restore apt
+            sudo apt-get update
+            sudo apt-get install -y $(cat requirements-apt.txt)
+            cache-save apt
 
       - name: Run tests
         run: npm run test

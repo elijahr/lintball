@@ -43,16 +43,6 @@ Running the above command downloads a script and runs it. The script clones the 
 
 If you are using lintball with a git-managed project, we suggest using the pre-commit hook, installed via `lintball copy-githooks`. Your code will be automatically fixed on commit - and any linter errors will block the commit with a helpful error message.
 
-### Dependencies
-
-By default, lintball will not install any linters. You do not need to install all linters to use lintball; lintball will only use linters that correspond to the files in your project. To install all linters:
-
-```sh
-~/.lintball/extras/install-deps.sh
-```
-
-If lintball checks are failing because of some missing linter that you do not wish to install, you can create a custom `.lintballrc.json` file - see the section on [ignore patterns](#ignore-patterns) below.
-
 ## Usage
 
 ```

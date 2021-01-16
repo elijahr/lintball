@@ -136,11 +136,11 @@ cmd_autopep8() {
   write="$1"
   path="$2"
   if [ "$write" = "yes" ]; then
-    echo "autopep8 \
+    echo "${LINTBALL_DIR}/python-env/bin/autopep8 \
       $(eval echo "${LINTBALL__WRITE_ARGS__AUTOPEP8}") \
       '$path'"
   else
-    echo "autopep8 \
+    echo "${LINTBALL_DIR}/python-env/bin/autopep8 \
       $(eval echo "${LINTBALL__CHECK_ARGS__AUTOPEP8}") \
       '$path'"
   fi
@@ -151,11 +151,11 @@ cmd_docformatter() {
   write="$1"
   path="$2"
   if [ "$write" = "yes" ]; then
-    echo "docformatter \
+    echo "${LINTBALL_DIR}/python-env/bin/docformatter \
       $(eval echo "${LINTBALL__WRITE_ARGS__DOCFORMATTER}") \
       '$path'"
   else
-    echo "docformatter \
+    echo "${LINTBALL_DIR}/python-env/bin/docformatter \
       $(eval echo "${LINTBALL__CHECK_ARGS__DOCFORMATTER}") \
       '$path'"
   fi
@@ -166,11 +166,11 @@ cmd_isort() {
   write="$1"
   path="$2"
   if [ "$write" = "yes" ]; then
-    echo "isort \
+    echo "${LINTBALL_DIR}/python-env/bin/isort \
       $(eval echo "${LINTBALL__WRITE_ARGS__ISORT}") \
       '$path'"
   else
-    echo "isort \
+    echo "${LINTBALL_DIR}/python-env/bin/isort \
       $(eval echo "${LINTBALL__CHECK_ARGS__ISORT}") \
       '$path'"
   fi
@@ -181,11 +181,11 @@ cmd_autoflake() {
   write="$1"
   path="$2"
   if [ "$write" = "yes" ]; then
-    echo "autoflake \
+    echo "${LINTBALL_DIR}/python-env/bin/autoflake \
       $(eval echo "${LINTBALL__WRITE_ARGS__AUTOFLAKE}") \
       '$path'"
   else
-    echo "autoflake \
+    echo "${LINTBALL_DIR}/python-env/bin/autoflake \
       $(eval echo "${LINTBALL__CHECK_ARGS__AUTOFLAKE}") \
       '$path'"
   fi
@@ -196,11 +196,11 @@ cmd_black() {
   write="$1"
   path="$2"
   if [ "$write" = "yes" ]; then
-    echo "black \
+    echo "${LINTBALL_DIR}/python-env/bin/black \
       $(eval echo "${LINTBALL__WRITE_ARGS__BLACK}") \
       '$path'"
   else
-    echo "black \
+    echo "${LINTBALL_DIR}/python-env/bin/black \
       $(eval echo "${LINTBALL__CHECK_ARGS__BLACK}") \
       '$path'"
   fi

@@ -22,6 +22,7 @@ const RUBY_VERSION = execSync(
 )
   .toString()
   .trim();
+
 const GEM_INSTALLATION_DIRECTORY = execSync(
   "bash -c \"gem environment | grep -F 'INSTALLATION DIRECTORY' | head -n1 | awk '{ print \\$4 }'\""
 )
@@ -31,7 +32,7 @@ const GEM_INSTALLATION_DIRECTORY = execSync(
 module.exports = {
   pip: {
     path: pathByPlatform[os.platform()].pip,
-    hashFiles: ["requirements.txt"],
+    hashFiles: ["requirements-pip.txt"],
     keyPrefix: "pip-",
     restoreKeys: "pip-",
   },
@@ -61,8 +62,14 @@ module.exports = {
   },
   brew: {
     path: pathByPlatform[os.platform()].brew,
-    hashFiles: ["brew-requirements.txt"],
+    hashFiles: ["requirements-brew.txt"],
     keyPrefix: "brew-",
     restoreKeys: "brew-",
+  },
+  apt: {
+    path: "/var/cache/apt/archives",
+    hashFiles: ["requirements-apt.txt"],
+    keyPrefix: "apt-",
+    restoreKeys: "apt-",
   },
 };
