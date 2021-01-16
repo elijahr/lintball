@@ -92,7 +92,7 @@ jobs:
             cache-save npm
 
             cache-restore brew
-            brew install $(cat brew-requirements.txt)
+            brew install $(cat requirements-brew.txt)
             cache-save brew
 
       - name: Check for linter issues
