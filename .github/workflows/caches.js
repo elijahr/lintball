@@ -41,6 +41,7 @@ module.exports = {
   },
   gem: {
     path: "/opt/hostedtoolcache/Ruby/3.0.0/x64/lib/ruby/gems/3.0.0/cache",
+    hashFiles: [],
     keyPrefix: "gem-",
     restoreKeys: "gem-",
   },
