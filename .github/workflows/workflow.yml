@@ -35,7 +35,7 @@ jobs:
       - uses: asdf-vm/actions/install@v1
 
       # Install packages in a cache-friendly way, uses config from cache.js
-      - uses: ktmud/cached-dependencies@v1
+      - uses: ktmud/cached-dependencies@master
         with:
           run: |
             set -euxo pipefail
@@ -56,6 +56,9 @@ jobs:
             cache-restore bundler
             bundle install
             cache-save bundler
+
+      - name: Install ShellCheck & shfmt
+        run: brew install shellcheck shfmt
 
       - name: Run tests
         run: npm run test
