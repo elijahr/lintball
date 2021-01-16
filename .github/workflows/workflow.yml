@@ -26,7 +26,7 @@ jobs:
 
       - uses: actions/setup-node@v2
         with:
-          node-version: "14.x"
+          node-version: "15.x"
 
       # Install nim
       - uses: asdf-vm/actions/install@v1
@@ -37,9 +37,11 @@ jobs:
           run: |
             set -euxo pipefail
 
-            cache-restore npmdev
+            cache-restore npmDev
             npm install --include=dev
-            cache-save npmdev
+            # seems to be necessary for node >= 15
+            [ -n "$(which bats)" ] || npm link bats
+            cache-save npmDev
 
             cache-restore pip
             pip install -r requirements.txt
