@@ -8,7 +8,7 @@ if [ -n "${CI:-}" ]; then
 fi
 
 LB_DIR="${1:-"${HOME}/.lintball"}"
-LINTBALL_VERSION="${LINTBALL_VERSION:-"refs/heads/devel"}"
+LINTBALL_VERSION="${LINTBALL_VERSION:-"devel"}"
 LINTBALL_REPO="${LINTBALL_REPO:-"https://github.com/elijahr/lintball.git"}"
 
 update_lintball() {
@@ -21,15 +21,14 @@ update_lintball() {
   fi
 
   (
-    cd "${LB_DIR}"
-    git fetch origin "$LINTBALL_VERSION"
-    if [[ $LINTBALL_VERSION =~ ^refs/ ]]; then
-      sha="$(git show-ref origin "${LINTBALL_VERSION//heads/remotes\/origin}" | awk '{ print $1 }')"
-    else
-      sha="$LINTBALL_VERSION"
-    fi
+    cd "$LB_DIR"
     git stash 1>/dev/null
-    git checkout "$sha" 2>/dev/null
+    git fetch origin "$LINTBALL_VERSION"
+    if [[ $LINTBALL_VERSION =~ ^[0-9a-f]{40}$ ]]; then
+      git reset --hard "$LINTBALL_VERSION"
+    else
+      git reset --hard "origin/${LINTBALL_VERSION}"
+    fi
   )
   echo "lintball updated to $LINTBALL_VERSION"
 }

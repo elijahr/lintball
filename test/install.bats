@@ -13,6 +13,10 @@ setup() {
   TMP_DIR="$(mktemp -d)"
   HOME="$TMP_DIR"
 
+  # symlink caches for faster runs
+  ln -s "${ORIGINAL_HOME}/.cache" "${HOME}/.cache"
+  ln -s "${ORIGINAL_HOME}/.npm" "${HOME}/.npm"
+
   # Remove anything from path in ORIGINAL_HOME; version managers that use shims,
   # such as asdf, will break because we have mocked HOME.
   PATH="$(echo "$PATH" | sed "s|${ORIGINAL_HOME}[^:]\{1,\}:||g")"
