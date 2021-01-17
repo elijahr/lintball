@@ -148,9 +148,8 @@ assert_git() {
 
   run "$INSTALL_SH"
   assert [ -d "${lintball_dir}/python-env" ]
-  run "${lintball_dir}/python-env/bin/python" \
-    -m "autoflake" -m "autopep8" -m "black" -m "docformatter" -m "isort" \
-    -m "yamllint"
+  run "${lintball_dir}/python-env/bin/python" -c \
+    "import autoflake, autopep8, black, docformatter, isort, yamllint"
   assert_success
 }
 
