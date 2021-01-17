@@ -138,6 +138,7 @@ assert_git() {
   run "$INSTALL_SH"
   (
     cd "$lintball_dir"
+    git checkout -b "test123"
     git reset --hard HEAD^1
   )
   run "$INSTALL_SH"
