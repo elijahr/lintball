@@ -169,5 +169,5 @@ assert_git() {
   lintball_dir="${TMP_DIR}/.lintball"
 
   run "$INSTALL_SH"
-  assert [ -f "${lintball_dir}/vendor/bundle/ruby/3.0.0/rubocop-1.8.1/exe/rubocop" ]
+  assert [ -f "${lintball_dir}/vendor/bundle/ruby/3.0.0/gems/rubocop-1.8.1/exe/rubocop" ]
 }
