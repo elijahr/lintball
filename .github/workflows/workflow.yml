@@ -100,30 +100,19 @@ jobs:
 
   install:
     name: install - sanity check
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runs-on }}
+
+    strategy:
+      matrix:
+        runs-on:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
 
     steps:
-      # Install packages in a cache-friendly way, uses config from cache.js
-      - uses: ktmud/cached-dependencies@v1
-        with:
-          run: |
-            set -euxo pipefail
-
-            cache-restore gem
-            gem install bundler
-            cache-save gem
-
-            cache-restore brew
-            brew install $(cat requirements-brew.txt)
-            cache-save brew
-
-            cache-restore apt
-            sudo apt-get update
-            sudo apt-get install -y $(cat requirements-apt.txt)
-            cache-save apt
-
       - name: Run install script
         run: curl -o- https://raw.githubusercontent.com/elijahr/lintball/${GITHUB_SHA}/install.sh | bash
 
       - name: Verify installation
+        shell: bash
         run: lintball --help

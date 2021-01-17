@@ -42,10 +42,10 @@ update_deps() {
         # shellcheck disable=SC2046
         brew install $(cat "requirements-brew.txt")
       else
-        echo
-        echo "notice: shellcheck or shfmt not installed on this system."
-        echo "lintball will not be able to lint shell scripts until you manually"
-        echo "install these packages."
+        echo -e
+        echo -e "Warning: shellcheck or shfmt not installed on this system."
+        echo -e "lintball will not be able to lint shell scripts until you manually"
+        echo -e "install these packages."
         echo
       fi
     fi
@@ -87,6 +87,8 @@ update_deps() {
 }
 
 add_inits() {
+  local posix_insert fish_insert fish_config
+
   posix_insert="$(
     cat <<EOF
 if [ -z "\${LINTBALL_DIR:-}" ]; then
