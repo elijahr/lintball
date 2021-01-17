@@ -21,12 +21,20 @@ setup_test() {
 teardown_test() {
   rm -rf "$(dirname "$PROJECT_DIR")"
   unset PROJECT_DIR
-  export PATH="$ORIGINAL_PATH"
+  PATH="$ORIGINAL_PATH"
+  export PATH
 }
 
 git_branch() {
   (
     cd "$LINTBALL_REPO"
     git rev-parse --abbrev-ref HEAD
+  )
+}
+
+git_sha() {
+  (
+    cd "$LINTBALL_REPO"
+    git rev-parse HEAD
   )
 }

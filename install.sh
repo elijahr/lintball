@@ -31,13 +31,11 @@ fi
   git checkout "$sha" 2>/dev/null
 )
 
-echo "lintball updated to $(
-  cd "$LB_DIR"
-  git show-ref origin "$LINTBALL_VERSION" | awk '{ print $1 }'
-)"
+echo "lintball updated to $LINTBALL_VERSION"
 
 (
   cd "$LB_DIR"
+
   if [ -z "$(which shellcheck)" ] || [ -z "$(which shellcheck)" ]; then
     if [ -n "$(which brew)" ]; then
       # shellcheck disable=SC2046
