@@ -53,17 +53,20 @@ update_deps() {
   (
     cd "$LB_DIR"
 
-    if [ -z "$(which shellcheck)" ] || [ -z "$(which shellcheck)" ]; then
-      if [ -n "$(which brew)" ]; then
-        # shellcheck disable=SC2046
-        brew install $(cat "requirements-brew.txt")
-      else
-        echo -e
-        echo -e "Warning: shellcheck or shfmt not installed on this system."
-        echo -e "lintball will not be able to lint shell scripts until you manually"
-        echo -e "install these packages."
-        echo
-      fi
+    if [ -z "$(which shellcheck)" ]; then
+      echo -e
+      echo -e "Warning: shellcheck not installed on this system."
+      echo -e "lintball will not be able to lint shell scripts without"
+      echo -e "shellcheck."
+      echo -e
+    fi
+
+    if [ -z "$(which shfmt)" ]; then
+      echo -e
+      echo -e "Warning: shfmt not installed on this system."
+      echo -e "lintball will not be able to lint shell scripts without"
+      echo -e "shfmt."
+      echo -e
     fi
 
     local pyexe

@@ -140,6 +140,12 @@ jobs:
       #   with:
       #     python-version: "3.x"
 
+      ## Uncomment if your project contains shell scripts
+      # - name: Install shellcheck & shfmt
+      #   run: |
+      #     # Linuxbrew has more recent versions than apt
+      #     brew install shellcheck shfmt
+
       ## Uncomment if your project contains Nim code
       # - uses: asdf-vm/actions/install@v1
       #   with:
