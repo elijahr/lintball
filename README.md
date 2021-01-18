@@ -12,7 +12,7 @@ lintball can fix all your code with one command, or a convenient githook that yo
 | :------------------------------ | :----------------------------------------------------------------------------: |
 | Markdown, JSON, HTML, CSS, SASS |                                [`prettier`][1]                                 |
 | YAML                            |                        [`prettier`][1] [`yamllint`][10]                        |
-| JavaScript, TypeScript, JSX     |                            [`prettier-eslint`][12]                             |
+| JavaScript, TypeScript, JSX     |                         [`prettier`][1][`eslint`][12]                          |
 | sh, bash, dash, ksh, mksh       |                         [`shellcheck`][2] [`shfmt`][3]                         |
 | Bats tests                      |                                  [`shfmt`][2]                                  |
 | Python                          | [`autoflake`][4] [`autopep8`][5] [`black`][6] [`docformatter`][7] [`isort`][8] |
@@ -31,7 +31,7 @@ lintball can fix all your code with one command, or a convenient githook that yo
 [9]: https://nim-lang.org/docs/tools.html
 [10]: https://yamllint.readthedocs.io/en/stable/
 [11]: https://github.com/rubocop-hq/rubocop
-[12]: https://github.com/prettier/prettier-eslint
+[12]: https://eslint.org
 
 ## Installation
 
@@ -189,6 +189,7 @@ Many of the tools used by lintball can be configured to suit your needs. See:
 
 - shellcheck: https://www.mankier.com/1/shellcheck#RC_Files
 - prettier: https://prettier.io/docs/en/configuration.html
+- eslint: https://eslint.org/docs/user-guide/configuring
 - autopep8: https://pypi.org/project/autopep8/#configuration
 - rubocop: https://docs.rubocop.org/rubocop/1.8/configuration.html
 
