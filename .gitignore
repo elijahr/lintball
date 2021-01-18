@@ -111,3 +111,5 @@ extras/piu
 .DS_Store
 /.bundle
 /python-env
+
+/.tool-versions
