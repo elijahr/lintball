@@ -91,6 +91,10 @@ Commands:
 
         --no
           If destination exists, exit without copying.
+
+  update
+      Update lintball to the latest version.
+
 ```
 
 ## Updating

@@ -715,6 +715,9 @@ Commands:
         --no
           If destination exists, exit without copying.
 
+  update
+      Update lintball to the latest version.
+
 
 https://github.com/elijahr/lintball
 
@@ -899,6 +902,9 @@ parse_subcommand_args() {
       command="lintball_$1"
       shift
       eval "$command" "$@"
+      ;;
+    update)
+      exec "${LINTBALL_DIR}/install.sh"
       ;;
     githooks | lintballrc)
       command="lintball_${1//-/_}"
