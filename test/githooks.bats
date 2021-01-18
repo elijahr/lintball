@@ -36,3 +36,9 @@ teardown() {
   run lintball githooks --no
   assert_failure
 }
+
+@test "lintball githooks does not cause shellcheck errors" {
+  run lintball githooks --no
+  run lintball check .githooks
+  assert_success
+}

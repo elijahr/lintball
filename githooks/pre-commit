@@ -2,13 +2,14 @@
 
 set -ueo pipefail
 
+# >>> remove
 if [[ "$(basename "$(pwd)")" =~ lintball$ ]]; then
   # For lintball development
   LINTBALL_DIR="$(pwd)"
   export LINTBALL_DIR
 fi
-
-# shellcheck source=SCRIPTDIR/../lib/utils.bash
+# <<< remove
+# shellcheck disable=SC1090
 source "${LINTBALL_DIR}/lib/utils.bash"
 
 fully_staged() {

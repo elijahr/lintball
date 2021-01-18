@@ -735,7 +735,7 @@ confirm_copy() {
     if [ -n "$LINTBALL_ANSWER" ]; then
       answer="$LINTBALL_ANSWER"
     else
-      read -rp "${dest} exists. Replace? [y/N] " answer
+      read -rp "${dest//${HOME}/"~"} exists. Replace? [y/N] " answer
     fi
     case $answer in
       [yY]*) ;;
@@ -751,7 +751,7 @@ confirm_copy() {
     mkdir -p "$(dirname "$dest")"
   fi
   cp -Rf "$src" "$dest"
-  echo "Copied $src → $dest"
+  echo "Copied ${src//${HOME}/"~"} → ${dest//${HOME}/"~"}"
 }
 
 find_git_dir() {
@@ -769,7 +769,7 @@ find_git_dir() {
 }
 
 lintball_githooks() {
-  local git_dir hooks_path hook status
+  local git_dir hooks_path hook dest status remove_start remove_end tmp
   git_dir="$(find_git_dir "$1" || true)"
   if [ -z "$git_dir" ]; then
     echo -e
@@ -784,10 +784,18 @@ lintball_githooks() {
   fi
   for hook in "${LINTBALL_DIR}/githooks/"*; do
     status=0
-    confirm_copy "$hook" "${hooks_path}/$(basename "$hook")" || status=$?
+    dest="${hooks_path}/$(basename "$hook")"
+    confirm_copy "$hook" "$dest" || status=$?
     if [ "$status" -gt 0 ]; then
       exit $status
     fi
+    # strip lintball-repo specific section
+    remove_start="$(grep -nF "# >>> remove" "$dest" | sed 's/:.*//')"
+    remove_end="$(grep -nF "# <<< remove" "$dest" | sed 's/:.*//')"
+    tmp="$(mktemp)"
+    head -n "$((remove_start - 1))" "$dest" >"$tmp"
+    tail -n +"$((remove_end + 1))" "$dest" >>"$tmp"
+    mv "$tmp" "$dest"
   done
   git --git-dir="$git_dir" config --local core.hooksPath "$hooks_path"
   echo
