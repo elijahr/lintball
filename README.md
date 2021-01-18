@@ -103,7 +103,7 @@ You can update to the latest version of lintball by running:
 
 ## Dependencies
 
-Lintball does not have any hard dependencies. Running `install.sh` will install
+Lintball does not have any hard dependencies besides bash. Running `install.sh` will install
 linter packages for Python, Ruby, and/or Node.js if those languages are found on
 your system. `nimpretty` is already installed if you have Nim, and `shellcheck`
 and `shfmt` are available via package managers.
