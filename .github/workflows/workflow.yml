@@ -75,7 +75,7 @@ jobs:
             cache-save apt
 
       - name: Run tests
-        run: npm run test
+        run: cd deps && npm run test
 
   lint:
     name: lint

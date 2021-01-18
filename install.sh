@@ -93,7 +93,7 @@ update_deps() {
 
   if [ -n "$(which bundle)" ]; then
     (
-      BUNDLE_GEMFILE="${LINTBALL_DIR}/deps/Gemfile"
+      BUNDLE_GEMFILE="${LB_DIR}/deps/Gemfile"
       export BUNDLE_GEMFILE
       bundle config set --local deployment 'true'
       bundle install
