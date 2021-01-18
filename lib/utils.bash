@@ -583,6 +583,7 @@ lint_any() {
     bats)
       echo "# $path"
       lint "shfmt" "$write" "$path" "bats" || status=$?
+      lint_shellcheck "$write" "$path" "bats" || status=$?
       echo
       ;;
     bash)
@@ -658,6 +659,7 @@ lint_any() {
         *bats)
           echo "# $path"
           lint "shfmt" "yes" "$path" "bats" || status=$?
+          lint_shellcheck "$write" "$path" "bats" || status=$?
           echo
           ;;
         *python*)
@@ -784,12 +786,15 @@ JSON, GraphQL,
 Markdown, HTML, CSS, SASS.......prettier
 JavaScript, TypeScript, JSX.....prettier-eslint
 YAML............................prettier, yamllint
-sh, bash, dash, ksh, mksh.......shellcheck, shfmt
+sh, bash, bats, dash, ksh,
+mksh............................shellcheck, shfmt
 Bats tests......................shfmt
 Python..........................autoflake, autopep8, black, docformatter, isort
 Cython..........................autoflake, autopep8, docformatter
 Nim.............................nimpretty
 Ruby............................rubocop
+C, C++, C#, ObjectiveC, D,
+Java............................uncrustify
 
 
 Usage: lintball [options] [command] [command options]

@@ -13,8 +13,7 @@ lintball can fix all your code with one command, or a convenient githook that yo
 | Markdown, JSON, HTML, CSS, SASS, GraphQL |                                [`prettier`][1]                                 |
 | YAML                                     |                        [`prettier`][1] [`yamllint`][10]                        |
 | JavaScript, TypeScript, JSX              |                         [`prettier`][1] [`eslint`][12]                         |
-| sh, bash, dash, ksh, mksh                |                         [`shellcheck`][2] [`shfmt`][3]                         |
-| Bats tests                               |                                  [`shfmt`][2]                                  |
+| sh, bash, bats, dash, ksh, mksh          |                         [`shellcheck`][2] [`shfmt`][3]                         |
 | Python                                   | [`autoflake`][4] [`autopep8`][5] [`black`][6] [`docformatter`][7] [`isort`][8] |
 | Cython                                   |              [`autoflake`][4] [`autopep8`][5] [`docformatter`][7]              |
 | Nim                                      |                                [`nimpretty`][9]                                |
