@@ -796,6 +796,7 @@ lintball_githooks() {
     head -n "$((remove_start - 1))" "$dest" >"$tmp"
     tail -n +"$((remove_end + 1))" "$dest" >>"$tmp"
     mv "$tmp" "$dest"
+    chmod +x "$dest"
   done
   git --git-dir="$git_dir" config --local core.hooksPath "$hooks_path"
   echo
