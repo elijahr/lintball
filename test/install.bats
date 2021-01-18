@@ -25,6 +25,7 @@ setup() {
 
   # Remove anything from path in ORIGINAL_HOME; version managers that use shims,
   # such as asdf, will break because we have mocked HOME.
+  # shellcheck disable=SC2001
   PATH="$(echo "$PATH" | sed "s|${ORIGINAL_HOME}[^:]\{1,\}:||g")"
 
   unset LINTBALL_DIR
@@ -53,8 +54,11 @@ assert_bash_init() {
   install_dir="$1"
 
   # bash should have lintball in PATH
+  # shellcheck disable=SC2016
   assert_equal "$(bash -c 'cd $HOME; . .bashrc; echo $LINTBALL_DIR')" "$install_dir"
+  # shellcheck disable=SC2016
   assert_equal "$(bash -c 'cd $HOME; . .bashrc; which lintball')" "${install_dir}/bin/lintball"
+  # shellcheck disable=SC2016
   run bash -c 'cd $HOME; . .bashrc; lintball --help'
   assert_success
   assert_line "lintball: keep your project tidy with one command."
@@ -65,6 +69,7 @@ assert_fish_init() {
   install_dir="$1"
 
   # fish should have lintball in PATH
+  # shellcheck disable=SC2016
   assert_equal "$(fish -c 'echo $LINTBALL_DIR')" "$install_dir"
   assert_equal "$(fish -c 'which lintball')" "${install_dir}/bin/lintball"
   run fish -c 'lintball --help'
@@ -77,8 +82,11 @@ assert_zsh_init() {
   install_dir="$1"
 
   # zsh should have lintball in PATH
+  # shellcheck disable=SC2016
   assert_equal "$(zsh -c 'cd $HOME; . ./.zshrc; echo $LINTBALL_DIR')" "$install_dir"
+  # shellcheck disable=SC2016
   assert_equal "$(zsh -c 'cd $HOME; . ./.zshrc; which lintball')" "${install_dir}/bin/lintball"
+  # shellcheck disable=SC2016
   run zsh -c 'cd $HOME; . ./.zshrc; lintball --help'
   assert_success
   assert_line "lintball: keep your project tidy with one command."
