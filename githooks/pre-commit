@@ -2,6 +2,12 @@
 
 set -ueo pipefail
 
+LINTBALL_DIR="${LINTBALL_DIR:-"${HOME}/.lintball"}"
+
+if [ ! -d "$LINTBALL_DIR" ]; then
+  curl -o- https://raw.githubusercontent.com/elijahr/lintball/devel/install.sh | bash
+fi
+
 # >>> remove
 if [[ "$(basename "$(pwd)")" =~ lintball$ ]]; then
   # For lintball development
