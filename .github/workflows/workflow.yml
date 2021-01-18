@@ -72,7 +72,7 @@ jobs:
             cache-save apt
 
       - name: Run tests
-        run: npm run test -- --filter "defaults to latest remote tag"
+        run: npm run test
 
   lint:
     name: lint
