@@ -213,8 +213,8 @@ assert_git() {
   install_dir="${TMP_DIR}/.lintball"
 
   run "$INSTALL_SH"
-  assert [ -d "${install_dir}/python-env" ]
-  run "${install_dir}/python-env/bin/python" -c \
+  assert [ -d "${install_dir}/deps/python-env" ]
+  run "${install_dir}/deps/python-env/bin/python" -c \
     "import autoflake, autopep8, black, docformatter, isort, yamllint"
   assert_success
 }
@@ -225,8 +225,8 @@ assert_git() {
   install_dir="${TMP_DIR}/.lintball"
 
   run "$INSTALL_SH"
-  assert [ -d "${install_dir}/node_modules/prettier" ]
-  assert [ -d "${install_dir}/node_modules/prettier-eslint-cli" ]
+  assert [ -d "${install_dir}/deps/node_modules/prettier" ]
+  assert [ -d "${install_dir}/deps/node_modules/prettier-eslint-cli" ]
 }
 
 @test "install.sh installs bundler packages" {
@@ -235,5 +235,5 @@ assert_git() {
   install_dir="${TMP_DIR}/.lintball"
 
   run "$INSTALL_SH"
-  assert [ -f "${install_dir}/vendor/bundle/ruby/3.0.0/gems/rubocop-1.8.1/exe/rubocop" ]
+  assert [ -f "${install_dir}/deps/vendor/bundle/ruby/3.0.0/gems/rubocop-1.8.1/exe/rubocop" ]
 }
