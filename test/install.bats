@@ -138,7 +138,9 @@ assert_git() {
   run "$INSTALL_SH"
   (
     cd "$lintball_dir"
-    git reset --hard HEAD^1
+    touch foo
+    git add foo
+    git commit -m "testing"
   )
   run "$INSTALL_SH"
   assert_success

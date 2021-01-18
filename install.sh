@@ -14,7 +14,7 @@ update_lintball() {
 
   if [ ! -d "$LB_DIR" ]; then
     echo "cloning lintball → ${LB_DIR}…"
-    git clone --depth 2 "$LINTBALL_REPO" "$LB_DIR" 2>/dev/null
+    git clone "$LINTBALL_REPO" "$LB_DIR" 2>/dev/null
   else
     # Update
     echo "lintball already installed in ${LB_DIR}, updating…"
