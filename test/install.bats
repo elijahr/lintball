@@ -19,7 +19,7 @@ setup() {
   # create a tag for testing
   (
     cd "$LINTBALL_REPO"
-    git tag --delete v999.999.999 1>dev/null 2>/dev/null || true
+    git tag --delete v999.999.999 1>/dev/null 2>/dev/null || true
     git tag v999.999.999
   )
 
@@ -44,7 +44,7 @@ teardown() {
 
   (
     cd "$LINTBALL_REPO"
-    git tag --delete v999.999.999 1>dev/null 2>/dev/null || true
+    git tag --delete v999.999.999 1>/dev/null 2>/dev/null || true
   )
 }
 
