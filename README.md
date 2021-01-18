@@ -145,15 +145,15 @@ jobs:
       #   with:
       #     node-version: "15.x"
 
+      ## Uncomment if your project contains Python code or YAML
+      # - uses: actions/setup-python@v2
+      #   with:
+      #     python-version: "3.x"
+
       ## Uncomment if your project contains Ruby code
       # - uses: actions/setup-ruby@v1
       #   with:
       #     ruby-version: "3.x"
-
-      ## Uncomment if your project contains Python code
-      # - uses: actions/setup-python@v2
-      #   with:
-      #     python-version: "3.x"
 
       ## Uncomment if your project contains shell scripts
       # - name: Install shellcheck & shfmt
