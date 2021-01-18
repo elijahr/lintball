@@ -1,12 +1,11 @@
 {
   "ignores": [
-    "*/fixture/*",
     "*/.git/*",
-    "*/node_modules/*",
-    "*/package-lock.json",
+    "*/deps/node_modules/*",
+    "*/deps/package-lock.json",
+    "*/deps/python-env/*",
+    "*/deps/vendor/*",
     "*/lib/jwalk/*",
-    "*/Gemfile",
-    "*/python-env/*",
-    "*/vendor/*"
+    "*/test/fixture/*"
   ]
 }

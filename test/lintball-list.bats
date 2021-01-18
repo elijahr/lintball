@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
-load ../node_modules/bats-support/load
-load ../node_modules/bats-assert/load
+load ../deps/node_modules/bats-support/load
+load ../deps/node_modules/bats-assert/load
 load ../lib/utils
 load ./lib/test_utils
 
@@ -29,7 +29,6 @@ teardown() {
 ./javascript/a
 ./javascript/a.js
 ./javascript/b
-./package.json
 ./py th on/a
 ./py th on/a.py
 ./py th on/a.pyx
@@ -60,7 +59,6 @@ EOF
 ./javascript/a
 ./javascript/a.js
 ./javascript/b
-./package.json
 ./py th on/a
 ./py th on/a.py
 ./py th on/a.pyx

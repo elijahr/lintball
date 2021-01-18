@@ -12,7 +12,7 @@ LINTBALL_ANSWER=""
 export LINTBALL_DIR LINTBALL_WRITE LINTBALL_LIST LINTBALL_CONFIG LINTBALL_ANSWER
 
 # For rubocop
-BUNDLE_GEMFILE="${LINTBALL_DIR}/Gemfile"
+BUNDLE_GEMFILE="${LINTBALL_DIR}/deps/Gemfile"
 export BUNDLE_GEMFILE
 
 cmd_prettier() {
@@ -21,7 +21,7 @@ cmd_prettier() {
   path="$2"
   if [ "$write" = "yes" ]; then
     echo "npm \
-      --prefix='$LINTBALL_DIR' \
+      --prefix='${LINTBALL_DIR}/deps' \
       run \
       prettier \
       --path='$(pwd)' \
@@ -30,7 +30,7 @@ cmd_prettier() {
       '$path'"
   else
     echo "npm \
-      --prefix='$LINTBALL_DIR' \
+      --prefix='${LINTBALL_DIR}/deps' \
       run \
       prettier \
       --path='$(pwd)' \
@@ -110,11 +110,11 @@ cmd_autopep8() {
   write="$1"
   path="$2"
   if [ "$write" = "yes" ]; then
-    echo "${LINTBALL_DIR}/python-env/bin/autopep8 \
+    echo "${LINTBALL_DIR}/deps/python-env/bin/autopep8 \
       $(eval echo "${LINTBALL__WRITE_ARGS__AUTOPEP8}") \
       '$path'"
   else
-    echo "${LINTBALL_DIR}/python-env/bin/autopep8 \
+    echo "${LINTBALL_DIR}/deps/python-env/bin/autopep8 \
       $(eval echo "${LINTBALL__CHECK_ARGS__AUTOPEP8}") \
       '$path'"
   fi
@@ -125,11 +125,11 @@ cmd_docformatter() {
   write="$1"
   path="$2"
   if [ "$write" = "yes" ]; then
-    echo "${LINTBALL_DIR}/python-env/bin/docformatter \
+    echo "${LINTBALL_DIR}/deps/python-env/bin/docformatter \
       $(eval echo "${LINTBALL__WRITE_ARGS__DOCFORMATTER}") \
       '$path'"
   else
-    echo "${LINTBALL_DIR}/python-env/bin/docformatter \
+    echo "${LINTBALL_DIR}/deps/python-env/bin/docformatter \
       $(eval echo "${LINTBALL__CHECK_ARGS__DOCFORMATTER}") \
       '$path'"
   fi
@@ -140,11 +140,11 @@ cmd_isort() {
   write="$1"
   path="$2"
   if [ "$write" = "yes" ]; then
-    echo "${LINTBALL_DIR}/python-env/bin/isort \
+    echo "${LINTBALL_DIR}/deps/python-env/bin/isort \
       $(eval echo "${LINTBALL__WRITE_ARGS__ISORT}") \
       '$path'"
   else
-    echo "${LINTBALL_DIR}/python-env/bin/isort \
+    echo "${LINTBALL_DIR}/deps/python-env/bin/isort \
       $(eval echo "${LINTBALL__CHECK_ARGS__ISORT}") \
       '$path'"
   fi
@@ -155,11 +155,11 @@ cmd_autoflake() {
   write="$1"
   path="$2"
   if [ "$write" = "yes" ]; then
-    echo "${LINTBALL_DIR}/python-env/bin/autoflake \
+    echo "${LINTBALL_DIR}/deps/python-env/bin/autoflake \
       $(eval echo "${LINTBALL__WRITE_ARGS__AUTOFLAKE}") \
       '$path'"
   else
-    echo "${LINTBALL_DIR}/python-env/bin/autoflake \
+    echo "${LINTBALL_DIR}/deps/python-env/bin/autoflake \
       $(eval echo "${LINTBALL__CHECK_ARGS__AUTOFLAKE}") \
       '$path'"
   fi
@@ -170,12 +170,27 @@ cmd_black() {
   write="$1"
   path="$2"
   if [ "$write" = "yes" ]; then
-    echo "${LINTBALL_DIR}/python-env/bin/black \
+    echo "${LINTBALL_DIR}/deps/python-env/bin/black \
       $(eval echo "${LINTBALL__WRITE_ARGS__BLACK}") \
       '$path'"
   else
-    echo "${LINTBALL_DIR}/python-env/bin/black \
+    echo "${LINTBALL_DIR}/deps/python-env/bin/black \
       $(eval echo "${LINTBALL__CHECK_ARGS__BLACK}") \
+      '$path'"
+  fi
+}
+
+cmd_uncrustify() {
+  local write path
+  write="$1"
+  path="$2"
+  if [ "$write" = "yes" ]; then
+    echo "uncrustify \
+      $(eval echo "${LINTBALL__WRITE_ARGS__UNCRUSTIFY}") \
+      '$path'"
+  else
+    echo "uncrustify \
+      $(eval echo "${LINTBALL__CHECK_ARGS__UNCRUSTIFY}") \
       '$path'"
   fi
 }
@@ -336,7 +351,7 @@ lint_prettier_eslint() {
 
   if [ "$write" = "yes" ]; then
     cmd="npm \
-      --prefix='$LINTBALL_DIR' \
+      --prefix='${LINTBALL_DIR}/deps' \
       run \
       prettier-eslint \
       --path='$(pwd)' \
@@ -345,7 +360,7 @@ lint_prettier_eslint() {
       '$path'"
   else
     cmd="npm \
-      --prefix='$LINTBALL_DIR' \
+      --prefix='${LINTBALL_DIR}/deps' \
       run \
       prettier-eslint \
       --path='$(pwd)' \
@@ -480,6 +495,14 @@ infer_extension() {
       echo "md"
       return 0
       ;;
+    c++)
+      echo "cpp"
+      return 0
+      ;;
+    obj-c | objc | objective-c | objectivec)
+      echo "m"
+      return 0
+      ;;
     *)
       if [ -n "$lang" ]; then
         extension="$lang"
@@ -496,7 +519,8 @@ infer_extension() {
 
   case "$extension" in
     md | html | css | scss | json | js | jsx | ts | tsx | yml | bats | bash | \
-      dash | ksh | mksh | py | pyx | pxd | pxi | nim | rb | graphql)
+      dash | ksh | mksh | py | pyx | pxd | pxi | nim | rb | graphql | c | \
+      h | cpp | hpp | m | mm | M | java | class | jar)
       echo "$extension"
       ;;
     yaml) echo "yml" ;;
@@ -609,6 +633,11 @@ lint_any() {
     rb)
       echo "# $path"
       lint "rubocop" "$write" "$path" || status=$?
+      echo
+      ;;
+    c | h | cpp | hpp | m | mm | M | java | class | jar)
+      echo "# $path"
+      lint "uncrustify" "$write" "$path" || status=$?
       echo
       ;;
     *)

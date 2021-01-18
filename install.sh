@@ -12,7 +12,6 @@ LB_DIR="${1:-"${HOME}/.lintball"}"
 LINTBALL_REPO="${LINTBALL_REPO:-"https://github.com/elijahr/lintball.git"}"
 
 update_lintball() {
-
   if [ ! -d "$LB_DIR" ]; then
     echo "cloning lintball → ${LB_DIR}…"
     git clone "$LINTBALL_REPO" "$LB_DIR" 2>/dev/null
@@ -50,59 +49,59 @@ update_lintball() {
 }
 
 update_deps() {
-  (
-    cd "$LB_DIR"
+  if [ -z "$(which shellcheck)" ]; then
+    echo -e
+    echo -e "Warning: shellcheck not installed on this system."
+    echo -e "lintball will not be able to lint shell scripts without"
+    echo -e "shellcheck."
+    echo -e
+  fi
 
-    if [ -z "$(which shellcheck)" ]; then
-      echo -e
-      echo -e "Warning: shellcheck not installed on this system."
-      echo -e "lintball will not be able to lint shell scripts without"
-      echo -e "shellcheck."
-      echo -e
-    fi
+  if [ -z "$(which shfmt)" ]; then
+    echo -e
+    echo -e "Warning: shfmt not installed on this system."
+    echo -e "lintball will not be able to lint shell scripts without"
+    echo -e "shfmt."
+    echo -e
+  fi
 
-    if [ -z "$(which shfmt)" ]; then
-      echo -e
-      echo -e "Warning: shfmt not installed on this system."
-      echo -e "lintball will not be able to lint shell scripts without"
-      echo -e "shfmt."
-      echo -e
-    fi
-
-    local pyexe
-    if [ ! -d "${LB_DIR}/python-env" ]; then
-      if [ -n "$(which python3)" ]; then
-        pyexe="python3"
-      elif [ -n "$(which python)" ]; then
-        if python -c "import sys; sys.exit(0 if sys.version_info >= (3,3,0) else 1)"; then
-          pyexe="python"
-        fi
-      fi
-      if [ -n "$pyexe" ]; then
-        "$pyexe" -m venv "python-env"
-      else
-        echo -e "Warning: cannot install pip requirements - could not find a suitable Python version (>=3.3.0)."
+  local pyexe
+  if [ ! -d "${LB_DIR}/deps/python-env" ]; then
+    if [ -n "$(which python3)" ]; then
+      pyexe="python3"
+    elif [ -n "$(which python)" ]; then
+      if python -c "import sys; sys.exit(0 if sys.version_info >= (3,3,0) else 1)"; then
+        pyexe="python"
       fi
     fi
-
-    if [ -f "${LB_DIR}/python-env/bin/pip" ]; then
-      python-env/bin/pip install -r requirements-pip.txt
-    fi
-
-    if [ -n "$(which npm)" ]; then
-      npm install
+    if [ -n "$pyexe" ]; then
+      "$pyexe" -m venv "${LB_DIR}/deps/python-env"
     else
-      echo -e "Warning: cannot install npm requirements - could not find an npm executable."
+      echo -e "Warning: cannot install pip requirements - could not find a suitable Python version (>=3.3.0)."
     fi
+  fi
 
-    if [ -n "$(which bundle)" ]; then
+  if [ -f "${LB_DIR}/deps/python-env/bin/pip" ]; then
+    "${LB_DIR}/deps/python-env/bin/pip" install -r "${LB_DIR}/deps/requirements-pip.txt"
+  fi
+
+  if [ -n "$(which npm)" ]; then
+    npm --prefix="${LB_DIR}/deps" install
+  else
+    echo -e "Warning: cannot install npm requirements - could not find an npm executable."
+  fi
+
+  if [ -n "$(which bundle)" ]; then
+    (
+      BUNDLE_GEMFILE="${LINTBALL_DIR}/deps/Gemfile"
+      export BUNDLE_GEMFILE
       bundle config set --local deployment 'true'
       bundle install
-    else
-      echo -e "Warning: cannot install bundler requirements - could not find a bundle executable."
-      echo -e "If ruby is installed, try gem install bundler and re-run this script."
-    fi
-  )
+    )
+  else
+    echo -e "Warning: cannot install bundler requirements - could not find a bundle executable."
+    echo -e "If ruby is installed, try gem install bundler and re-run this script."
+  fi
 }
 
 add_inits() {

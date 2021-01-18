@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
-load ../node_modules/bats-support/load
-load ../node_modules/bats-assert/load
+load ../deps/node_modules/bats-support/load
+load ../deps/node_modules/bats-assert/load
 load ../lib/utils
 load ./lib/test_utils
 

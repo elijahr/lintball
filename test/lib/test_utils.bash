@@ -12,13 +12,11 @@ setup_test() {
   export PATH
   TEST_PROJECT_DIR="$(mktemp -d)/fixture"
   export TEST_PROJECT_DIR
-  cp -r "${LINTBALL_DIR}/fixture/" "${TEST_PROJECT_DIR}/"
+  cp -r "${LINTBALL_DIR}/test/fixture/" "${TEST_PROJECT_DIR}/"
   cp "${LINTBALL_DIR}/.gitignore" "${TEST_PROJECT_DIR}/"
   echo "nim 1.4.2" >"${TEST_PROJECT_DIR}/.tool-versions"
 
-  cd "$TEST_PROJECT_DIR" || exit
-  rm -rf node_modules
-  npm install --include=dev
+  cd "$TEST_PROJECT_DIR"
 }
 
 teardown_test() {

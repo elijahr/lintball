@@ -43,19 +43,22 @@ jobs:
             set -euxo pipefail
 
             cache-restore npmDev
-            npm install --include=dev
+            npm --prefix="${PWD}/deps" install --include=dev
             # seems to be necessary for node >= 15
-            [ -n "$(which bats)" ] || npm link bats
+            [ -n "$(which bats)" ] || npm --prefix="${PWD}/deps" link bats
             cache-save npmDev
 
             cache-restore pip
-            python3 -m venv "${PWD}/python-env"
-            python-env/bin/pip install -r requirements-pip.txt
+            python3 -m venv "${PWD}/deps/python-env"
+            deps/python-env/bin/pip install -r deps/requirements-pip.txt
             cache-save pip
 
             cache-restore gem
             gem install bundler
             cache-save gem
+
+            BUNDLE_GEMFILE="${PWD}/deps/Gemfile"
+            export BUNDLE_GEMFILE
 
             bundle config set --local deployment 'true'
             cache-restore bundler
@@ -63,12 +66,12 @@ jobs:
             cache-save bundler
 
             cache-restore brew
-            brew install $(cat requirements-brew.txt)
+            brew install $(cat deps/requirements-brew.txt)
             cache-save brew
 
             cache-restore apt
             sudo apt-get update
-            sudo apt-get install -y $(cat requirements-apt.txt)
+            sudo apt-get install -y $(cat deps/requirements-apt.txt)
             cache-save apt
 
       - name: Run tests
@@ -93,11 +96,11 @@ jobs:
             set -euxo pipefail
 
             cache-restore npm
-            npm install
+            npm --prefix="${PWD}/deps" install
             cache-save npm
 
             cache-restore brew
-            brew install $(cat requirements-brew.txt)
+            brew install $(cat deps/requirements-brew.txt)
             cache-save brew
 
       - name: Check for linter issues

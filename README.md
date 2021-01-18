@@ -19,6 +19,7 @@ lintball can fix all your code with one command, or a convenient githook that yo
 | Cython                                   |              [`autoflake`][4] [`autopep8`][5] [`docformatter`][7]              |
 | Nim                                      |                                [`nimpretty`][9]                                |
 | Ruby                                     |                                [`rubocop`][11]                                 |
+| C, C++, C#, ObjectiveC, D, Java          |                               [`uncrustify`][13]                               |
 
 [1]: https://prettier.io/
 [2]: https://www.shellcheck.net/
@@ -32,6 +33,7 @@ lintball can fix all your code with one command, or a convenient githook that yo
 [10]: https://yamllint.readthedocs.io/en/stable/
 [11]: https://github.com/rubocop-hq/rubocop
 [12]: https://eslint.org
+[13]: http://uncrustify.sourceforge.net/
 
 ## Installation
 
@@ -217,6 +219,7 @@ Many of the tools used by lintball can be configured to suit your needs. See:
 - eslint: https://eslint.org/docs/user-guide/configuring
 - autopep8: https://pypi.org/project/autopep8/#configuration
 - rubocop: https://docs.rubocop.org/rubocop/1.8/configuration.html
+- uncrustify: https://github.com/uncrustify/uncrustify#configuring-the-program
 
 If you need to pass custom arguments to a linter command (such as providing a path to a config file), run `lintball lintballrc` and edit the created `.lintballrc.json` file.
 

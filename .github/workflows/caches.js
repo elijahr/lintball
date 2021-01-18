@@ -6,15 +6,15 @@ const { HOME = "~", GITHUB_WORKSPACE } = process.env;
 const pathByPlatform = {
   linux: {
     pip: `${HOME}/.cache/pip`,
-    brew: `${HOME}/.cache/Homebrew`,
+    brew: `${HOME}/.cache/Homebrew`
   },
   darwin: {
     pip: `${HOME}/Library/Caches/pip`,
-    brew: `${HOME}/Library/Caches/Homebrew/`,
+    brew: `${HOME}/Library/Caches/Homebrew/`
   },
   win32: {
-    pip: `${HOME}\\AppData\\Local\\pip\\Cache`,
-  },
+    pip: `${HOME}\\AppData\\Local\\pip\\Cache`
+  }
 };
 
 const RUBY_VERSION = execSync(
@@ -32,44 +32,44 @@ const GEM_INSTALLATION_DIRECTORY = execSync(
 module.exports = {
   pip: {
     path: pathByPlatform[os.platform()].pip,
-    hashFiles: ["requirements-pip.txt"],
+    hashFiles: ["deps/requirements-pip.txt"],
     keyPrefix: "pip-",
-    restoreKeys: "pip-",
+    restoreKeys: "pip-"
   },
   npm: {
     path: `${HOME}/.npm`,
-    hashFiles: ["package-lock.json"],
+    hashFiles: ["deps/package-lock.json"],
     keyPrefix: "npm-",
-    restoreKeys: "npm-",
+    restoreKeys: "npm-"
   },
   npmDev: {
     path: `${HOME}/.npm`,
-    hashFiles: ["package-lock.json"],
+    hashFiles: ["deps/package-lock.json"],
     keyPrefix: "npmDev-",
-    restoreKeys: "npmDev-",
+    restoreKeys: "npmDev-"
   },
   bundler: {
-    path: `${GITHUB_WORKSPACE}/vendor/bundle/ruby/${RUBY_VERSION}/cache`,
-    hashFiles: ["Gemfile.lock"],
+    path: `${GITHUB_WORKSPACE}/deps/vendor/bundle/ruby/${RUBY_VERSION}/cache`,
+    hashFiles: ["deps/Gemfile.lock"],
     keyPrefix: "bundler-",
-    restoreKeys: "bundler-",
+    restoreKeys: "bundler-"
   },
   gem: {
     path: `${GEM_INSTALLATION_DIRECTORY}/cache`,
     hashFiles: [],
     keyPrefix: "gem-",
-    restoreKeys: "gem-",
+    restoreKeys: "gem-"
   },
   brew: {
     path: pathByPlatform[os.platform()].brew,
-    hashFiles: ["requirements-brew.txt"],
+    hashFiles: ["deps/requirements-brew.txt"],
     keyPrefix: "brew-",
-    restoreKeys: "brew-",
+    restoreKeys: "brew-"
   },
   apt: {
     path: "/var/cache/apt/archives",
-    hashFiles: ["requirements-apt.txt"],
+    hashFiles: ["deps/requirements-apt.txt"],
     keyPrefix: "apt-",
-    restoreKeys: "apt-",
-  },
+    restoreKeys: "apt-"
+  }
 };

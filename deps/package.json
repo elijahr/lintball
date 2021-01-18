@@ -1,14 +1,15 @@
 {
   "devDependencies": {
     "bats": "^1.2.1",
-    "bats-assert": "^2.0.0"
+    "bats-assert": "^2.0.0",
+    "bats-support": "^0.3.0"
   },
   "dependencies": {
     "prettier": "^2.2.1",
     "prettier-eslint-cli": "^5.0.0"
   },
   "scripts": {
-    "test": "bats test --tap",
+    "test": "bats ../test --tap",
     "prettier": "cd \"$npm_config_path\" && prettier",
     "prettier-eslint": "cd \"$npm_config_path\" && prettier-eslint"
   }
