@@ -14,7 +14,6 @@ setup_test() {
   export TEST_PROJECT_DIR
   cp -r "${LINTBALL_DIR}/fixture/" "$TEST_PROJECT_DIR/"
   cp "${LINTBALL_DIR}/.gitignore" "$TEST_PROJECT_DIR/"
-  cp "${LINTBALL_DIR}/.tool-versions" "$TEST_PROJECT_DIR/"
 
   cd "$TEST_PROJECT_DIR" || exit
   rm -rf node_modules

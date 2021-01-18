@@ -10,7 +10,7 @@ setup() {
   git init .
   git config --local user.name "Bats Test"
   git config --local user.email "test@example.org"
-  git add .gitignore .tool-versions
+  git add .gitignore
   git commit -m "Initial commit"
 }
 

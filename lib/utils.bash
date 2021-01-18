@@ -2,19 +2,18 @@
 
 LINTBALL_DIR="${LINTBALL_DIR:-"${HOME}/.lintball"}"
 
-BUNDLE_GEMFILE="${LINTBALL_DIR}/Gemfile"
-export BUNDLE_GEMFILE
-
 DOTS="..................................."
-
 LINTBALL_IGNORES=()
-
 LINTBALL_WRITE="no"
 LINTBALL_LIST="no"
 LINTBALL_CONFIG=""
 LINTBALL_ANSWER=""
 
 export LINTBALL_DIR LINTBALL_WRITE LINTBALL_LIST LINTBALL_CONFIG LINTBALL_ANSWER
+
+# For rubocop
+BUNDLE_GEMFILE="${LINTBALL_DIR}/Gemfile"
+export BUNDLE_GEMFILE
 
 cmd_prettier() {
   local write path
@@ -769,7 +768,7 @@ find_git_dir() {
   done
 }
 
-lintball_copy_githooks() {
+lintball_githooks() {
   local git_dir hooks_path hook status
   git_dir="$(find_git_dir "$1" || true)"
   if [ -z "$git_dir" ]; then
@@ -797,7 +796,7 @@ lintball_copy_githooks() {
   exit 0
 }
 
-lintball_copy_lintballrc() {
+lintball_lintballrc() {
   confirm_copy "${LINTBALL_DIR}/configs/lintballrc.json" "${1}/.lintballrc.json" || exit $?
 }
 
