@@ -122,7 +122,7 @@ An example GitHub Actions workflow for linting your project:
 ```yml
 # yamllint disable rule:line-length
 
-name: Test
+name: Lint
 on:
   pull_request:
     branches: ["*"]
