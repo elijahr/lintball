@@ -8,10 +8,10 @@ if [ -n "${CI:-}" ]; then
 fi
 
 LB_DIR="${1:-"${HOME}/.lintball"}"
-LINTBALL_VERSION="${LINTBALL_VERSION:-"devel"}"
 LINTBALL_REPO="${LINTBALL_REPO:-"https://github.com/elijahr/lintball.git"}"
 
 update_lintball() {
+
   if [ ! -d "$LB_DIR" ]; then
     echo "cloning lintball → ${LB_DIR}…"
     git clone --depth 2 "$LINTBALL_REPO" "$LB_DIR" 2>/dev/null
@@ -21,16 +21,18 @@ update_lintball() {
   fi
 
   (
+    local version
     cd "$LB_DIR"
+    version="${LINTBALL_VERSION:-"$(git ls-remote --tags | awk '{ print $2 }' | sed 's|refs/tags/||' | sort | tail -n1)"}"
     git stash 1>/dev/null
-    git fetch origin "$LINTBALL_VERSION"
-    if [[ $LINTBALL_VERSION =~ ^[0-9a-f]{40}$ ]]; then
-      git reset --hard "$LINTBALL_VERSION"
+    git fetch origin "$version"
+    if [[ $version =~ ^[0-9a-f]{40}$ ]]; then
+      git reset --hard "$version"
     else
-      git reset --hard "origin/${LINTBALL_VERSION}"
+      git reset --hard "origin/${version}"
     fi
+    echo "lintball updated to $version"
   )
-  echo "lintball updated to $LINTBALL_VERSION"
 }
 
 update_deps() {
