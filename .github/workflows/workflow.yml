@@ -45,7 +45,7 @@ jobs:
             cache-restore npmDev
             npm --prefix="${PWD}/deps" install --include=dev
             # seems to be necessary for node >= 15
-            [ -n "$(which bats)" ] || npm --prefix="${PWD}/deps" link bats
+            [ -n "$(which bats)" ] || (cd deps; npm link bats)
             cache-save npmDev
 
             cache-restore pip
