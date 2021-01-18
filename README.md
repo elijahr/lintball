@@ -39,7 +39,7 @@ lintball can fix all your code with one command, or a convenient githook that yo
 curl -o- https://raw.githubusercontent.com/elijahr/lintball/devel/install.sh | bash
 ```
 
-Running the above command downloads a script and runs it. The script downloads the latest release of lintball to ~/.lintball, installs linters, and configures your PATH to include the lintball script. Currently, fish, bash, and zsh are supported.
+Running the above command downloads a script and runs it. The script downloads the latest release of lintball to ~/.lintball, [installs linters](#dependencies), and configures your PATH to include the lintball script. Currently, fish, bash, and zsh are supported.
 
 If you are using lintball with a git-managed project, we suggest using the pre-commit hook, installed via `lintball githooks`. Your code will be automatically fixed on commit - and any non-auto-fixable issues will block the commit with a helpful error message.
 
@@ -100,6 +100,20 @@ You can update to the latest version of lintball by running:
 ```sh
 ~/.lintball/install.sh
 ```
+
+## Dependencies
+
+Lintball does not have any hard dependencies. Running `install.sh` will install
+linter packages for Python, Ruby, and/or Node.js if those languages are found on
+your system. `nimpretty` is already installed if you have Nim, and `shellcheck`
+and `shfmt` are available via package managers.
+
+Note for Debian/Ubuntu and WSL users: the version of shellcheck installed via
+`apt-get` is outdated; we recommend installing a
+[shellcheck release](https://github.com/koalaman/shellcheck/releases) or using [linuxbrew](https://docs.brew.sh/Homebrew-on-Linux).
+
+If your project contains a mixture of code you wish to lint and code you do not
+wish to lint, you can configure [ignore patterns](#ignore-patterns).
 
 ## Continuous Integration
 
