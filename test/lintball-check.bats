@@ -61,6 +61,14 @@ teardown() {
   assert_success
 }
 
+@test "lintball check bash (inferred from lintball directive)" {
+  run lintball check "bash/b"
+  assert_failure
+  run lintball fix "bash/b"
+  run lintball check "bash/b"
+  assert_success
+}
+
 @test "lintball check bats" {
   run lintball check "test"
   assert_failure

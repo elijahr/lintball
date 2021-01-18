@@ -388,7 +388,6 @@ lint_prettier_eslint() {
     cat "$stdout" 2>/dev/null
     cat "$stderr" 1>&2 2>/dev/null
   fi
-  rm "$tmp"
   rm "$stdout"
   rm "$stderr"
   return $status
@@ -446,101 +445,147 @@ shebang() {
   )
 }
 
-assert_handled_path() {
-  local path="$1"
-  case "$(basename "$path")" in
-    *.md | *.yml | *.yaml | *.js | *.jsx | *.ts | *.tsx | *.html | *.css | *.scss | *.json | *.bats | *.bash | *.sh | *.py | *.pyx | *.pxd | *.pxi | *.nim | *.rb | Gemfile)
+infer_extension() {
+  local path lang filename extension
+  path="$1"
+
+  # Check for `# lintball lang=foo` directives
+  lang="$(grep '^# lintball lang=' "$path" | sed 's/^# lintball lang=//' | tr '[:upper:]' '[:lower:]')"
+  case "$lang" in
+    python)
+      echo "py"
       return 0
+      ;;
+    cython)
+      echo "pyx"
+      return 0
+      ;;
+    yaml)
+      echo "yml"
+      return 0
+      ;;
+    ruby)
+      echo "rb"
+      return 0
+      ;;
+    javascript)
+      echo "js"
+      return 0
+      ;;
+    typescript)
+      echo "ts"
+      return 0
+      ;;
+    markdown)
+      echo "md"
+      return 0
+      ;;
+    *)
+      if [ -n "$lang" ]; then
+        extension="$lang"
+      else
+        filename="$(basename "$path")"
+        if [ "$filename" = "Gemfile" ]; then
+          echo "rb"
+          return 0
+        fi
+        extension="${filename##*.}"
+      fi
+      ;;
+  esac
+
+  case "$extension" in
+    md | html | css | scss | json | js | jsx | ts | tsx | yml | bats | bash | \
+      dash | ksh | mksh | py | pyx | pxd | pxi | nim | rb | graphql)
+      echo "$extension"
+      ;;
+    yaml) echo "yml" ;;
+    sh)
+      # Inspect shebang
+      case "$(shebang "$path")" in
+        *bash) echo "bash" ;;
+        *dash) echo "dash" ;;
+        *ksh) echo "ksh" ;;
+        *) echo "sh" ;;
+      esac
       ;;
     *)
       # Inspect shebang
       case "$(shebang "$path")" in
-        */bin/sh | *bash | *bats | *python* | *ruby* | *node* | *deno*)
-          return 0
-          ;;
+        */bin/sh) echo "sh" ;;
+        *bash) echo "bash" ;;
+        *dash) echo "dash" ;;
+        *ksh) echo "ksh" ;;
+        *bats) echo "bash" ;;
+        *python*) echo "py" ;;
+        *ruby*) echo "rb" ;;
+        *node* | *deno*) echo "js" ;;
       esac
       ;;
   esac
-  return 1
+}
+
+assert_handled_path() {
+  if test -z "$(infer_extension "$1")"; then
+    return 1
+  fi
 }
 
 lint_any() {
-  local write path status
+  local write path status lang
   write="$1"
   path="$2"
 
   status=0
   path="$(normalize_path "$path")"
-  case "$(basename "$path")" in
-    *.md | *.html | *.css | *.scss | *.json)
+
+  case "$(infer_extension "$path")" in
+    md | html | css | scss | json | graphql)
       echo "# $path"
       lint "prettier" "$write" "$path" || status=$?
       echo
       ;;
-    *.js | *.jsx | *.ts | *.tsx)
+    js | jsx | ts | tsx)
       echo "# $path"
       lint_prettier_eslint "$write" "$path" || status=$?
       echo
       ;;
-    *.yml | *.yaml)
+    yml)
       echo "# $path"
       lint "prettier" "$write" "$path" || status=$?
       lint "yamllint" "$write" "$path" || status=$?
       echo
       ;;
-    *.bats)
+    bats)
       echo "# $path"
       lint "shfmt" "$write" "$path" "bats" || status=$?
       echo
       ;;
-    *.bash)
+    bash)
       echo "# $path"
       lint "shfmt" "$write" "$path" "bash" || status=$?
       lint_shellcheck "$write" "$path" "bash" || status=$?
       echo
       ;;
-    *.dash)
+    dash)
       echo "# $path"
       lint "shfmt" "$write" "$path" "posix" || status=$?
       lint_shellcheck "$write" "$path" "dash" || status=$?
       echo
       ;;
-    *.ksh | *.mksh)
+    ksh | mksh)
       echo "# $path"
       lint "shfmt" "$write" "$path" "mksh" || status=$?
       lint_shellcheck "$write" "$path" "ksh" || status=$?
       echo
       ;;
-    *.sh)
-      # Inspect shebang
-      case "$(shebang "$path")" in
-        *bash)
-          echo "# $path"
-          lint "shfmt" "$write" "$path" "bash" || status=$?
-          lint_shellcheck "$write" "$path" "bash" || status=$?
-          echo
-          ;;
-        *dash)
-          echo "# $path"
-          lint "shfmt" "$write" "$path" "posix" || status=$?
-          lint_shellcheck "$write" "$path" "dash" || status=$?
-          echo
-          ;;
-        *ksh)
-          echo "# $path"
-          lint "shfmt" "$write" "$path" "mksh" || status=$?
-          lint_shellcheck "$write" "$path" "ksh" || status=$?
-          echo
-          ;;
-        *)
-          echo "# $path"
-          lint "shfmt" "$write" "$path" "posix" || status=$?
-          lint_shellcheck "$write" "$path" "sh" || status=$?
-          echo
-          ;;
-      esac
+    sh)
+      echo "# $path"
+      lint "shfmt" "$write" "$path" "posix" || status=$?
+      lint_shellcheck "$write" "$path" "sh" || status=$?
+      echo
       ;;
-    *.py)
+    py)
       echo "# $path"
       lint "docformatter" "$write" "$path" || status=$?
       lint "autopep8" "$write" "$path" || status=$?
@@ -549,19 +594,19 @@ lint_any() {
       lint "black" "$write" "$path" || status=$?
       echo
       ;;
-    *.pyx | *.pxd | *.pxi)
+    pyx | pxd | pxi)
       echo "# $path"
       lint "docformatter" "$write" "$path" || status=$?
       lint "autopep8" "$write" "$path" || status=$?
       lint "autoflake" "$write" "$path" || status=$?
       echo
       ;;
-    *.nim)
+    nim)
       echo "# $path"
       lint_nimpretty "$write" "$path" || status=$?
       echo
       ;;
-    *.rb | Gemfile)
+    rb)
       echo "# $path"
       lint "rubocop" "$write" "$path" || status=$?
       echo
@@ -608,6 +653,7 @@ lint_any() {
       esac
       ;;
   esac
+
   return $status
 }
 
@@ -705,7 +751,7 @@ lintball: keep your project tidy with one command.
 
 Linters/formatters used:
 
-JSON,
+JSON, GraphQL,
 Markdown, HTML, CSS, SASS.......prettier
 JavaScript, TypeScript, JSX.....prettier-eslint
 YAML............................prettier, yamllint

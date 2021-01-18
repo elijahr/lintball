@@ -130,6 +130,34 @@ EOF
   assert_equal "$(cat "bash/a")" "$expected"
 }
 
+@test "lintball fix bash (inferred from lintball directive)" {
+  run lintball fix "bash/b"
+  assert_success
+  directive="# lintball lang=bash"
+  expected="$(
+    cat <<EOF
+$directive
+
+a() {
+  echo
+
+}
+
+b() {
+
+  echo
+}
+
+c=("a" "b" "c")
+
+for var in "\${c[@]}"; do
+  echo "\$var"
+done
+EOF
+  )"
+  assert_equal "$(cat "bash/b")" "$expected"
+}
+
 @test "lintball fix bats" {
   run lintball fix "test"
   assert_success
@@ -259,7 +287,6 @@ type
 EOF
   )"
   assert_equal "$(cat "a.nim")" "$expected"
-  assert_equal "$(cat "a.nim")" "$(echo "$expected")"
 }
 
 @test "lintball fix ruby" {

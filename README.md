@@ -8,17 +8,17 @@ lintball can fix all your code with one command, or a convenient githook that yo
 
 ## Supported languages
 
-| language                        |                                   tools used                                   |
-| :------------------------------ | :----------------------------------------------------------------------------: |
-| Markdown, JSON, HTML, CSS, SASS |                                [`prettier`][1]                                 |
-| YAML                            |                        [`prettier`][1] [`yamllint`][10]                        |
-| JavaScript, TypeScript, JSX     |                         [`prettier`][1][`eslint`][12]                          |
-| sh, bash, dash, ksh, mksh       |                         [`shellcheck`][2] [`shfmt`][3]                         |
-| Bats tests                      |                                  [`shfmt`][2]                                  |
-| Python                          | [`autoflake`][4] [`autopep8`][5] [`black`][6] [`docformatter`][7] [`isort`][8] |
-| Cython                          |              [`autoflake`][4] [`autopep8`][5] [`docformatter`][7]              |
-| Nim                             |                                [`nimpretty`][9]                                |
-| Ruby                            |                                [`rubocop`][11]                                 |
+| language                                 |                                   tools used                                   |
+| :--------------------------------------- | :----------------------------------------------------------------------------: |
+| Markdown, JSON, HTML, CSS, SASS, GraphQL |                                [`prettier`][1]                                 |
+| YAML                                     |                        [`prettier`][1] [`yamllint`][10]                        |
+| JavaScript, TypeScript, JSX              |                         [`prettier`][1] [`eslint`][12]                         |
+| sh, bash, dash, ksh, mksh                |                         [`shellcheck`][2] [`shfmt`][3]                         |
+| Bats tests                               |                                  [`shfmt`][2]                                  |
+| Python                                   | [`autoflake`][4] [`autopep8`][5] [`black`][6] [`docformatter`][7] [`isort`][8] |
+| Cython                                   |              [`autoflake`][4] [`autopep8`][5] [`docformatter`][7]              |
+| Nim                                      |                                [`nimpretty`][9]                                |
+| Ruby                                     |                                [`rubocop`][11]                                 |
 
 [1]: https://prettier.io/
 [2]: https://www.shellcheck.net/
@@ -144,7 +144,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      ## Uncomment if your project contains JS, CSS, Markdown, HTML, or YAML
+      ## Uncomment if your project contains JS, CSS, Markdown, HTML, GraphQL or YAML
       # - uses: actions/setup-node@v2
       #   with:
       #     node-version: "15.x"
