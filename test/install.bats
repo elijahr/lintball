@@ -174,6 +174,7 @@ assert_git() {
   run "$INSTALL_SH"
   (
     cd "$install_dir"
+    git checkout -b "test-test-test"
     touch foo
     git add foo
     git config --global user.email "hamburglar@example.com"
@@ -182,7 +183,9 @@ assert_git() {
   )
   run "$INSTALL_SH"
   assert_success
-  assert_equal "$(git --git-dir="${install_dir}/.git" rev-parse HEAD)" "$(git_sha)"
+  assert_equal \
+    "$(git --git-dir="${install_dir}/.git" rev-parse HEAD)" \
+    "$(git_sha)"
 }
 
 @test "install.sh installs pip packages" {
