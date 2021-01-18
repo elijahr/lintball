@@ -41,31 +41,6 @@ cmd_prettier() {
   fi
 }
 
-cmd_prettier_eslint() {
-  local write path
-  write="$1"
-  path="$2"
-  if [ "$write" = "yes" ]; then
-    echo "npm \
-      --prefix='$LINTBALL_DIR' \
-      run \
-      prettier-eslint \
-      --path='$(pwd)' \
-      -- \
-      $(eval echo "${LINTBALL__WRITE_ARGS__PRETTIER_ESLINT}") \
-      '$path'"
-  else
-    echo "npm \
-      --prefix='$LINTBALL_DIR' \
-      run \
-      prettier-eslint \
-      --path='$(pwd)' \
-      -- \
-      $(eval echo "${LINTBALL__CHECK_ARGS__PRETTIER_ESLINT}") \
-      '$path'"
-  fi
-}
-
 cmd_yamllint() {
   local write path format
   write="$1"
@@ -351,6 +326,74 @@ lint_nimpretty() {
   return $status
 }
 
+lint_prettier_eslint() {
+  local write path linter offset cmd stdout stderr status
+  write="$1"
+  path="$2"
+
+  linter="prettier-eslint"
+  offset="${#linter}"
+
+  if [ "$write" = "yes" ]; then
+    cmd="npm \
+      --prefix='$LINTBALL_DIR' \
+      run \
+      prettier-eslint \
+      --path='$(pwd)' \
+      -- \
+      $(eval echo "${LINTBALL__WRITE_ARGS__PRETTIER_ESLINT}") \
+      '$path'"
+  else
+    cmd="npm \
+      --prefix='$LINTBALL_DIR' \
+      run \
+      prettier-eslint \
+      --path='$(pwd)' \
+      -- \
+      $(eval echo "${LINTBALL__CHECK_ARGS__PRETTIER_ESLINT}") \
+      '$path'"
+  fi
+
+  stdout="$(mktemp)"
+  stderr="$(mktemp)"
+  status=0
+
+  set -f
+  eval "$cmd" \
+    1>"$stdout" \
+    2>"$stderr" || status=$?
+  set +f
+  if [ "$status" -eq 0 ]; then
+    if [ "$(cat "$stdout")" = "$(cat "$path")" ]; then
+      printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "ok"
+    else
+      patch="$(diff -u "$path" "$stdout")"
+      if [ -n "$patch" ]; then
+        if [ "$write" = "yes" ]; then
+          printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "wrote"
+        else
+          printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
+          echo "$patch"
+          cat "$stderr" 1>&2 2>/dev/null
+          status=1
+        fi
+      else
+        printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
+        cat "$stdout" 2>/dev/null
+        cat "$stderr" 1>&2 2>/dev/null
+      fi
+    fi
+  else
+    printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
+    cat "$stdout" 2>/dev/null
+    cat "$stderr" 1>&2 2>/dev/null
+  fi
+  rm "$tmp"
+  rm "$stdout"
+  rm "$stderr"
+  return $status
+}
+
 lint() {
   local linter write path original cmd stdout stderr status offset
   linter="${1//-/_}"
@@ -412,7 +455,7 @@ assert_handled_path() {
     *)
       # Inspect shebang
       case "$(shebang "$path")" in
-        */bin/sh | *bash | *bats | *python* | *ruby*)
+        */bin/sh | *bash | *bats | *python* | *ruby* | *node* | *deno*)
           return 0
           ;;
       esac
@@ -436,7 +479,7 @@ lint_any() {
       ;;
     *.js | *.jsx | *.ts | *.tsx)
       echo "# $path"
-      lint "prettier-eslint" "$write" "$path" || status=$?
+      lint_prettier_eslint "$write" "$path" || status=$?
       echo
       ;;
     *.yml | *.yaml)
@@ -555,6 +598,11 @@ lint_any() {
         *ruby*)
           echo "# $path"
           lint "rubocop" "$write" "$path" || status=$?
+          echo
+          ;;
+        *node* | *deno*)
+          echo "# $path"
+          lint_prettier_eslint "$write" "$path" || status=$?
           echo
           ;;
       esac

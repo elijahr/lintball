@@ -25,6 +25,9 @@ teardown() {
 ./a.yml
 ./bash/a
 ./bash/a.bash
+./javascript/a
+./javascript/a.js
+./javascript/b
 ./package.json
 ./py th on/a
 ./py th on/a.py
@@ -52,6 +55,9 @@ EOF
 ./a.yml
 ./bash/a
 ./bash/a.bash
+./javascript/a
+./javascript/a.js
+./javascript/b
 ./package.json
 ./py th on/a
 ./py th on/a.py

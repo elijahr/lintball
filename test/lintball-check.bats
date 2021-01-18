@@ -37,7 +37,7 @@ teardown() {
   assert_success
 }
 
-@test "lintball check sh (inferred from hashbang)" {
+@test "lintball check sh (inferred from shebang)" {
   run lintball check "sh/a"
   assert_failure
   run lintball fix "sh/a"
@@ -53,7 +53,7 @@ teardown() {
   assert_success
 }
 
-@test "lintball check bash (inferred from hashbang)" {
+@test "lintball check bash (inferred from shebang)" {
   run lintball check "bash/a"
   assert_failure
   run lintball fix "bash/a"
@@ -69,6 +69,30 @@ teardown() {
   assert_success
 }
 
+@test "lintball check javascript" {
+  run lintball check "javascript/a.js"
+  assert_failure
+  run lintball fix "javascript/a.js"
+  run lintball check "javascript/a.js"
+  assert_success
+}
+
+@test "lintball check javascript (inferred from node shebang)" {
+  run lintball check "javascript/a"
+  assert_failure
+  run lintball fix "javascript/a"
+  run lintball check "javascript/a"
+  assert_success
+}
+
+@test "lintball check javascript (inferred from deno shebang)" {
+  run lintball check "javascript/b"
+  assert_failure
+  run lintball fix "javascript/b"
+  run lintball check "javascript/b"
+  assert_success
+}
+
 @test "lintball check python" {
   run lintball check "py th on/a.py"
   assert_failure
@@ -77,7 +101,7 @@ teardown() {
   assert_success
 }
 
-@test "lintball check python (inferred from hashbang)" {
+@test "lintball check python (inferred from shebang)" {
   run lintball check "py th on/a"
   assert_failure
   run lintball fix "py th on/a"
@@ -109,7 +133,7 @@ teardown() {
   assert_success
 }
 
-@test "lintball check ruby (inferred from hashbang)" {
+@test "lintball check ruby (inferred from shebang)" {
   run lintball check "ruby/a"
   assert_failure
   run lintball fix "ruby/a"

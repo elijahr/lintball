@@ -57,7 +57,7 @@ EOF
   assert_equal "$(cat "sh/a.sh")" "$expected"
 }
 
-@test "lintball fix sh (inferred from hashbang)" {
+@test "lintball fix sh (inferred from shebang)" {
   run lintball fix "sh/a"
   assert_success
   expected="$(
@@ -103,7 +103,7 @@ EOF
   assert_equal "$(cat "bash/a.bash")" "$expected"
 }
 
-@test "lintball fix bash (inferred from hashbang)" {
+@test "lintball fix bash (inferred from shebang)" {
   run lintball fix "bash/a"
   assert_success
   expected="$(
@@ -136,6 +136,52 @@ EOF
   assert_equal "$(cat "test/c.bats")" "$(cat "test/c.expected")"
 }
 
+@test "lintball fix javascript" {
+  run lintball fix "javascript/a.js"
+  assert_success
+  expected="$(
+    cat <<EOF
+modules.exports = {
+  foo: function () {},
+  bar: () => ({}),
+};
+EOF
+  )"
+  assert_equal "$(cat "javascript/a.js")" "$expected"
+}
+
+@test "lintball fix javascript (inferred from node shebang)" {
+  run lintball fix "javascript/a"
+  assert_success
+  expected="$(
+    cat <<EOF
+#!/usr/bin/env node
+
+modules.exports = {
+  foo: function () {},
+  bar: () => ({}),
+};
+EOF
+  )"
+  assert_equal "$(cat "javascript/a")" "$expected"
+}
+
+@test "lintball fix javascript (inferred from deno shebang)" {
+  run lintball fix "javascript/b"
+  assert_success
+  expected="$(
+    cat <<EOF
+#!/usr/bin/env deno
+
+modules.exports = {
+  foo: function () {},
+  bar: () => ({}),
+};
+EOF
+  )"
+  assert_equal "$(cat "javascript/b")" "$expected"
+}
+
 @test "lintball fix python" {
   run lintball fix "py th on/a.py"
   assert_success
@@ -160,7 +206,7 @@ EOF
   assert_equal "$(cat "py th on/a.py")" "$expected"
 }
 
-@test "lintball fix python (inferred from hashbang)" {
+@test "lintball fix python (inferred from shebang)" {
   run lintball fix "py th on/a"
   assert_success
   expected="$(
@@ -232,7 +278,7 @@ EOF
   assert_equal "$(cat "ruby/a.rb")" "$expected"
 }
 
-@test "lintball fix ruby (inferred from hashbang)" {
+@test "lintball fix ruby (inferred from shebang)" {
   run lintball fix "ruby/a"
   assert_success
   expected="$(
