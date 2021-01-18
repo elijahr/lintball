@@ -520,7 +520,7 @@ infer_extension() {
   case "$extension" in
     md | html | css | scss | json | js | jsx | ts | tsx | yml | bats | bash | \
       dash | ksh | mksh | py | pyx | pxd | pxi | nim | rb | graphql | c | \
-      h | cpp | hpp | m | mm | M | java | class | jar)
+      h | cpp | hpp | m | mm | M | java)
       echo "$extension"
       ;;
     yaml) echo "yml" ;;
@@ -635,7 +635,7 @@ lint_any() {
       lint "rubocop" "$write" "$path" || status=$?
       echo
       ;;
-    c | h | cpp | hpp | m | mm | M | java | class | jar)
+    c | h | cpp | hpp | m | mm | M | java)
       echo "# $path"
       lint "uncrustify" "$write" "$path" || status=$?
       echo
