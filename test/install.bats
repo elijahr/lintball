@@ -16,6 +16,13 @@ setup() {
   ln -s "${ORIGINAL_HOME}/.cache" "${HOME}/.cache"
   ln -s "${ORIGINAL_HOME}/.npm" "${HOME}/.npm"
 
+  # create a tag for testing
+  (
+    cd "$LINTBALL_REPO"
+    git tag --delete v999.999.999 1>dev/null 2>/dev/null || true
+    git tag v999.999.999
+  )
+
   # Remove anything from path in ORIGINAL_HOME; version managers that use shims,
   # such as asdf, will break because we have mocked HOME.
   PATH="$(echo "$PATH" | sed "s|${ORIGINAL_HOME}[^:]\{1,\}:||g")"
@@ -34,6 +41,11 @@ teardown() {
 
   PATH="$ORIGINAL_PATH"
   export PATH
+
+  (
+    cd "$LINTBALL_REPO"
+    git tag --delete v999.999.999 1>dev/null 2>/dev/null || true
+  )
 }
 
 assert_bash_init() {
