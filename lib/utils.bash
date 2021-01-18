@@ -516,7 +516,7 @@ infer_extension() {
         *bash) echo "bash" ;;
         *dash) echo "dash" ;;
         *ksh) echo "ksh" ;;
-        *bats) echo "bash" ;;
+        *bats) echo "bats" ;;
         *python*) echo "py" ;;
         *ruby*) echo "rb" ;;
         *node* | *deno*) echo "js" ;;
