@@ -128,6 +128,7 @@ on:
     branches: ["*"]
   push:
     branches: ["*"]
+    tags: ["*"]
 
 jobs:
   lint:
