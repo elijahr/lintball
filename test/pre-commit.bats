@@ -43,6 +43,9 @@ a.nim
 a.yml
 bash/a
 bash/a.bash
+javascript/a
+javascript/a.js
+javascript/b
 package-lock.json
 package.json
 py th on/a
