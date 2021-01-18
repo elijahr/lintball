@@ -110,6 +110,7 @@ add_inits() {
 
   posix_insert="$(
     cat <<EOF
+
 if [ -z "\${LINTBALL_DIR:-}" ]; then
   export LINTBALL_DIR="${LB_DIR}"
   . "\${LINTBALL_DIR}/lintball.sh"
@@ -138,6 +139,7 @@ EOF
 
   fish_insert="$(
     cat <<EOF
+
 if test -z "\$LINTBALL_DIR"
   set -gx LINTBALL_DIR "${LB_DIR}"
   source "\$LINTBALL_DIR/lintball.fish"
