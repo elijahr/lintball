@@ -40,6 +40,7 @@ teardown() {
 ./sh/a.sh
 ./uncrustify/a.c
 ./uncrustify/a.cpp
+./uncrustify/a.cs
 ./uncrustify/a.h
 ./uncrustify/a.hpp
 ./uncrustify/a.java
@@ -76,6 +77,7 @@ EOF
 ./sh/a.sh
 ./uncrustify/a.c
 ./uncrustify/a.cpp
+./uncrustify/a.cs
 ./uncrustify/a.h
 ./uncrustify/a.hpp
 ./uncrustify/a.java
