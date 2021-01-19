@@ -5,8 +5,13 @@
     "bats-support": "^0.3.0"
   },
   "dependencies": {
+    "@prettier/plugin-pug": "^1.13.2",
+    "@prettier/plugin-ruby": "^1.4.0",
+    "@prettier/plugin-xml": "^0.12.0",
     "prettier": "^2.2.1",
-    "prettier-eslint-cli": "^5.0.0"
+    "prettier-eslint-cli": "^5.0.0",
+    "prettier-package-json": "^2.1.3",
+    "prettier-plugin-java": "^1.0.1"
   },
   "scripts": {
     "test": "bats ../test --tap",

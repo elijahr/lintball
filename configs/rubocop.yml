@@ -1,0 +1,3 @@
+inherit_gem:
+  # For compatibility with prettier-ruby
+  prettier: rubocop.yml

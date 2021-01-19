@@ -61,7 +61,7 @@ assert_bash_init() {
   # shellcheck disable=SC2016
   run bash -c 'cd $HOME; . .bashrc; lintball --help'
   assert_success
-  assert_line "lintball: keep your project tidy with one command."
+  assert_line "lintball: keep your code tidy with one command."
 }
 
 assert_fish_init() {
@@ -74,7 +74,7 @@ assert_fish_init() {
   assert_equal "$(fish -c 'which lintball')" "${install_dir}/bin/lintball"
   run fish -c 'lintball --help'
   assert_success
-  assert_line "lintball: keep your project tidy with one command."
+  assert_line "lintball: keep your code tidy with one command."
 }
 
 assert_zsh_init() {
@@ -89,7 +89,7 @@ assert_zsh_init() {
   # shellcheck disable=SC2016
   run zsh -c 'cd $HOME; . ./.zshrc; lintball --help'
   assert_success
-  assert_line "lintball: keep your project tidy with one command."
+  assert_line "lintball: keep your code tidy with one command."
 }
 
 assert_git() {

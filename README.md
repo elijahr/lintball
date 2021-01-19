@@ -1,24 +1,47 @@
 ![Test](https://github.com/elijahr/lintball/workflows/Test/badge.svg)
 
-# lintball
-
-Multi-linter tool for keeping your project tidy.
-
-lintball can fix all your code with one command, or a convenient set-and-forget githook.
+```
+█   █ █▄ █ ▀█▀ ██▄ ▄▀▄ █  O █
+█▄▄ █ █ ▀█  █  █▄█ █▀█ █▄▄ █▄▄
+keep your code tidy with one command.
+```
 
 ## Supported languages
 
-| language                                 |                                     tools used                                     |
-| :--------------------------------------- | :--------------------------------------------------------------------------------: |
-| Markdown, JSON, HTML, CSS, SASS, GraphQL |                                  [`prettier`][1]                                   |
-| YAML                                     |                         [`prettier`][1], [`yamllint`][10]                          |
-| JavaScript, TypeScript, JSX              |                          [`prettier`][1], [`eslint`][12]                           |
-| sh, bash, bats, dash, ksh, mksh          |                          [`shellcheck`][2], [`shfmt`][3]                           |
-| Python                                   | [`autoflake`][4], [`autopep8`][5], [`black`][6], [`docformatter`][7], [`isort`][8] |
-| Cython                                   |               [`autoflake`][4], [`autopep8`][5], [`docformatter`][7]               |
-| Nim                                      |                                  [`nimpretty`][9]                                  |
-| Ruby                                     |                                  [`rubocop`][11]                                   |
-| C, C++, C#, Objective-C, Java            |                                 [`uncrustify`][13]                                 |
+| language     |                                tools used                                |
+| :----------- | :----------------------------------------------------------------------: |
+| bash         |                       [shellcheck][2], [shfmt][3]                        |
+| bats         |                       [shellcheck][2], [shfmt][3]                        |
+| C            |                             [uncrustify][13]                             |
+| C#           |                             [uncrustify][13]                             |
+| C++          |                             [uncrustify][13]                             |
+| CSS          |                              [prettier][1]                               |
+| Cython       |             [autoflake][4], [autopep8][5], [docformatter][7]             |
+| dash         |                       [shellcheck][2], [shfmt][3]                        |
+| GraphQL      |                              [prettier][1]                               |
+| HTML         |                              [prettier][1]                               |
+| Java         |                           [prettier-java][18]                            |
+| JavaScript   |                          [prettier-eslint][12]                           |
+| JSON         |                              [prettier][1]                               |
+| JSX          |                          [prettier-eslint][12]                           |
+| ksh          |                       [shellcheck][2], [shfmt][3]                        |
+| Luau         |                               [StyLua][15]                               |
+| Lua          |                               [StyLua][15]                               |
+| Markdown     |                              [prettier][1]                               |
+| Nim          |                              [nimpretty][9]                              |
+| Objective-C  |                             [uncrustify][13]                             |
+| package.json |                       [prettier-package-json][17]                        |
+| pug          |                        [prettier/plugin-pug][20]                         |
+| Python       | [autoflake][4], [autopep8][5], [black][6], [docformatter][7], [isort][8] |
+| Ruby         |                [@prettier/plugin-ruby][14], [rubocop][11]                |
+| Rust         |                               [clippy][16]                               |
+| SASS         |                              [prettier][1]                               |
+| sh           |                       [shellcheck][2], [shfmt][3]                        |
+| TOML         |                              [prettier][1]                               |
+| TSX          |                          [prettier-eslint][12]                           |
+| TypeScript   |                          [prettier-eslint][12]                           |
+| XML          |                        [prettier/plugin-xml][19]                         |
+| YAML         |                      [prettier][1], [yamllint][10]                       |
 
 [1]: https://prettier.io/
 [2]: https://www.shellcheck.net/
@@ -31,8 +54,15 @@ lintball can fix all your code with one command, or a convenient set-and-forget 
 [9]: https://nim-lang.org/docs/tools.html
 [10]: https://yamllint.readthedocs.io/en/stable/
 [11]: https://github.com/rubocop-hq/rubocop
-[12]: https://eslint.org
+[12]: https://github.com/prettier/prettier-eslint-cli
 [13]: http://uncrustify.sourceforge.net/
+[14]: https://github.com/prettier/plugin-ruby
+[15]: https://github.com/JohnnyMorganz/StyLua
+[16]: https://github.com/rust-lang/rust-clippy
+[17]: https://github.com/cameronhunter/prettier-package-json
+[18]: https://github.com/jhipster/prettier-java
+[19]: https://github.com/prettier/plugin-xml
+[20]: https://github.com/prettier/plugin-pug
 
 ## Installation
 
@@ -47,54 +77,29 @@ If you are using lintball with a git-managed project, we suggest using the pre-c
 ## Usage
 
 ```
-Usage: lintball [options] [command] [command options]
+Usage: lintball [lintball options] [command] [command options]
 
-Options:
-
+lintball options:
   -h | --help
       Show this help message & exit.
-
   -v | --version
       Print version & exit.
-
   -c | --config path
       Use the .lintballrc.json config file at path.
 
-Commands:
-
+commands:
   check [path ...]
       Check for and display linter issues recursively in paths or working dir.
-
   fix [path ...]
       Auto fix all fixable issues recursively in paths or working dir.
-
   list [path ...]
       List files which lintball recognizes for checking or fixing.
-
-  githooks [options] [path]
-      Install lintball githooks in the git repo at path or working dir.
-
-      Options:
-
-        --yes
-          If destination exists, overwrite.
-
-        --no
-          If destination exists, exit without copying.
-
-  lintballrc [options] [path]
-      Place a default .lintballrc.json configuration file in path or working dir.
-
-      Options:
-
-        --yes
-          If destination exists, overwrite.
-
-        --no
-          If destination exists, exit without copying.
-
   update
       Update lintball to the latest version.
+  githooks [path]
+      Install lintball githooks in the git repo at path or working dir.
+  lintballrc [path]
+      Place a default .lintballrc.json config file in path or working dir.
 ```
 
 ## Updating
@@ -201,6 +206,7 @@ By default, lintball will not check any files matching the following patterns:
 */node_modules/*
 */package-lock.json
 */Pipfile.lock
+*/target/*
 */tmp/*
 */vendor/*
 ```
@@ -223,7 +229,7 @@ If you need to pass custom arguments to a linter command (such as providing a pa
 
 ## Acknowledgements
 
-lintball is a wrapper around existing tools. Many thanks to the authors of the tools used by lintball! We stand on the shoulders of giants.
+lintball is a wrapper around existing tools. Many thanks to the authors of the tools used by lintball! This project (and your tidy code) stand on the shoulders of giants.
 
 ## Contributing
 

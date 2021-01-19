@@ -5,6 +5,7 @@ GEM
     parallel (1.20.1)
     parser (3.0.0.0)
       ast (~> 2.4.1)
+    prettier (1.4.0)
     rainbow (3.0.0)
     regexp_parser (2.0.3)
     rexml (3.2.4)
@@ -30,6 +31,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  prettier (~> 1.4)
   rubocop (~> 1.8)
 
 BUNDLED WITH

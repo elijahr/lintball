@@ -13,7 +13,7 @@ source "${LB_DIR}/lib/install.bash"
 
 update_repo
 
-# After update, re-source lib/install.bash for new finish_update function
+# After repo update, re-source lib/install.bash for new finish_update function
 # definition.
 # shellcheck source=SCRIPTDIR/lib/install.bash
 source "${LB_DIR}/lib/install.bash"

@@ -180,6 +180,20 @@ cmd_black() {
   fi
 }
 
+cmd_clippy() {
+  local write path dir
+  write="$1"
+  path="$2"
+  dir="$(dirname "$path")"
+  if [ "$write" = "yes" ]; then
+    echo "(cd '$dir'; cargo clippy \
+      $(eval echo "${LINTBALL__WRITE_ARGS__CLIPPY}"))"
+  else
+    echo "(cd '$dir'; cargo clippy \
+      $(eval echo "${LINTBALL__CHECK_ARGS__CLIPPY}"))"
+  fi
+}
+
 lint_shellcheck() {
   local write path args lang stdout stderr status linter offset color
   write="$1"
@@ -512,40 +526,32 @@ infer_extension() {
   # Check for `# lintball lang=foo` directives
   lang="$(grep '^# lintball lang=' "$path" | sed 's/^# lintball lang=//' | tr '[:upper:]' '[:lower:]')"
   case "$lang" in
-    python)
-      echo "py"
-      return 0
-      ;;
     cython)
       echo "pyx"
-      return 0
-      ;;
-    yaml)
-      echo "yml"
-      return 0
-      ;;
-    ruby)
-      echo "rb"
       return 0
       ;;
     javascript)
       echo "js"
       return 0
       ;;
-    typescript)
-      echo "ts"
-      return 0
-      ;;
     markdown)
       echo "md"
       return 0
       ;;
-    c++)
-      echo "cpp"
+    python)
+      echo "py"
       return 0
       ;;
-    obj-c | objc | objective-c | objectivec)
-      echo "m"
+    ruby)
+      echo "rb"
+      return 0
+      ;;
+    typescript)
+      echo "ts"
+      return 0
+      ;;
+    yaml)
+      echo "yml"
       return 0
       ;;
     *)
@@ -563,12 +569,12 @@ infer_extension() {
   esac
 
   case "$extension" in
-    md | html | css | scss | json | js | jsx | ts | tsx | yml | bats | bash | \
-      dash | ksh | mksh | py | pyx | pxd | pxi | nim | rb | graphql | c | \
-      h | cpp | hpp | m | mm | M | java | cs)
+    bash | bats | c | cpp | cs | css | dash | graphql | h | hpp | html | \
+      jade | java | js | json | jsx | ksh | lua | luau | m | M | md | mksh | \
+      mm | nim | pug | pxd | pxi | py | pyx | rb | rs | scss | toml | ts | tsx | \
+      xml | yml)
       echo "$extension"
       ;;
-    yaml) echo "yml" ;;
     sh)
       # Inspect shebang
       case "$(shebang "$path")" in
@@ -578,17 +584,18 @@ infer_extension() {
         *) echo "sh" ;;
       esac
       ;;
+    yaml) echo "yml" ;;
     *)
       # Inspect shebang
       case "$(shebang "$path")" in
         */bin/sh) echo "sh" ;;
         *bash) echo "bash" ;;
+        *bats) echo "bats" ;;
         *dash) echo "dash" ;;
         *ksh) echo "ksh" ;;
-        *bats) echo "bats" ;;
+        *node* | *deno*) echo "js" ;;
         *python*) echo "py" ;;
         *ruby*) echo "rb" ;;
-        *node* | *deno*) echo "js" ;;
       esac
       ;;
   esac
@@ -609,20 +616,15 @@ lint_any() {
   path="$(normalize_path "$path")"
 
   case "$(infer_extension "$path")" in
-    md | html | css | scss | json | graphql)
+    css | graphql | html | jade | json | md | pug | scss | xml)
       echo "# $path"
       lint "prettier" "$write" "$path" || status=$?
       echo
       ;;
-    js | jsx | ts | tsx)
+    bash)
       echo "# $path"
-      lint_prettier_eslint "$write" "$path" || status=$?
-      echo
-      ;;
-    yml)
-      echo "# $path"
-      lint "prettier" "$write" "$path" || status=$?
-      lint "yamllint" "$write" "$path" || status=$?
+      lint "shfmt" "$write" "$path" "bash" || status=$?
+      lint_shellcheck "$write" "$path" "bash" || status=$?
       echo
       ;;
     bats)
@@ -631,10 +633,19 @@ lint_any() {
       lint_shellcheck "$write" "$path" "bats" || status=$?
       echo
       ;;
-    bash)
+    c | h)
       echo "# $path"
-      lint "shfmt" "$write" "$path" "bash" || status=$?
-      lint_shellcheck "$write" "$path" "bash" || status=$?
+      lint_uncrustify "$write" "$path" "c" || status=$?
+      echo
+      ;;
+    cpp | hpp)
+      echo "# $path"
+      lint_uncrustify "$write" "$path" "cpp" || status=$?
+      echo
+      ;;
+    cs)
+      echo "# $path"
+      lint_uncrustify "$write" "$path" "cpp" || status=$?
       echo
       ;;
     dash)
@@ -649,10 +660,29 @@ lint_any() {
       lint_shellcheck "$write" "$path" "ksh" || status=$?
       echo
       ;;
-    sh)
+    java)
       echo "# $path"
-      lint "shfmt" "$write" "$path" "posix" || status=$?
-      lint_shellcheck "$write" "$path" "sh" || status=$?
+      lint "prettier" "$write" "$path" || status=$?
+      echo
+      ;;
+    js | jsx | ts | tsx)
+      echo "# $path"
+      lint_prettier_eslint "$write" "$path" || status=$?
+      echo
+      ;;
+    lua | luau)
+      echo "# $path"
+      lint "stylua" "$write" "$path" || status=$?
+      echo
+      ;;
+    m | mm | M)
+      echo "# $path"
+      lint_uncrustify "$write" "$path" "objc" || status=$?
+      echo
+      ;;
+    nim)
+      echo "# $path"
+      lint_nimpretty "$write" "$path" || status=$?
       echo
       ;;
     py)
@@ -671,39 +701,32 @@ lint_any() {
       lint "autoflake" "$write" "$path" || status=$?
       echo
       ;;
-    nim)
-      echo "# $path"
-      lint_nimpretty "$write" "$path" || status=$?
-      echo
-      ;;
     rb)
       echo "# $path"
       lint "rubocop" "$write" "$path" || status=$?
+      lint "prettier" "$write" "$path" || status=$?
       echo
       ;;
-    c | h)
+    sh)
       echo "# $path"
-      lint_uncrustify "$write" "$path" "c" || status=$?
+      lint "shfmt" "$write" "$path" "posix" || status=$?
+      lint_shellcheck "$write" "$path" "sh" || status=$?
       echo
       ;;
-    cpp | hpp)
+    toml)
       echo "# $path"
-      lint_uncrustify "$write" "$path" "cpp" || status=$?
+      lint "prettier" "$write" "$path" || status=$?
+      if [ "$(basename "$path")" = "Cargo.toml" ]; then
+        # Special case for Rust package; clippy analyzes an entire crate, not a
+        # single path, so when a Cargo.toml is encountered, use clippy.
+        lint "clippy" "$write" "$path" || status=$?
+      fi
       echo
       ;;
-    m | mm | M)
+    yml)
       echo "# $path"
-      lint_uncrustify "$write" "$path" "objc" || status=$?
-      echo
-      ;;
-    java)
-      echo "# $path"
-      lint_uncrustify "$write" "$path" "java" || status=$?
-      echo
-      ;;
-    cs)
-      echo "# $path"
-      lint_uncrustify "$write" "$path" "cs" || status=$?
+      lint "prettier" "$write" "$path" || status=$?
+      lint "yamllint" "$write" "$path" || status=$?
       echo
       ;;
     *)
@@ -739,6 +762,7 @@ lint_any() {
         *ruby*)
           echo "# $path"
           lint "rubocop" "$write" "$path" || status=$?
+          lint "prettier" "$write" "$path" || status=$?
           echo
           ;;
         *node* | *deno*)
@@ -843,72 +867,68 @@ find_config() {
 usage() {
   cat <<EOF
 
- █   █ █▄ █ ▀█▀ ██▄ ▄▀▄ █   █
- █▄▄ █ █ ▀█  █  █▄█ █▀█ █▄▄ █▄▄
-keep your project tidy with one command.
+█   █ █▄ █ ▀█▀ ██▄ ▄▀▄ █   █
+█▄▄ █ █ ▀█  █  █▄█ █▀█ █▄▄ █▄▄
+keep your code tidy with one command.
 
-| language                   | tools used                                      |
-| :------------------------- | :---------------------------------------------: |
-| Markdown, JSON, GraphQL    | prettier                                        |
-| HTML, CSS, SASS            | prettier                                        |
-| YAML                       | prettier, yamllint                              |
-| JavaScript, TypeScript     | prettier, eslint                                |
-| sh, bash, bats, dash, ksh  | shellcheck, shfmt                               |
-| Python                     | autoflake, autopep8, black, docformatter, isort |
-| Cython                     | autoflake, autopep8, docformatter               |
-| Nim                        | nimpretty                                       |
-| Ruby                       | rubocop                                         |
-| C, C++, C#, Obj-C, Java    | uncrustify                                      |
+Usage: lintball [lintball options] [command] [command options]
 
-Usage: lintball [options] [command] [command options]
-
-Options:
-
+lintball options:
   -h | --help
       Show this help message & exit.
-
   -v | --version
       Print version & exit.
-
   -c | --config path
       Use the .lintballrc.json config file at path.
 
-Commands:
-
+commands:
   check [path ...]
       Check for and display linter issues recursively in paths or working dir.
-
   fix [path ...]
       Auto fix all fixable issues recursively in paths or working dir.
-
   list [path ...]
       List files which lintball recognizes for checking or fixing.
-
-  githooks [options] [path]
-      Install lintball githooks in the git repo at path or working dir.
-
-      Options:
-
-        --yes
-          If destination exists, overwrite.
-
-        --no
-          If destination exists, exit without copying.
-
-  lintballrc [options] [path]
-      Place a default .lintballrc.json configuration file in path or working dir.
-
-      Options:
-
-        --yes
-          If destination exists, overwrite.
-
-        --no
-          If destination exists, exit without copying.
-
   update
       Update lintball to the latest version.
+  githooks [path]
+      Install lintball githooks in the git repo at path or working dir.
+  lintballrc [path]
+      Place a default .lintballrc.json config file in path or working dir.
 
+| language     |                   tools used                    |
+| :----------- | :---------------------------------------------: |
+| bash         |                shellcheck, shfmt                |
+| bats         |                shellcheck, shfmt                |
+| C            |                   uncrustify                    |
+| C#           |                   uncrustify                    |
+| C++          |                   uncrustify                    |
+| CSS          |                    prettier                     |
+| Cython       |        autoflake, autopep8, docformatter        |
+| dash         |                shellcheck, shfmt                |
+| GraphQL      |                    prettier                     |
+| HTML         |                    prettier                     |
+| Java         |                  prettier-java                  |
+| JavaScript   |                 prettier-eslint                 |
+| JSON         |                    prettier                     |
+| JSX          |                 prettier-eslint                 |
+| ksh          |                shellcheck, shfmt                |
+| Luau         |                     StyLua                      |
+| Lua          |                     StyLua                      |
+| Markdown     |                    prettier                     |
+| Nim          |                    nimpretty                    |
+| Objective-C  |                   uncrustify                    |
+| package.json |              prettier-package-json              |
+| pug          |              @prettier/plugin-pug               |
+| Python       | autoflake, autopep8, black, docformatter, isort |
+| Ruby         |         @prettier/plugin-ruby, rubocop          |
+| Rust         |                     clippy                      |
+| SASS         |                    prettier                     |
+| sh           |                shellcheck, shfmt                |
+| TOML         |                    prettier                     |
+| TSX          |                 prettier-eslint                 |
+| TypeScript   |                 prettier-eslint                 |
+| XML          |              @prettier/plugin-xml               |
+| YAML         |               prettier, yamllint                |
 
 https://github.com/elijahr/lintball
 

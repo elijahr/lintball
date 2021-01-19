@@ -86,6 +86,7 @@ update_deps() {
 
   if [ -n "$(which bundle)" ]; then
     (
+      cd "${LB_DIR}/deps"
       BUNDLE_GEMFILE="${LB_DIR}/deps/Gemfile"
       export BUNDLE_GEMFILE
       bundle config set --local deployment 'true'
@@ -95,10 +96,25 @@ update_deps() {
     echo -e "Warning: cannot install bundler requirements - could not find a bundle executable."
     echo -e "If ruby is installed, try gem install bundler and re-run this script."
   fi
+
+  if [ -n "$(which cargo)" ]; then
+    cargo install stylua --features luau
+    if [ -z "$(which rustup)" ]; then
+      # Install rustup
+      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    else
+      rustup self update
+      rustup update
+    fi
+    rustup component add clippy
+  else
+    echo -e "Warning: cannot install cargo requirements - could not find an cargo executable."
+  fi
 }
 
-add_inits() {
-  local posix_insert fish_insert fish_config
+insert_shell_inits() {
+  local posix_insert fish_insert fish_config inserted
+  inserted="no"
 
   posix_insert="$(
     cat <<EOF
@@ -115,19 +131,22 @@ EOF
   # bash
   if ! grep -qF "LINTBALL_DIR" "${HOME}/.bashrc"; then
     echo "$posix_insert" >>"${HOME}/.bashrc"
+    inserted="yes"
+    echo "lintball → ${HOME}/.bashrc"
   fi
-  echo "lintball → ${HOME}/.bashrc"
 
   if ! grep -qF "LINTBALL_DIR" "${HOME}/.bash_profile"; then
     echo "$posix_insert" >>"${HOME}/.bash_profile"
+    inserted="yes"
+    echo "lintball → ${HOME}/.bash_profile"
   fi
-  echo "lintball → ${HOME}/.bash_profile"
 
   # zsh
   if ! grep -qF "LINTBALL_DIR" "${HOME}/.zshrc"; then
     echo "$posix_insert" >>"${HOME}/.zshrc"
+    inserted="yes"
+    echo "lintball → ${HOME}/.zshrc"
   fi
-  echo "lintball → ${HOME}/.zshrc"
 
   fish_insert="$(
     cat <<EOF
@@ -144,22 +163,25 @@ EOF
   if ! grep -qF "LINTBALL_DIR" "$fish_config"; then
     mkdir -p "$(dirname "$fish_config")"
     echo "$fish_insert" >>"$fish_config"
+    inserted="yes"
+    echo "lintball → $fish_config"
   fi
-  echo "lintball → $fish_config"
 
   # Add to path in Github Actions
   if [ -n "${GITHUB_PATH:-}" ]; then
     echo "${LB_DIR}/bin" >>"$GITHUB_PATH"
   fi
 
-  echo
-  echo "Restart your shell for changes to take effect."
-  echo
+  if [ "$inserted" = "yes" ]; then
+    echo
+    echo "Restart your shell for changes to take effect."
+    echo
+  fi
 }
 
 finish_update() {
   # All versions of lintball should implement this function, but the internals
   # of it can change. It is called by install.sh after updating the repo.
   update_deps
-  add_inits
+  insert_shell_inits
 }

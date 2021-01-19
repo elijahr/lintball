@@ -295,9 +295,7 @@ EOF
   expected="$(
     cat <<EOF
 # frozen_string_literal: true
-
-d = [123, 456,
-     789]
+d = [123, 456, 789]
 
 echo d
 EOF
@@ -312,9 +310,7 @@ EOF
     cat <<EOF
 #!/usr/bin/env ruby
 # frozen_string_literal: true
-
-d = [123, 456,
-     789]
+d = [123, 456, 789]
 
 echo d
 EOF
@@ -407,8 +403,7 @@ EOF
   expected="$(
     cat <<EOF
 class HelloWorld {
-  public static void main(
-    String[] args) {
+  public static void main(String[] args) {
     System.out.println("Hello, World!");
   }
 }
@@ -422,13 +417,12 @@ EOF
   assert_success
   expected="$(
     cat <<EOF
-namespace HelloWorld
-{
+namespace HelloWorld {
 class Hello {
-static void Main (string[] args)
-{
-        System.Console.WriteLine ("Hello World!");
-}
+  static void Main(string[] args)
+  {
+    System.Console.WriteLine("Hello World!");
+  }
 }
 }
 EOF
