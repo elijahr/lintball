@@ -4,21 +4,21 @@
 
 Multi-linter tool for keeping your project tidy.
 
-lintball can fix all your code with one command, or a convenient githook that you can set and forget.
+lintball can fix all your code with one command, or a convenient set-and-forget githook.
 
 ## Supported languages
 
-| language                                 |                                   tools used                                   |
-| :--------------------------------------- | :----------------------------------------------------------------------------: |
-| Markdown, JSON, HTML, CSS, SASS, GraphQL |                                [`prettier`][1]                                 |
-| YAML                                     |                        [`prettier`][1] [`yamllint`][10]                        |
-| JavaScript, TypeScript, JSX              |                         [`prettier`][1] [`eslint`][12]                         |
-| sh, bash, bats, dash, ksh, mksh          |                         [`shellcheck`][2] [`shfmt`][3]                         |
-| Python                                   | [`autoflake`][4] [`autopep8`][5] [`black`][6] [`docformatter`][7] [`isort`][8] |
-| Cython                                   |              [`autoflake`][4] [`autopep8`][5] [`docformatter`][7]              |
-| Nim                                      |                                [`nimpretty`][9]                                |
-| Ruby                                     |                                [`rubocop`][11]                                 |
-| C, C++, C#, ObjectiveC, D, Java          |                               [`uncrustify`][13]                               |
+| language                                 |                                     tools used                                     |
+| :--------------------------------------- | :--------------------------------------------------------------------------------: |
+| Markdown, JSON, HTML, CSS, SASS, GraphQL |                                  [`prettier`][1]                                   |
+| YAML                                     |                         [`prettier`][1], [`yamllint`][10]                          |
+| JavaScript, TypeScript, JSX              |                          [`prettier`][1], [`eslint`][12]                           |
+| sh, bash, bats, dash, ksh, mksh          |                          [`shellcheck`][2], [`shfmt`][3]                           |
+| Python                                   | [`autoflake`][4], [`autopep8`][5], [`black`][6], [`docformatter`][7], [`isort`][8] |
+| Cython                                   |               [`autoflake`][4], [`autopep8`][5], [`docformatter`][7]               |
+| Nim                                      |                                  [`nimpretty`][9]                                  |
+| Ruby                                     |                                  [`rubocop`][11]                                   |
+| C, C++, C#, Objective-C, Java            |                                 [`uncrustify`][13]                                 |
 
 [1]: https://prettier.io/
 [2]: https://www.shellcheck.net/
@@ -95,7 +95,6 @@ Commands:
 
   update
       Update lintball to the latest version.
-
 ```
 
 ## Updating

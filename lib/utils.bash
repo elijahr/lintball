@@ -565,7 +565,7 @@ infer_extension() {
   case "$extension" in
     md | html | css | scss | json | js | jsx | ts | tsx | yml | bats | bash | \
       dash | ksh | mksh | py | pyx | pxd | pxi | nim | rb | graphql | c | \
-      h | cpp | hpp | m | mm | M | java)
+      h | cpp | hpp | m | mm | M | java | cs)
       echo "$extension"
       ;;
     yaml) echo "yml" ;;
@@ -699,6 +699,11 @@ lint_any() {
     java)
       echo "# $path"
       lint_uncrustify "$write" "$path" "java" || status=$?
+      echo
+      ;;
+    cs)
+      echo "# $path"
+      lint_uncrustify "$write" "$path" "cs" || status=$?
       echo
       ;;
     *)
@@ -838,24 +843,22 @@ find_config() {
 usage() {
   cat <<EOF
 
-lintball: keep your project tidy with one command.
+ █   █ █▄ █ ▀█▀ ██▄ ▄▀▄ █   █
+ █▄▄ █ █ ▀█  █  █▄█ █▀█ █▄▄ █▄▄
+keep your project tidy with one command.
 
-Linters/formatters used:
-
-JSON, GraphQL,
-Markdown, HTML, CSS, SASS.......prettier
-JavaScript, TypeScript, JSX.....prettier-eslint
-YAML............................prettier, yamllint
-sh, bash, bats, dash, ksh,
-mksh............................shellcheck, shfmt
-Bats tests......................shfmt
-Python..........................autoflake, autopep8, black, docformatter, isort
-Cython..........................autoflake, autopep8, docformatter
-Nim.............................nimpretty
-Ruby............................rubocop
-C, C++, C#, ObjectiveC, D,
-Java............................uncrustify
-
+| language                   | tools used                                      |
+| :------------------------- | :---------------------------------------------: |
+| Markdown, JSON, GraphQL    | prettier                                        |
+| HTML, CSS, SASS            | prettier                                        |
+| YAML                       | prettier, yamllint                              |
+| JavaScript, TypeScript     | prettier, eslint                                |
+| sh, bash, bats, dash, ksh  | shellcheck, shfmt                               |
+| Python                     | autoflake, autopep8, black, docformatter, isort |
+| Cython                     | autoflake, autopep8, docformatter               |
+| Nim                        | nimpretty                                       |
+| Ruby                       | rubocop                                         |
+| C, C++, C#, Obj-C, Java    | uncrustify                                      |
 
 Usage: lintball [options] [command] [command options]
 
@@ -1080,7 +1083,7 @@ parse_subcommand_args() {
 
   if [ -n "$LINTBALL_CONFIG" ]; then
     echo
-    echo "# Using config file ${LINTBALL_CONFIG}"
+    echo "# lintball: using config file ${LINTBALL_CONFIG}"
     echo
     load_config "$LINTBALL_CONFIG" || exit 1
   fi

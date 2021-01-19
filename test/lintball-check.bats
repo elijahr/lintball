@@ -197,6 +197,14 @@ teardown() {
   assert_success
 }
 
+@test "lintball check c#" {
+  run lintball check "uncrustify/a.cs"
+  assert_failure
+  run lintball fix "uncrustify/a.cs"
+  run lintball check "uncrustify/a.cs"
+  assert_success
+}
+
 @test "lintball check unhandled is a no-op" {
   run lintball check "unhandled.txt"
   assert_success

@@ -417,6 +417,25 @@ EOF
   assert_equal "$(cat "uncrustify/a.java")" "$expected"
 }
 
+@test "lintball fix c#" {
+  run lintball fix "uncrustify/a.cs"
+  assert_success
+  expected="$(
+    cat <<EOF
+namespace HelloWorld
+{
+class Hello {
+static void Main (string[] args)
+{
+        System.Console.WriteLine ("Hello World!");
+}
+}
+}
+EOF
+  )"
+  assert_equal "$(cat "uncrustify/a.cs")" "$expected"
+}
+
 @test "lintball fix unhandled is a no-op" {
   run lintball fix "unhandled.txt"
   assert_success
