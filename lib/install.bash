@@ -4,7 +4,7 @@
 
 LINTBALL_REPO="${LINTBALL_REPO:-"https://github.com/elijahr/lintball.git"}"
 
-update_lintball() {
+update_repo() {
   if [ ! -d "$LB_DIR" ]; then
     echo "cloning lintball → ${LB_DIR}…"
     git clone "$LINTBALL_REPO" "$LB_DIR" 2>/dev/null
@@ -155,4 +155,11 @@ EOF
   echo
   echo "Restart your shell for changes to take effect."
   echo
+}
+
+finish_update() {
+  # All versions of lintball should implement this function, but the internals
+  # of it can change. It is called by install.sh after updating the repo.
+  update_deps
+  add_inits
 }

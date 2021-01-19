@@ -11,11 +11,11 @@ LB_DIR="${1:-"${HOME}/.lintball"}"
 # shellcheck source=SCRIPTDIR/lib/install.bash
 source "${LB_DIR}/lib/install.bash"
 
-update_lintball
+update_repo
 
-# After update, re-source lib/install.bash for new functions
+# After update, re-source lib/install.bash for new finish_update function
+# definition.
 # shellcheck source=SCRIPTDIR/lib/install.bash
 source "${LB_DIR}/lib/install.bash"
 
-update_deps
-add_inits
+finish_update
