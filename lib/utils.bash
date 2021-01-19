@@ -180,21 +180,6 @@ cmd_black() {
   fi
 }
 
-cmd_uncrustify() {
-  local write path
-  write="$1"
-  path="$2"
-  if [ "$write" = "yes" ]; then
-    echo "uncrustify \
-      $(eval echo "${LINTBALL__WRITE_ARGS__UNCRUSTIFY}") \
-      '$path'"
-  else
-    echo "uncrustify \
-      $(eval echo "${LINTBALL__CHECK_ARGS__UNCRUSTIFY}") \
-      '$path'"
-  fi
-}
-
 lint_shellcheck() {
   local write path args lang stdout stderr status linter offset color
   write="$1"
@@ -401,6 +386,66 @@ lint_prettier_eslint() {
   else
     printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
     cat "$stdout" 2>/dev/null
+    cat "$stderr" 1>&2 2>/dev/null
+  fi
+  rm "$stdout"
+  rm "$stderr"
+  return $status
+}
+
+lint_uncrustify() {
+  local write path lang args patch stdout stderr status linter offset
+  write="$1"
+  path="$2"
+  lang="$3"
+
+  if [ "$write" = "yes" ]; then
+    args="${LINTBALL__WRITE_ARGS__UNCRUSTIFY}"
+  else
+    args="${LINTBALL__CHECK_ARGS__UNCRUSTIFY}"
+  fi
+
+  linter="uncrustify"
+  offset="${#linter}"
+
+  if [ -z "$(which uncrustify)" ]; then
+    printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "😵 not installed"
+    return 1
+  fi
+
+  stdout="$(mktemp)"
+  stderr="$(mktemp)"
+  status=0
+
+  set -f
+  eval "uncrustify \
+    $(eval echo "$args") \
+    -f '$path'" \
+    1>"$stdout" \
+    2>"$stderr" || status=$?
+  set +f
+  if [ "$status" -eq 0 ]; then
+    if [ "$(cat "$stdout")" = "$(cat "$path")" ]; then
+      printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "ok"
+    else
+      patch="$(diff -u "$path" "$stdout")"
+      if [ -n "$patch" ]; then
+        if [ "$write" = "yes" ]; then
+          cat "$stdout" >"$path"
+          printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "wrote"
+        else
+          printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
+          echo "$patch"
+          status=1
+        fi
+      else
+        printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
+        cat "$stdout" 2>/dev/null
+        cat "$stderr" 1>&2 2>/dev/null
+      fi
+    fi
+  else
+    printf "%s%s%s\n" "↳ ${linter}" "${DOTS:offset}" "⚠️   see below"
     cat "$stderr" 1>&2 2>/dev/null
   fi
   rm "$stdout"
@@ -636,9 +681,24 @@ lint_any() {
       lint "rubocop" "$write" "$path" || status=$?
       echo
       ;;
-    c | h | cpp | hpp | m | mm | M | java)
+    c | h)
       echo "# $path"
-      lint "uncrustify" "$write" "$path" || status=$?
+      lint_uncrustify "$write" "$path" "c" || status=$?
+      echo
+      ;;
+    cpp | hpp)
+      echo "# $path"
+      lint_uncrustify "$write" "$path" "cpp" || status=$?
+      echo
+      ;;
+    m | mm | M)
+      echo "# $path"
+      lint_uncrustify "$write" "$path" "objc" || status=$?
+      echo
+      ;;
+    java)
+      echo "# $path"
+      lint_uncrustify "$write" "$path" "java" || status=$?
       echo
       ;;
     *)

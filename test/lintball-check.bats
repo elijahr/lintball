@@ -70,10 +70,10 @@ teardown() {
 }
 
 @test "lintball check bats" {
-  run lintball check "test"
+  run lintball check "bats"
   assert_failure
-  run lintball fix "test"
-  run lintball check "test"
+  run lintball fix "bats"
+  run lintball check "bats"
   assert_success
 }
 
@@ -146,6 +146,54 @@ teardown() {
   assert_failure
   run lintball fix "ruby/a"
   run lintball check "ruby/a"
+  assert_success
+}
+
+@test "lintball check c" {
+  run lintball check "uncrustify/a.c"
+  assert_failure
+  run lintball fix "uncrustify/a.c"
+  run lintball check "uncrustify/a.c"
+  assert_success
+}
+
+@test "lintball check c header" {
+  run lintball check "uncrustify/a.h"
+  assert_failure
+  run lintball fix "uncrustify/a.h"
+  run lintball check "uncrustify/a.h"
+  assert_success
+}
+
+@test "lintball check objective-c" {
+  run lintball check "uncrustify/a.m"
+  assert_failure
+  run lintball fix "uncrustify/a.m"
+  run lintball check "uncrustify/a.m"
+  assert_success
+}
+
+@test "lintball check c++" {
+  run lintball check "uncrustify/a.cpp"
+  assert_failure
+  run lintball fix "uncrustify/a.cpp"
+  run lintball check "uncrustify/a.cpp"
+  assert_success
+}
+
+@test "lintball check c++ header" {
+  run lintball check "uncrustify/a.hpp"
+  assert_failure
+  run lintball fix "uncrustify/a.hpp"
+  run lintball check "uncrustify/a.hpp"
+  assert_success
+}
+
+@test "lintball check java" {
+  run lintball check "uncrustify/a.java"
+  assert_failure
+  run lintball fix "uncrustify/a.java"
+  run lintball check "uncrustify/a.java"
   assert_success
 }
 

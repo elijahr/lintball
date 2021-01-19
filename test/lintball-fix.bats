@@ -159,9 +159,9 @@ EOF
 }
 
 @test "lintball fix bats" {
-  run lintball fix "test"
+  run lintball fix "bats"
   assert_success
-  assert_equal "$(cat "test/c.bats")" "$(cat "test/c.expected")"
+  assert_equal "$(cat "bats/c.bats")" "$(cat "bats/c.expected")"
 }
 
 @test "lintball fix javascript" {
@@ -320,6 +320,101 @@ echo d
 EOF
   )"
   assert_equal "$(cat "ruby/a")" "$expected"
+}
+
+@test "lintball fix c" {
+  run lintball fix "uncrustify/a.c"
+  assert_success
+  expected="$(
+    cat <<EOF
+#include <stdio.h>
+
+int main()
+{
+	printf("Hello World!");
+	return (0);
+}
+EOF
+  )"
+  assert_equal "$(cat "uncrustify/a.c")" "$expected"
+}
+
+@test "lintball fix c header" {
+  run lintball fix "uncrustify/a.h"
+  assert_success
+  expected="$(
+    cat <<EOF
+#include <stdio.h>
+
+int main();
+EOF
+  )"
+  assert_equal "$(cat "uncrustify/a.h")" "$expected"
+}
+
+@test "lintball fix objective-c" {
+  run lintball fix "uncrustify/a.m"
+  assert_success
+  expected="$(
+    cat <<EOF
+#import <Foundation/Foundation.h>
+
+int main(int argc, const char * argv[]) {
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+
+    NSLog(@"Hello, World!");
+    [pool drain];
+    return 0;
+}
+EOF
+  )"
+  assert_equal "$(cat "uncrustify/a.m")" "$expected"
+}
+
+@test "lintball fix c++" {
+  run lintball fix "uncrustify/a.cpp"
+  assert_success
+  expected="$(
+    cat <<EOF
+#include <iostream>
+
+int main()
+{
+  std::cout << "Hello World!";
+  return 0;
+}
+EOF
+  )"
+  assert_equal "$(cat "uncrustify/a.cpp")" "$expected"
+}
+
+@test "lintball fix c++ header" {
+  run lintball fix "uncrustify/a.hpp"
+  assert_success
+  expected="$(
+    cat <<EOF
+#include <iostream>
+
+int main();
+EOF
+  )"
+  assert_equal "$(cat "uncrustify/a.hpp")" "$expected"
+}
+
+@test "lintball fix java" {
+  run lintball fix "uncrustify/a.java"
+  assert_success
+  expected="$(
+    cat <<EOF
+class HelloWorld {
+  public static void main(
+    String[] args) {
+    System.out.println("Hello, World!");
+  }
+}
+EOF
+  )"
+  assert_equal "$(cat "uncrustify/a.java")" "$expected"
 }
 
 @test "lintball fix unhandled is a no-op" {
