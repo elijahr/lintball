@@ -44,6 +44,8 @@ a.yml
 bash/a
 bash/a.bash
 bash/b
+bats/a.bats
+bats/a.expected
 javascript/a
 javascript/a.js
 javascript/b
@@ -54,8 +56,12 @@ ruby/a
 ruby/a.rb
 sh/a
 sh/a.sh
-test/a.bats
-test/a.expected
+uncrustify/a.c
+uncrustify/a.cpp
+uncrustify/a.h
+uncrustify/a.hpp
+uncrustify/a.java
+uncrustify/a.m
 unhandled.txt
 EOF
   )"

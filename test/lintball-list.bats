@@ -26,6 +26,8 @@ teardown() {
 ./bash/a
 ./bash/a.bash
 ./bash/b
+./bats/a.bats
+./bats/a.expected
 ./javascript/a
 ./javascript/a.js
 ./javascript/b
@@ -36,8 +38,12 @@ teardown() {
 ./ruby/a.rb
 ./sh/a
 ./sh/a.sh
-./test/a.bats
-./test/a.expected
+./uncrustify/a.c
+./uncrustify/a.cpp
+./uncrustify/a.h
+./uncrustify/a.hpp
+./uncrustify/a.java
+./uncrustify/a.m
 EOF
   )"
   assert_output "$expected"
@@ -56,6 +62,8 @@ EOF
 ./bash/a
 ./bash/a.bash
 ./bash/b
+./bats/a.bats
+./bats/a.expected
 ./javascript/a
 ./javascript/a.js
 ./javascript/b
@@ -66,8 +74,12 @@ EOF
 ./ruby/a.rb
 ./sh/a
 ./sh/a.sh
-./test/a.bats
-./test/a.expected
+./uncrustify/a.c
+./uncrustify/a.cpp
+./uncrustify/a.h
+./uncrustify/a.hpp
+./uncrustify/a.java
+./uncrustify/a.m
 EOF
   )"
 }
