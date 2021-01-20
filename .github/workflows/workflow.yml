@@ -36,6 +36,10 @@ jobs:
           tool_versions: |
             nim 1.4.2
 
+      - uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: nightly
+
       # Install packages in a cache-friendly way, uses config from cache.js
       - uses: ktmud/cached-dependencies@v1
         with:
@@ -73,6 +77,18 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y $(cat deps/requirements-apt.txt)
             cache-save apt
+
+            cache-restore cargo
+            cargo install stylua --features luau
+            if [ -z "$(which rustup)" ]; then
+              # Install rustup
+              curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+            else
+              rustup self update
+              rustup update
+            fi
+            rustup component add clippy
+            cache-save cargo
 
       - name: Run tests
         run: cd deps && npm run test

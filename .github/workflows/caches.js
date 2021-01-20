@@ -72,4 +72,10 @@ module.exports = {
     keyPrefix: "apt-",
     restoreKeys: "apt-",
   },
+  cargo: {
+    path: `${HOME}/.cargo/registry/cache`,
+    hashFiles: [],
+    keyPrefix: "cargo-",
+    restoreKeys: "cargo-",
+  },
 };
