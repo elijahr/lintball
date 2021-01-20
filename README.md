@@ -10,7 +10,7 @@ lintball is a wrapper script around linters (static code analysis tools) and cod
 
 ## Why use lintball?
 
-Most software projects contain more than just a single programming language. Besides source code, there will be docs, configs, scripts, and so on. Each language may have tools to find and fix issues - but configuring CI, git hooks, etc for each of these tools can be tedious. The goal of lintball is to streamline the installation and running of these tools so that you have more time to play with your dog and work on your art.
+Most software projects contain more than one programming language. Besides source code, there will be docs, configs, scripts, and so on. Each language may have tools to find and fix issues - but configuring CI, git hooks, etc for each of these tools can be tedious. The goal of lintball is to streamline the installation and running of these tools so that you have more time to play with your dog and work on your art.
 
 ## Supported languages
 
@@ -57,7 +57,6 @@ npm install lintball
 ## Usage
 
 ```
-
 Usage: lintball [options] [command]
 
 Options:
@@ -77,9 +76,8 @@ Commands:
                             check with the given configuration. Useful for
                             debugging the ignores section of a .lintballrc.json
                             config file.
-  update                    Update lintball to the latest version.
-  githooks [path]           Install lintball githooks in the working directory
-                            or [path].
+  install-githooks [path]   Install lintball install-githooks in the working
+                            directory or [path].
   lintballrc [path]         Place a default .lintballrc.json config file in
                             the working directory or [path]
 
@@ -90,6 +88,7 @@ Examples:
   $ lintball fix foo        # Fix issues in the foo directory.
   $ lintball check foo.py   # Check the foo.py file for issues.
   $ lintball fix foo.py     # Fix issues in the foo.py file.
+
 ```
 
 ## Updating

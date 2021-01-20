@@ -905,8 +905,8 @@ Commands:
                             check with the given configuration. Useful for
                             debugging the ignores section of a .lintballrc.json
                             config file.
-  install-githooks [path]   Install lintball githooks in the working directory
-                            or [path].
+  install-githooks [path]   Install lintball install-githooks in the working
+                            directory or [path].
   lintballrc [path]         Place a default .lintballrc.json config file in
                             the working directory or [path]
 

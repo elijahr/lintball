@@ -123,7 +123,7 @@ jobs:
         run: ./bin/lintball check
 
   install:
-    name: install - sanity check
+    name: install
     runs-on: ${{ matrix.runs-on }}
 
     strategy:
@@ -134,10 +134,12 @@ jobs:
           - windows-latest
 
     steps:
-      - name: Run install script
+      - name: Install
         shell: bash
-        run: curl -o- https://raw.githubusercontent.com/elijahr/lintball/${GITHUB_SHA}/install.sh | bash
+        run: npm install "https://raw.githubusercontent.com/elijahr/lintball.git#${GITHUB_SHA}"
 
-      - name: Verify installation
+      - name: Verify
         shell: bash
-        run: lintball --help
+        run: |
+          npx lintball --help
+          npx test
