@@ -657,8 +657,38 @@ EOF
 
 @test 'lintball fix Cargo.toml' {
   run lintball fix "Cargo.toml"
+  expected="$(
+    cat <<EOF
+#![allow(clippy::stable_sort_primitive)]
+
+
+
+fn unnecessary_sort_by() {
+    fn id(x: isize) -> isize {
+        x
+    }
+    let mut vec: Vec<isize> = vec![3, 6, 1, 2, 5];
+    // Forward examples
+    vec.sort();
+    vec.sort_unstable();
+    vec.sort_by_key(|a| (a + 5).abs());
+    vec.sort_unstable_by_key(|a| id(-a));
+}
+
+fn main() {
+    unnecessary_sort_by();
+}
+EOF
+  )"
   assert_success
-  assert_equal "$(cat "src/main.rs")" "$(cat "src/main.rs.fixed")"
+  assert_equal "$(cat "src/main.rs")" "$expected"
+}
+
+@test 'lintball fix handles implicit path' {
+  mkdir foo
+  cd foo
+  run lintball fix
+  assert_success
 }
 
 @test 'lintball fix does not fix ignored files' {
@@ -667,6 +697,20 @@ EOF
   run lintball fix vendor/a.rb
   assert_success
   assert_equal "$(cat "vendor/a.rb")" "$(cat "a.rb")"
+}
+
+@test 'lintball fix handles paths with spaces' {
+  mkdir -p "aaa aaa/bbb bbb"
+  cp "a.yml" "aaa aaa/bbb bbb/a b.yml"
+  run lintball fix "aaa aaa/bbb bbb/a b.yml"
+  assert_success
+  expected="$(
+    cat <<EOF
+key: value
+hello: world
+EOF
+  )"
+  assert_equal "$(cat "aaa aaa/bbb bbb/a b.yml")" "$expected"
 }
 
 @test 'lintball fix package.json' {

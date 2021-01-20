@@ -11,4 +11,4 @@ source "${LINTBALL_DIR}/lib/utils.bash"
 load_config "${LINTBALL_DIR}/configs/lintballrc-defaults.json"
 load_config "${LINTBALL_DIR}/configs/lintballrc-ignores.json"
 
-parse_args "$@"
+entrypoint "$@"

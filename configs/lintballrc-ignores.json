@@ -10,6 +10,7 @@
     "*/.tmp/*",
     "*/__pycache__/*",
     "*/build/*",
+    "*/Cargo.lock",
     "*/dist/*",
     "*/Gemfile.lock",
     "*/node_modules/*",

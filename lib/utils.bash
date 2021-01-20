@@ -1016,7 +1016,7 @@ find_git_dir() {
   done
 }
 
-lintball_githooks() {
+githooks() {
   local git_dir hooks_path hook dest status tmp
   git_dir="$(find_git_dir "$1" || true)"
   if [ -z "$git_dir" ]; then
@@ -1045,18 +1045,18 @@ lintball_githooks() {
   exit 0
 }
 
-lintball_lintballrc() {
+lintballrc() {
   confirm_copy \
     "${LINTBALL_DIR}/configs/lintballrc-ignores.json" \
     "${1}/.lintballrc.json" || exit $?
 }
 
-lintball_check_or_fix() {
+check_or_fix() {
   local fix tmp line
   fix="$1"
   shift
   tmp="$(mktemp -d)"
-  eval "$(cmd_find "$(args_as_lines "$@")")" | while read -r line; do
+  eval "$(cmd_find "$@")" | while read -r line; do
     if assert_handled_path "$line"; then
       lint_any "$fix" "$line" || touch "${tmp}/error"
     fi
@@ -1070,24 +1070,17 @@ lintball_check_or_fix() {
   exit "$status"
 }
 
-lintball_check() {
-  lintball_check_or_fix "no" "$@"
+check() {
+  check_or_fix "no" "$@"
 }
 
-lintball_fix() {
-  lintball_check_or_fix "yes" "$@"
+fix() {
+  check_or_fix "yes" "$@"
 }
 
-args_as_lines() {
-  local arg
-  for arg in "$@"; do
-    normalize_path "$arg"
-  done
-}
-
-lintball_list() {
+list() {
   local line
-  eval "$(cmd_find "$(args_as_lines "$@")")" | sort -n | while read -r line; do
+  eval "$(cmd_find "$@")" | sort -n | while read -r line; do
     if assert_handled_path "$line"; then
       line="$(normalize_path "$line")"
       echo "$line"
@@ -1095,7 +1088,7 @@ lintball_list() {
   done
 }
 
-parse_args() {
+entrypoint() {
   case "${1:-}" in
     -h | --help)
       usage
@@ -1110,7 +1103,7 @@ parse_args() {
       LINTBALL_CONFIG="$1"
       export LINTBALL_CONFIG
       shift
-      parse_subcommand_args "$@"
+      subcommand "$@"
       ;;
     -*)
       echo -e "Unknown switch $1"
@@ -1120,12 +1113,12 @@ parse_args() {
     *)
       LINTBALL_CONFIG="$(find_config)"
       export LINTBALL_CONFIG
-      parse_subcommand_args "$@"
+      subcommand "$@"
       ;;
   esac
 }
 
-parse_subcommand_args() {
+subcommand() {
   local command path
 
   if [ -z "${1:-}" ]; then
@@ -1145,7 +1138,7 @@ parse_subcommand_args() {
 
   case "$1" in
     check | fix | list)
-      command="lintball_$1"
+      command="$1"
       shift
       eval "$command" "$@"
       ;;
@@ -1153,7 +1146,7 @@ parse_subcommand_args() {
       exec "${LINTBALL_DIR}/install.sh"
       ;;
     githooks | lintballrc)
-      command="lintball_${1//-/_}"
+      command="${1//-/_}"
       shift
       case "${1:-}" in
         -y | --yes)

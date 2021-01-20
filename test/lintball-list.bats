@@ -13,6 +13,21 @@ teardown() {
   teardown_test
 }
 
+@test 'lintball list handles implicit path' {
+  mkdir foo
+  cd foo
+  run lintball list
+  assert_success
+}
+
+@test 'lintball list handles paths with spaces' {
+  mkdir -p "aaa aaa/bbb bbb"
+  cp "a.yml" "aaa aaa/bbb bbb/a b.yml"
+  run lintball list "aaa aaa/bbb bbb/a b.yml"
+  assert_success
+  assert_line "./aaa aaa/bbb bbb/a b.yml"
+}
+
 @test 'lintball list ignores ignored files' {
   mkdir -p vendor
   cp a.rb vendor/
