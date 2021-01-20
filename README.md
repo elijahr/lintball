@@ -51,17 +51,45 @@ Most software projects contain more than just a single programming language. Bes
 ## Installation
 
 ```sh
-curl -o- https://raw.githubusercontent.com/elijahr/lintball/devel/install.sh | bash
+npm install lintball
 ```
-
-Running the above command downloads a script and runs it. The script downloads the latest release of lintball to ~/.lintball, [installs linters](#dependencies), and configures your PATH to include the lintball script. Currently, fish, bash, and zsh are supported.
-
-If you are using lintball with a git-managed project, we suggest using the pre-commit hook, installed via `lintball githooks`. Your code will be automatically fixed on commit - and any non-auto-fixable issues will block the commit with a helpful error message.
 
 ## Usage
 
 ```
 
+Usage: lintball [options] [command]
+
+Options:
+  -h, --help                Show this help message & exit.
+  -v, --version             Print version & exit.
+  -c, --config <path>       Use the .lintballrc.json config file at <path>.
+
+Commands:
+  check [path …]            Recursively check for issues.
+                            Exits with status 1 if any issues are found.
+  fix [path …]              Recursively fix issues.
+                            Exits with status 1 if any issues exist which cannot
+                            be fixed.
+  list [path …]             List files which lintball is configured for
+                            checking. If [paths …] are provided, lintball will
+                            echo back the subset of those paths which it would
+                            check with the given configuration. Useful for
+                            debugging the ignores section of a .lintballrc.json
+                            config file.
+  update                    Update lintball to the latest version.
+  githooks [path]           Install lintball githooks in the working directory
+                            or [path].
+  lintballrc [path]         Place a default .lintballrc.json config file in
+                            the working directory or [path]
+
+Examples:
+  $ lintball check          # Check the working directory for issues.
+  $ lintball fix            # Fix issues in the working directory.
+  $ lintball check foo      # Check the foo directory for issues.
+  $ lintball fix foo        # Fix issues in the foo directory.
+  $ lintball check foo.py   # Check the foo.py file for issues.
+  $ lintball fix foo.py     # Fix issues in the foo.py file.
 ```
 
 ## Updating

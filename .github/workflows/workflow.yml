@@ -47,7 +47,7 @@ jobs:
             set -euxo pipefail
 
             cache-restore npmDev
-            npm --prefix="${PWD}/deps" install --include=dev
+            npm install --include=dev
             # seems to be necessary for node >= 15
             [ -n "$(which bats)" ] || (cd deps; npm link bats)
             cache-save npmDev
@@ -91,7 +91,7 @@ jobs:
             cache-save cargo
 
       - name: Run tests
-        run: cd deps && npm run test
+        run: npm run test
 
   lint:
     name: lint
@@ -112,7 +112,7 @@ jobs:
             set -euxo pipefail
 
             cache-restore npm
-            npm --prefix="${PWD}/deps" install
+            npm install
             cache-save npm
 
             cache-restore brew

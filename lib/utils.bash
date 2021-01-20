@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-LINTBALL_DIR="${LINTBALL_DIR:-"${HOME}/.lintball"}"
+LINTBALL_DIR="${LINTBALL_DIR:-"$PWD"}"
 
 DOTS="..................................."
 LINTBALL_IGNORES=()
@@ -21,7 +21,7 @@ cmd_prettier() {
   path="$2"
   if [ "$write" = "yes" ]; then
     echo "npm \
-      --prefix='${LINTBALL_DIR}/deps' \
+      --prefix='$LINTBALL_DIR' \
       run \
       prettier \
       --path='$(pwd)' \
@@ -30,7 +30,7 @@ cmd_prettier() {
       '$path'"
   else
     echo "npm \
-      --prefix='${LINTBALL_DIR}/deps' \
+      --prefix='$LINTBALL_DIR' \
       run \
       prettier \
       --path='$(pwd)' \
@@ -367,7 +367,7 @@ lint_prettier_eslint() {
 
   if [ "$write" = "yes" ]; then
     cmd="npm \
-      --prefix='${LINTBALL_DIR}/deps' \
+      --prefix='$LINTBALL_DIR' \
       run \
       prettier-eslint \
       --path='$(pwd)' \
@@ -376,7 +376,7 @@ lint_prettier_eslint() {
       '$path'"
   else
     cmd="npm \
-      --prefix='${LINTBALL_DIR}/deps' \
+      --prefix='$LINTBALL_DIR' \
       run \
       prettier-eslint \
       --path='$(pwd)' \
@@ -838,7 +838,7 @@ load_config() {
   path="$(normalize_path "$1")"
 
   if [ ! -f "$path" ]; then
-    echo -e "No config file at ${path}"
+    echo "No config file at ${path}" >&2
     return 1
   fi
 
@@ -891,7 +891,7 @@ Usage: lintball [options] [command]
 Options:
   -h, --help                Show this help message & exit.
   -v, --version             Print version & exit.
-  -c, --config <path>       Use the $(.lintballrc.json) config file at <path>.
+  -c, --config <path>       Use the .lintballrc.json config file at <path>.
 
 Commands:
   check [path …]            Recursively check for issues.
@@ -903,21 +903,21 @@ Commands:
                             checking. If [paths …] are provided, lintball will
                             echo back the subset of those paths which it would
                             check with the given configuration. Useful for
-                            debugging the $(ignores) section of a
-                            $(.lintballrc.json) config file.
+                            debugging the ignores section of a .lintballrc.json
+                            config file.
   update                    Update lintball to the latest version.
   githooks [path]           Install lintball githooks in the working directory
                             or [path].
-  lintballrc [path]         Place a default $(.lintballrc.json) config file in
+  lintballrc [path]         Place a default .lintballrc.json config file in
                             the working directory or [path]
 
 Examples:
   \$ lintball check          # Check the working directory for issues.
   \$ lintball fix            # Fix issues in the working directory.
-  \$ lintball check foo      # Check the $(foo) directory for issues.
-  \$ lintball fix foo        # Fix issues in the $(foo) directory.
-  \$ lintball check foo.py   # Check the $(foo.py) file for issues.
-  \$ lintball fix foo.py     # Fix issues in the $(foo.py) file.
+  \$ lintball check foo      # Check the foo directory for issues.
+  \$ lintball fix foo        # Fix issues in the foo directory.
+  \$ lintball check foo.py   # Check the foo.py file for issues.
+  \$ lintball fix foo.py     # Fix issues in the foo.py file.
 
 Tools:
 
@@ -968,9 +968,9 @@ confirm_copy() {
   dest="$2"
   symlink="${3:-"no"}"
   if [ -d "$src" ] || [ -d "$dest" ]; then
-    echo -e
-    echo -e "Source and destination must be file paths, not directories."
-    echo -e
+    echo >&2
+    echo "Source and destination must be file paths, not directories." >&2
+    echo >&2
     return 1
   fi
   if [ -f "$dest" ]; then
@@ -982,9 +982,9 @@ confirm_copy() {
     case $answer in
       [yY]*) ;;
       *)
-        echo -e
-        echo -e "Cancelled"
-        echo -e
+        echo >&2
+        echo "Cancelled" >&2
+        echo >&2
         return 1
         ;;
     esac
@@ -1020,9 +1020,9 @@ githooks() {
   local git_dir hooks_path hook dest status tmp
   git_dir="$(find_git_dir "$1" || true)"
   if [ -z "$git_dir" ]; then
-    echo -e
-    echo -e "Could not find a .git directory at or above $1"
-    echo -e
+    echo >&2
+    echo "Could not find a .git directory at or above $1" >&2
+    echo >&2
     exit 1
   fi
 
@@ -1106,7 +1106,7 @@ entrypoint() {
       subcommand "$@"
       ;;
     -*)
-      echo -e "Unknown switch $1"
+      echo "Unknown switch $1" >&2
       usage
       exit 1
       ;;
@@ -1122,9 +1122,9 @@ subcommand() {
   local command path
 
   if [ -z "${1:-}" ]; then
-    echo -e
-    echo -e "Missing subcommand"
-    echo -e
+    echo >&2
+    echo "Missing subcommand" >&2
+    echo >&2
     usage
     exit 1
   fi
@@ -1161,18 +1161,18 @@ subcommand() {
           ;;
       esac
       if [ "$#" -gt 1 ]; then
-        echo -e
-        echo -e "Illegal number of parameters"
-        echo -e
+        echo >&2
+        echo "Illegal number of parameters" >&2
+        echo >&2
         usage
       fi
       path="${1:-$PWD}"
       eval "$command" "$path"
       ;;
     *)
-      echo -e
-      echo -e "Unknown subcommand '$1'"
-      echo -e
+      echo >&2
+      echo "Unknown subcommand '$1'" >&2
+      echo >&2
       usage
       ;;
   esac

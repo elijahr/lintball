@@ -2,7 +2,7 @@
 
 set -ueo pipefail
 
-LINTBALL_DIR="${LINTBALL_DIR:-"${HOME}/.lintball"}"
+LINTBALL_DIR="${LINTBALL_DIR:-"$PWD"}"
 
 if [ ! -d "$LINTBALL_DIR" ]; then
   curl -o- https://raw.githubusercontent.com/elijahr/lintball/devel/install.sh | bash

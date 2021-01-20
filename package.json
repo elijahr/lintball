@@ -24,8 +24,41 @@
     "typescript": "<3.6.0"
   },
   "scripts": {
-    "test": "bats ../test --tap",
+    "test": "bats test --tap",
     "prettier": "cd \"$npm_config_path\" && prettier",
-    "prettier-eslint": "cd \"$npm_config_path\" && prettier-eslint"
-  }
+    "prettier-eslint": "cd \"$npm_config_path\" && prettier-eslint",
+    "preinstall": "sh ./scripts/preinstall.sh"
+  },
+  "bin": {
+    "lintball": "./bin/lintball"
+  },
+  "name": "lintball",
+  "description": "A wrapper script around linters (static code analysis tools) and code formatters (prettier, black, etc).",
+  "version": "1.0.8",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elijahr/lintball.git"
+  },
+  "keywords": [
+    "ruby",
+    "lint",
+    "python",
+    "bash",
+    "nim",
+    "prettier",
+    "tidy",
+    "bats",
+    "black",
+    "multi-linter"
+  ],
+  "author": "Elijah Shaw-Rutschman",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/elijahr/lintball/issues"
+  },
+  "homepage": "https://github.com/elijahr/lintball#readme"
 }

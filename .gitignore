@@ -2,7 +2,7 @@
 /.tool-versions
 /.vscode
 /deps/.bundle
-/deps/node_modules
+/node_modules
 /deps/python-env
 /deps/vendor
 **/target

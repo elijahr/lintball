@@ -2,7 +2,7 @@
   "ignores": [
     "*/.git/*",
     "*/deps/Gemfile",
-    "*/deps/node_modules/*",
+    "*/node_modules/*",
     "*/deps/package-lock.json",
     "*/deps/python-env/*",
     "*/deps/vendor/*",
