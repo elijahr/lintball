@@ -98,10 +98,10 @@ An example GitHub Actions workflow for linting your project:
 name: Lint
 on:
   pull_request:
-    branches: ["*"]
+    branches: ['*']
   push:
-    branches: ["*"]
-    tags: ["*"]
+    branches: ['*']
+    tags: ['*']
 
 jobs:
   lint:
