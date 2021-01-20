@@ -41,6 +41,22 @@ cmd_prettier() {
   fi
 }
 
+cmd_stylua() {
+  local write path
+  write="$1"
+  path="$2"
+
+  if [ "$write" = "yes" ]; then
+    echo "stylua \
+      $(eval echo "${LINTBALL__WRITE_ARGS__STYLUA}") \
+      '$path'"
+  else
+    echo "stylua \
+      $(eval echo "${LINTBALL__CHECK_ARGS__STYLUA}") \
+      '$path'"
+  fi
+}
+
 cmd_yamllint() {
   local write path format
   write="$1"
@@ -184,6 +200,7 @@ cmd_clippy() {
   local write path dir
   write="$1"
   path="$2"
+  # path is Cargo.toml, so cd to containing directory to run clippy
   dir="$(dirname "$path")"
   if [ "$write" = "yes" ]; then
     echo "(cd '$dir'; cargo clippy \
@@ -569,9 +586,9 @@ infer_extension() {
   esac
 
   case "$extension" in
-    bash | bats | c | cpp | cs | css | dash | graphql | h | hpp | html | \
-      jade | java | js | json | jsx | ksh | lua | luau | m | M | md | mksh | \
-      mm | nim | pug | pxd | pxi | py | pyx | rb | rs | scss | toml | ts | tsx | \
+    bash | bats | c | cpp | cs | css | d | dash | graphql | h | hpp | html | \
+      jade | java | js | json | jsx | ksh | lua | m | M | md | mksh | mm | \
+      nim | pug | pxd | pxi | py | pyx | rb | rs | scss | toml | ts | tsx | \
       xml | yml)
       echo "$extension"
       ;;
@@ -607,170 +624,168 @@ assert_handled_path() {
   fi
 }
 
+shfmt_lang() {
+  local extension
+  extension="$1"
+  case "$extension" in
+    ksh) echo "mksh" ;;
+    sh | dash) echo "posix" ;;
+    *) echo "$extension" ;;
+  esac
+}
+
+shellcheck_lang() {
+  local extension
+  extension="$1"
+  case "$extension" in
+    mksh) echo "ksh" ;;
+    *) echo "$extension" ;;
+  esac
+}
+
+uncrustify_lang() {
+  local extension
+  extension="$1"
+  case "$extension" in
+    c | h) echo "c" ;;
+    cs | cpp | d | hpp) echo "cpp" ;;
+    m | mm | M) echo "objc" ;;
+  esac
+}
+
 lint_any() {
-  local write path status lang
+  local write path status extension
   write="$1"
   path="$2"
 
   status=0
   path="$(normalize_path "$path")"
+  extension="$(infer_extension "$path")"
 
-  case "$(infer_extension "$path")" in
-    css | graphql | html | jade | json | md | pug | scss | xml)
-      echo "# $path"
-      lint "prettier" "$write" "$path" || status=$?
-      echo
+  case "$extension" in
+    css | graphql | html | jade | java | json | md | pug | scss | xml)
+      if [ "$LINTBALL__USE__PRETTIER" = "true" ]; then
+        echo "# $path"
+        lint "prettier" "$write" "$path" || status=$?
+        echo
+      fi
       ;;
-    bash)
-      echo "# $path"
-      lint "shfmt" "$write" "$path" "bash" || status=$?
-      lint_shellcheck "$write" "$path" "bash" || status=$?
-      echo
+    bash | bats | dash | ksh | mksh | sh)
+      if [ "$LINTBALL__USE__SHFMT" = "true" ] || [ "$LINTBALL__USE__SHELLCHECK" = "true" ]; then
+        echo "# $path"
+        if [ "$LINTBALL__USE__SHFMT" = "true" ]; then
+          lint "shfmt" "$write" "$path" "$(shfmt_lang "$extension")" || status=$?
+        fi
+        if [ "$LINTBALL__USE__SHELLCHECK" = "true" ]; then
+          lint_shellcheck "$write" "$path" "$(shellcheck_lang "$extension")" || status=$?
+        fi
+        echo
+      fi
       ;;
-    bats)
-      echo "# $path"
-      lint "shfmt" "$write" "$path" "bats" || status=$?
-      lint_shellcheck "$write" "$path" "bats" || status=$?
-      echo
-      ;;
-    c | h)
-      echo "# $path"
-      lint_uncrustify "$write" "$path" "c" || status=$?
-      echo
-      ;;
-    cpp | hpp)
-      echo "# $path"
-      lint_uncrustify "$write" "$path" "cpp" || status=$?
-      echo
-      ;;
-    cs)
-      echo "# $path"
-      lint_uncrustify "$write" "$path" "cpp" || status=$?
-      echo
-      ;;
-    dash)
-      echo "# $path"
-      lint "shfmt" "$write" "$path" "posix" || status=$?
-      lint_shellcheck "$write" "$path" "dash" || status=$?
-      echo
-      ;;
-    ksh | mksh)
-      echo "# $path"
-      lint "shfmt" "$write" "$path" "mksh" || status=$?
-      lint_shellcheck "$write" "$path" "ksh" || status=$?
-      echo
-      ;;
-    java)
-      echo "# $path"
-      lint "prettier" "$write" "$path" || status=$?
-      echo
+    c | cpp | cs | d | h | hpp | m | mm | M)
+      if [ "$LINTBALL__USE__UNCRUSTIFY" = "true" ]; then
+        echo "# $path"
+        lint_uncrustify "$write" "$path" "$(uncrustify_lang "$extension")" || status=$?
+        echo
+      fi
       ;;
     js | jsx | ts | tsx)
-      echo "# $path"
-      lint_prettier_eslint "$write" "$path" || status=$?
-      echo
+      if [ "$LINTBALL__USE__PRETTIER_ESLINT" = "true" ]; then
+        echo "# $path"
+        lint_prettier_eslint "$write" "$path" || status=$?
+        echo
+      fi
       ;;
-    lua | luau)
-      echo "# $path"
-      lint "stylua" "$write" "$path" || status=$?
-      echo
-      ;;
-    m | mm | M)
-      echo "# $path"
-      lint_uncrustify "$write" "$path" "objc" || status=$?
-      echo
+    lua)
+      if [ "$LINTBALL__USE__STYLUA" = "true" ]; then
+        echo "# $path"
+        lint "stylua" "$write" "$path" || status=$?
+        echo
+      fi
       ;;
     nim)
-      echo "# $path"
-      lint_nimpretty "$write" "$path" || status=$?
-      echo
+      if [ "$LINTBALL__USE__NIMPRETTY" = "true" ]; then
+        echo "# $path"
+        lint_nimpretty "$write" "$path" || status=$?
+        echo
+      fi
       ;;
     py)
-      echo "# $path"
-      lint "docformatter" "$write" "$path" || status=$?
-      lint "autopep8" "$write" "$path" || status=$?
-      lint "autoflake" "$write" "$path" || status=$?
-      lint "isort" "$write" "$path" || status=$?
-      lint "black" "$write" "$path" || status=$?
-      echo
+      if [ "$LINTBALL__USE__DOCFORMATTER" = "true" ] ||
+        [ "$LINTBALL__USE__AUTOPEP8" = "true" ] ||
+        [ "$LINTBALL__USE__AUTOFLAKE" = "true" ] ||
+        [ "$LINTBALL__USE__ISORT" = "true" ] ||
+        [ "$LINTBALL__USE__BLACK" = "true" ]; then
+        echo "# $path"
+        if [ "$LINTBALL__USE__DOCFORMATTER" = "true" ]; then
+          lint "docformatter" "$write" "$path" || status=$?
+        fi
+        if [ "$LINTBALL__USE__AUTOPEP8" = "true" ]; then
+          lint "autopep8" "$write" "$path" || status=$?
+        fi
+        if [ "$LINTBALL__USE__AUTOFLAKE" = "true" ]; then
+          lint "autoflake" "$write" "$path" || status=$?
+        fi
+        if [ "$LINTBALL__USE__ISORT" = "true" ]; then
+          lint "isort" "$write" "$path" || status=$?
+        fi
+        if [ "$LINTBALL__USE__BLACK" = "true" ]; then
+          lint "black" "$write" "$path" || status=$?
+        fi
+        echo
+      fi
       ;;
     pyx | pxd | pxi)
-      echo "# $path"
-      lint "docformatter" "$write" "$path" || status=$?
-      lint "autopep8" "$write" "$path" || status=$?
-      lint "autoflake" "$write" "$path" || status=$?
-      echo
+      if [ "$LINTBALL__USE__DOCFORMATTER" = "true" ] ||
+        [ "$LINTBALL__USE__AUTOPEP8" = "true" ] ||
+        [ "$LINTBALL__USE__AUTOFLAKE" = "true" ]; then
+        echo "# $path"
+        if [ "$LINTBALL__USE__DOCFORMATTER" = "true" ]; then
+          lint "docformatter" "$write" "$path" || status=$?
+        fi
+        if [ "$LINTBALL__USE__AUTOPEP8" = "true" ]; then
+          lint "autopep8" "$write" "$path" || status=$?
+        fi
+        if [ "$LINTBALL__USE__AUTOFLAKE" = "true" ]; then
+          lint "autoflake" "$write" "$path" || status=$?
+        fi
+        echo
+      fi
       ;;
     rb)
-      echo "# $path"
-      lint "rubocop" "$write" "$path" || status=$?
-      lint "prettier" "$write" "$path" || status=$?
-      echo
-      ;;
-    sh)
-      echo "# $path"
-      lint "shfmt" "$write" "$path" "posix" || status=$?
-      lint_shellcheck "$write" "$path" "sh" || status=$?
-      echo
+      if [ "$LINTBALL__USE__RUBOCOP" = "true" ] ||
+        [ "$LINTBALL__USE__PRETTIER" = "true" ]; then
+        echo "# $path"
+        if [ "$LINTBALL__USE__RUBOCOP" = "true" ]; then
+          lint "rubocop" "$write" "$path" || status=$?
+        fi
+        if [ "$LINTBALL__USE__PRETTIER" = "true" ]; then
+          lint "prettier" "$write" "$path" || status=$?
+        fi
+        echo
+      fi
       ;;
     toml)
-      echo "# $path"
-      lint "prettier" "$write" "$path" || status=$?
-      if [ "$(basename "$path")" = "Cargo.toml" ]; then
+      if [ "$LINTBALL__USE__CLIPPY" = "true" ] &&
+        [ "$(basename "$path")" = "Cargo.toml" ]; then
+        echo "# $path"
         # Special case for Rust package; clippy analyzes an entire crate, not a
         # single path, so when a Cargo.toml is encountered, use clippy.
         lint "clippy" "$write" "$path" || status=$?
       fi
-      echo
       ;;
     yml)
-      echo "# $path"
-      lint "prettier" "$write" "$path" || status=$?
-      lint "yamllint" "$write" "$path" || status=$?
-      echo
-      ;;
-    *)
-      # Inspect shebang
-      case "$(shebang "$path")" in
-        */bin/sh)
-          echo "# $path"
-          lint "shfmt" "$write" "$path" "posix" || status=$?
-          lint_shellcheck "$write" "$path" "sh" || status=$?
-          echo
-          ;;
-        *bash)
-          echo "# $path"
-          lint "shfmt" "$write" "$path" "bash" || status=$?
-          lint_shellcheck "$write" "$path" "bash" || status=$?
-          echo
-          ;;
-        *bats)
-          echo "# $path"
-          lint "shfmt" "yes" "$path" "bats" || status=$?
-          lint_shellcheck "$write" "$path" "bats" || status=$?
-          echo
-          ;;
-        *python*)
-          echo "# $path"
-          lint "docformatter" "$write" "$path" || status=$?
-          lint "autopep8" "$write" "$path" || status=$?
-          lint "autoflake" "$write" "$path" || status=$?
-          lint "isort" "$write" "$path" || status=$?
-          lint "black" "$write" "$path" || status=$?
-          echo
-          ;;
-        *ruby*)
-          echo "# $path"
-          lint "rubocop" "$write" "$path" || status=$?
+      if [ "$LINTBALL__USE__PRETTIER" = "true" ] ||
+        [ "$LINTBALL__USE__YAMLLINT" = "true" ]; then
+        echo "# $path"
+        if [ "$LINTBALL__USE__PRETTIER" = "true" ]; then
           lint "prettier" "$write" "$path" || status=$?
-          echo
-          ;;
-        *node* | *deno*)
-          echo "# $path"
-          lint_prettier_eslint "$write" "$path" || status=$?
-          echo
-          ;;
-      esac
+        fi
+        if [ "$LINTBALL__USE__YAMLLINT" = "true" ]; then
+          lint "yamllint" "$write" "$path" || status=$?
+        fi
+        echo
+      fi
       ;;
   esac
 
@@ -832,7 +847,7 @@ load_config() {
 
   while read -r line; do
     case "$line" in
-      write_args* | check_args*)
+      write_args* | check_args* | use*)
         if [ "$(echo "$line" | cut -f2)" = "object" ]; then
           continue
         fi
@@ -871,37 +886,49 @@ usage() {
 █▄▄ █ █ ▀█  █  █▄█ █▀█ █▄▄ █▄▄
 keep your code tidy with one command.
 
-Usage: lintball [lintball options] [command] [command options]
+Usage: lintball [options] [command]
 
-lintball options:
-  -h | --help
-      Show this help message & exit.
-  -v | --version
-      Print version & exit.
-  -c | --config path
-      Use the .lintballrc.json config file at path.
+Options:
+  -h, --help                Show this help message & exit.
+  -v, --version             Print version & exit.
+  -c, --config <path>       Use the $(.lintballrc.json) config file at <path>.
 
-commands:
-  check [path ...]
-      Check for and display linter issues recursively in paths or working dir.
-  fix [path ...]
-      Auto fix all fixable issues recursively in paths or working dir.
-  list [path ...]
-      List files which lintball recognizes for checking or fixing.
-  update
-      Update lintball to the latest version.
-  githooks [path]
-      Install lintball githooks in the git repo at path or working dir.
-  lintballrc [path]
-      Place a default .lintballrc.json config file in path or working dir.
+Commands:
+  check [path …]            Recursively check for issues.
+                            Exits with status 1 if any issues are found.
+  fix [path …]              Recursively fix issues.
+                            Exits with status 1 if any issues exist which cannot
+                            be fixed.
+  list [path …]             List files which lintball is configured for
+                            checking. If [paths …] are provided, lintball will
+                            echo back the subset of those paths which it would
+                            check with the given configuration. Useful for
+                            debugging the $(ignores) section of a
+                            $(.lintballrc.json) config file.
+  update                    Update lintball to the latest version.
+  githooks [path]           Install lintball githooks in the working directory
+                            or [path].
+  lintballrc [path]         Place a default $(.lintballrc.json) config file in
+                            the working directory or [path]
 
-| language     |                   tools used                    |
+Examples:
+  \$ lintball check          # Check the working directory for issues.
+  \$ lintball fix            # Fix issues in the working directory.
+  \$ lintball check foo      # Check the $(foo) directory for issues.
+  \$ lintball fix foo        # Fix issues in the $(foo) directory.
+  \$ lintball check foo.py   # Check the $(foo.py) file for issues.
+  \$ lintball fix foo.py     # Fix issues in the $(foo.py) file.
+
+Tools:
+
+| Language     |                   Tools used                    |
 | :----------- | :---------------------------------------------: |
 | bash         |                shellcheck, shfmt                |
 | bats         |                shellcheck, shfmt                |
 | C            |                   uncrustify                    |
 | C#           |                   uncrustify                    |
 | C++          |                   uncrustify                    |
+| D            |                   uncrustify                    |
 | CSS          |                    prettier                     |
 | Cython       |        autoflake, autopep8, docformatter        |
 | dash         |                shellcheck, shfmt                |
@@ -912,8 +939,8 @@ commands:
 | JSON         |                    prettier                     |
 | JSX          |                 prettier-eslint                 |
 | ksh          |                shellcheck, shfmt                |
-| Luau         |                     StyLua                      |
 | Lua          |                     StyLua                      |
+| Luau         |                     StyLua                      |
 | Markdown     |                    prettier                     |
 | Nim          |                    nimpretty                    |
 | Objective-C  |                   uncrustify                    |
@@ -924,21 +951,22 @@ commands:
 | Rust         |                     clippy                      |
 | SASS         |                    prettier                     |
 | sh           |                shellcheck, shfmt                |
-| TOML         |                    prettier                     |
 | TSX          |                 prettier-eslint                 |
 | TypeScript   |                 prettier-eslint                 |
 | XML          |              @prettier/plugin-xml               |
 | YAML         |               prettier, yamllint                |
 
-https://github.com/elijahr/lintball
+Additional documentation can be found in ${LINTBALL_DIR}/README.md
+or at https://github.com/elijahr/lintball
 
 EOF
 }
 
 confirm_copy() {
-  local src dest
+  local src dest symlink
   src="$1"
   dest="$2"
+  symlink="${3:-"no"}"
   if [ -d "$src" ] || [ -d "$dest" ]; then
     echo -e
     echo -e "Source and destination must be file paths, not directories."
@@ -964,8 +992,14 @@ confirm_copy() {
   if [ ! -d "$(dirname "$dest")" ]; then
     mkdir -p "$(dirname "$dest")"
   fi
-  cp -Rf "$src" "$dest"
-  echo "Copied ${src//${HOME}/"~"} → ${dest//${HOME}/"~"}"
+  if [ "$symlink" = "yes" ]; then
+    rm -rf "$dest"
+    ln -s "$src" "$dest"
+    echo "Linked ${src//${HOME}/"~"} → ${dest//${HOME}/"~"}"
+  else
+    cp -Rf "$src" "$dest"
+    echo "Copied ${src//${HOME}/"~"} → ${dest//${HOME}/"~"}"
+  fi
 }
 
 find_git_dir() {
@@ -983,7 +1017,7 @@ find_git_dir() {
 }
 
 lintball_githooks() {
-  local git_dir hooks_path hook dest status remove_start remove_end tmp
+  local git_dir hooks_path hook dest status tmp
   git_dir="$(find_git_dir "$1" || true)"
   if [ -z "$git_dir" ]; then
     echo -e
@@ -999,18 +1033,10 @@ lintball_githooks() {
   for hook in "${LINTBALL_DIR}/githooks/"*; do
     status=0
     dest="${hooks_path}/$(basename "$hook")"
-    confirm_copy "$hook" "$dest" || status=$?
+    confirm_copy "$hook" "$dest" "yes" || status=$?
     if [ "$status" -gt 0 ]; then
       exit $status
     fi
-    # strip lintball-repo specific section
-    remove_start="$(grep -nF "# >>> remove" "$dest" | sed 's/:.*//')"
-    remove_end="$(grep -nF "# <<< remove" "$dest" | sed 's/:.*//')"
-    tmp="$(mktemp)"
-    head -n "$((remove_start - 1))" "$dest" >"$tmp"
-    tail -n +"$((remove_end + 1))" "$dest" >>"$tmp"
-    mv "$tmp" "$dest"
-    chmod +x "$dest"
   done
   git --git-dir="$git_dir" config --local core.hooksPath "$hooks_path"
   echo
@@ -1020,7 +1046,9 @@ lintball_githooks() {
 }
 
 lintball_lintballrc() {
-  confirm_copy "${LINTBALL_DIR}/configs/lintballrc.json" "${1}/.lintballrc.json" || exit $?
+  confirm_copy \
+    "${LINTBALL_DIR}/configs/lintballrc-ignores.json" \
+    "${1}/.lintballrc.json" || exit $?
 }
 
 lintball_check_or_fix() {
@@ -1028,7 +1056,7 @@ lintball_check_or_fix() {
   fix="$1"
   shift
   tmp="$(mktemp -d)"
-  eval "$(cmd_find "$@")" | while read -r line; do
+  eval "$(cmd_find "$(args_as_lines "$@")")" | while read -r line; do
     if assert_handled_path "$line"; then
       lint_any "$fix" "$line" || touch "${tmp}/error"
     fi
@@ -1050,9 +1078,16 @@ lintball_fix() {
   lintball_check_or_fix "yes" "$@"
 }
 
+args_as_lines() {
+  local arg
+  for arg in "$@"; do
+    normalize_path "$arg"
+  done
+}
+
 lintball_list() {
   local line
-  eval "$(cmd_find "$@")" | sort -n | while read -r line; do
+  eval "$(cmd_find "$(args_as_lines "$@")")" | sort -n | while read -r line; do
     if assert_handled_path "$line"; then
       line="$(normalize_path "$line")"
       echo "$line"

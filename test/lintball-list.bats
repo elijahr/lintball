@@ -13,75 +13,109 @@ teardown() {
   teardown_test
 }
 
-@test "lintball list ignores ignored files" {
+@test 'lintball list ignores ignored files' {
   mkdir -p vendor
-  cp ruby/a.rb vendor/
+  cp a.rb vendor/
   run lintball list
   assert_success
   expected="$(
     cat <<EOF
+./Cargo.toml
+./a.bash
+./a.bats
+./a.bats.expected
+./a.c
+./a.cpp
+./a.cs
+./a.css
+./a.d
+./a.dash
+./a.h
+./a.hpp
+./a.html
+./a.java
+./a.js
+./a.json
+./a.jsx
+./a.ksh
+./a.lua
+./a.m
 ./a.md
+./a.mksh
 ./a.nim
+./a.pug
+./a.py
+./a.pyx
+./a.rb
+./a.scss
+./a.sh
+./a.ts
+./a.tsx
+./a.xml
 ./a.yml
-./bash/a
-./bash/a.bash
-./bash/b
-./bats/a.bats
-./bats/a.expected
-./javascript/a
-./javascript/a.js
-./javascript/b
-./py th on/a
-./py th on/a.py
-./py th on/a.pyx
-./ruby/a
-./ruby/a.rb
-./sh/a
-./sh/a.sh
-./uncrustify/a.c
-./uncrustify/a.cpp
-./uncrustify/a.cs
-./uncrustify/a.h
-./uncrustify/a.hpp
-./uncrustify/a.java
-./uncrustify/a.m
+./a_bash
+./a_js
+./a_py
+./a_rb
+./a_sh
+./b_bash
+./b_js
+./package.json
+./src/main.rs
 EOF
   )"
   assert_output "$expected"
 }
 
-@test "lintball list ignores ignored files whose path is explicitly passed as an arg" {
+@test 'lintball list ignores ignored files whose path is explicitly passed as an arg' {
   mkdir -p vendor
-  cp ruby/a.rb vendor/
+  cp a.rb vendor/
   run lintball list "vendor/a.rb"
   assert_success
   expected="$(
     cat <<EOF
+./Cargo.toml
+./a.bash
+./a.bats
+./a.bats.expected
+./a.c
+./a.cpp
+./a.cs
+./a.css
+./a.d
+./a.dash
+./a.h
+./a.hpp
+./a.html
+./a.java
+./a.js
+./a.json
+./a.jsx
+./a.ksh
+./a.lua
+./a.m
 ./a.md
+./a.mksh
 ./a.nim
+./a.pug
+./a.py
+./a.pyx
+./a.rb
+./a.scss
+./a.sh
+./a.ts
+./a.tsx
+./a.xml
 ./a.yml
-./bash/a
-./bash/a.bash
-./bash/b
-./bats/a.bats
-./bats/a.expected
-./javascript/a
-./javascript/a.js
-./javascript/b
-./py th on/a
-./py th on/a.py
-./py th on/a.pyx
-./ruby/a
-./ruby/a.rb
-./sh/a
-./sh/a.sh
-./uncrustify/a.c
-./uncrustify/a.cpp
-./uncrustify/a.cs
-./uncrustify/a.h
-./uncrustify/a.hpp
-./uncrustify/a.java
-./uncrustify/a.m
+./a_bash
+./a_js
+./a_py
+./a_rb
+./a_sh
+./b_bash
+./b_js
+./package.json
+./src/main.rs
 EOF
   )"
 }

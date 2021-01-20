@@ -107,7 +107,7 @@ assert_git() {
     "$(git --git-dir="${PROJECT_DIR}/.git" rev-parse "$expected_version")"
 }
 
-@test "install.sh installs to specific LINTBALL_DIR" {
+@test 'install.sh installs to specific LINTBALL_DIR' {
   local install_dir
 
   install_dir="${TMP_DIR}/some/path"
@@ -117,7 +117,7 @@ assert_git() {
   assert_git "$install_dir"
 }
 
-@test "install.sh installs to default LINTBALL_DIR" {
+@test 'install.sh installs to default LINTBALL_DIR' {
   local install_dir
 
   install_dir="${TMP_DIR}/.lintball"
@@ -127,7 +127,7 @@ assert_git() {
   assert_git "$install_dir"
 }
 
-@test "install.sh defaults to latest remote tag" {
+@test 'install.sh defaults to latest remote tag' {
   local install_dir
 
   install_dir="${TMP_DIR}/.lintball"
@@ -137,7 +137,7 @@ assert_git() {
   assert_git "$install_dir" "$(git --git-dir="${PROJECT_DIR}/.git" tag | sort | tail -n1)"
 }
 
-@test "install.sh can install a specific commit" {
+@test 'install.sh can install a specific commit' {
   local install_dir
 
   install_dir="${TMP_DIR}/.lintball"
@@ -148,7 +148,7 @@ assert_git() {
   assert_git "$install_dir" "$(git_sha)"
 }
 
-@test "install.sh can install a specific branch" {
+@test 'install.sh can install a specific branch' {
   local install_dir
 
   install_dir="${TMP_DIR}/.lintball"
@@ -159,7 +159,7 @@ assert_git() {
   assert_git "$install_dir" "$(git_branch)"
 }
 
-@test "install.sh installs bash initialization" {
+@test 'install.sh installs bash initialization' {
   local install_dir
 
   install_dir="${TMP_DIR}/.lintball"
@@ -168,7 +168,7 @@ assert_git() {
   assert_bash_init "$install_dir"
 }
 
-@test "install.sh installs fish initialization" {
+@test 'install.sh installs fish initialization' {
   local install_dir
 
   install_dir="${TMP_DIR}/.lintball"
@@ -177,7 +177,7 @@ assert_git() {
   assert_fish_init "$install_dir"
 }
 
-@test "install.sh installs zsh initialization" {
+@test 'install.sh installs zsh initialization' {
   local install_dir
 
   install_dir="${TMP_DIR}/.lintball"
@@ -186,7 +186,7 @@ assert_git() {
   assert_zsh_init "$install_dir"
 }
 
-@test "install.sh updates an existing installation" {
+@test 'install.sh updates an existing installation' {
   if [[ ${GITHUB_REF:-} =~ ^refs/tags/ ]]; then
     # TODO: fix; test acts wonky on tags on GitHub Actions, but updating an
     # existing installation works fine. Probably has to do with how the
@@ -215,7 +215,7 @@ assert_git() {
     "$(git_sha)"
 }
 
-@test "install.sh installs pip packages" {
+@test 'install.sh installs pip packages' {
   local install_dir
 
   install_dir="${TMP_DIR}/.lintball"
@@ -227,7 +227,7 @@ assert_git() {
   assert_success
 }
 
-@test "install.sh installs npm packages" {
+@test 'install.sh installs npm packages' {
   local install_dir
 
   install_dir="${TMP_DIR}/.lintball"
@@ -237,7 +237,7 @@ assert_git() {
   assert [ -d "${install_dir}/deps/node_modules/prettier-eslint-cli" ]
 }
 
-@test "install.sh installs bundler packages" {
+@test 'install.sh installs bundler packages' {
   local install_dir
 
   install_dir="${TMP_DIR}/.lintball"

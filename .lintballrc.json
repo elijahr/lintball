@@ -6,7 +6,9 @@
     "*/deps/package-lock.json",
     "*/deps/python-env/*",
     "*/deps/vendor/*",
+    "*/deps/target/*",
     "*/lib/jwalk/*",
-    "*/test/fixture/*"
+    "*/test/fixture/*",
+    "*/test/fixture/target/*"
   ]
 }

@@ -6,3 +6,4 @@
 /deps/python-env
 /deps/target
 /deps/vendor
+/test/fixture/target

@@ -18,7 +18,7 @@ teardown() {
   teardown_test
 }
 
-@test "pre-commit fixes code" {
+@test 'pre-commit fixes code' {
   git add a.md
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
@@ -32,38 +32,55 @@ EOF
   assert_equal "$(cat "a.md")" "$expected"
 }
 
-@test "pre-commit adds fixed code to git index" {
+@test 'pre-commit adds fixed code to git index' {
   git add .
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
   expected="$(
     cat <<EOF
+Cargo.toml
+a.bash
+a.bats
+a.bats.expected
+a.c
+a.cpp
+a.cs
+a.css
+a.d
+a.dash
+a.h
+a.hpp
+a.html
+a.java
+a.js
+a.json
+a.jsx
+a.ksh
+a.lua
+a.m
 a.md
+a.mksh
 a.nim
+a.pug
+a.py
+a.pyx
+a.rb
+a.scss
+a.sh
+a.ts
+a.tsx
+a.txt
+a.xml
 a.yml
-bash/a
-bash/a.bash
-bash/b
-bats/a.bats
-bats/a.expected
-javascript/a
-javascript/a.js
-javascript/b
-py th on/a
-py th on/a.py
-py th on/a.pyx
-ruby/a
-ruby/a.rb
-sh/a
-sh/a.sh
-uncrustify/a.c
-uncrustify/a.cpp
-uncrustify/a.cs
-uncrustify/a.h
-uncrustify/a.hpp
-uncrustify/a.java
-uncrustify/a.m
-unhandled.txt
+a_bash
+a_js
+a_py
+a_rb
+a_sh
+b_bash
+b_js
+package.json
+src/main.rs
 EOF
   )"
   # Everything is staged in index
@@ -72,11 +89,11 @@ EOF
   assert_equal "$(git diff --name-only)" ""
 }
 
-@test "pre-commit does not fix ignored files" {
+@test 'pre-commit does not fix ignored files' {
   mkdir -p vendor
-  cp ruby/a.rb vendor/
+  cp a.rb vendor/
   git add -f vendor/a.rb
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
-  assert_equal "$(cat "vendor/a.rb")" "$(cat "ruby/a.rb")"
+  assert_equal "$(cat "vendor/a.rb")" "$(cat "a.rb")"
 }

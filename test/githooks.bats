@@ -14,14 +14,14 @@ teardown() {
   teardown_test
 }
 
-@test "lintball githooks sans arg" {
+@test 'lintball githooks sans arg' {
   run lintball githooks --no
   assert_success
   assert_equal "$(git --git-dir="${TEST_PROJECT_DIR}/.git" config --local core.hooksPath)" "${TEST_PROJECT_DIR}/.githooks"
   assert [ -x "${TEST_PROJECT_DIR}/.githooks/pre-commit" ]
 }
 
-@test "lintball githooks with arg" {
+@test 'lintball githooks with arg' {
   tmp="$(mktemp -d)"
   git init "$tmp"
   run lintball githooks --no "$tmp"
@@ -31,13 +31,13 @@ teardown() {
   rm -rf "$tmp"
 }
 
-@test "lintball githooks already configured" {
+@test 'lintball githooks already configured' {
   run lintball githooks --no
   run lintball githooks --no
   assert_failure
 }
 
-@test "lintball githooks does not cause shellcheck errors" {
+@test 'lintball githooks does not cause shellcheck errors' {
   run lintball githooks --no
   run lintball check .githooks
   assert_success

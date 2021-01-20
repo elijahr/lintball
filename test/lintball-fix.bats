@@ -13,125 +13,8 @@ teardown() {
   teardown_test
 }
 
-@test "lintball fix yml" {
-  run lintball fix "a.yml"
-  assert_success
-  expected="$(
-    cat <<EOF
-key: value
-hello: world
-EOF
-  )"
-  assert_equal "$(cat "a.yml")" "$expected"
-}
-
-@test "lintball fix md" {
-  run lintball fix "a.md"
-  assert_success
-  expected="$(
-    cat <<EOF
-| aaaa | bbbbbb |  cc |
-| :--- | :----: | --: |
-| a    |   b    |   c |
-EOF
-  )"
-  assert_equal "$(cat "a.md")" "$expected"
-}
-
-@test "lintball fix sh" {
-  run lintball fix "sh/a.sh"
-  assert_success
-  expected="$(
-    cat <<EOF
-a() {
-  echo
-
-}
-
-b() {
-
-  echo
-}
-EOF
-  )"
-  assert_equal "$(cat "sh/a.sh")" "$expected"
-}
-
-@test "lintball fix sh (inferred from shebang)" {
-  run lintball fix "sh/a"
-  assert_success
-  expected="$(
-    cat <<EOF
-#!/bin/sh
-
-a() {
-  echo
-
-}
-
-b() {
-
-  echo
-}
-EOF
-  )"
-  assert_equal "$(cat "sh/a")" "$expected"
-}
-
-@test "lintball fix bash" {
-  run lintball fix "bash/a.bash"
-  assert_success
-  expected="$(
-    cat <<EOF
-a() {
-  echo
-
-}
-
-b() {
-
-  echo
-}
-
-c=("a" "b" "c")
-
-for var in "\${c[@]}"; do
-  echo "\$var"
-done
-EOF
-  )"
-  assert_equal "$(cat "bash/a.bash")" "$expected"
-}
-
-@test "lintball fix bash (inferred from shebang)" {
-  run lintball fix "bash/a"
-  assert_success
-  expected="$(
-    cat <<EOF
-#!/usr/bin/env bash
-
-a() {
-  echo
-
-}
-
-b() {
-
-  echo
-}
-
-c=("a" "b" "c")
-
-for var in "\${c[@]}"; do
-  echo "\$var"
-done
-EOF
-  )"
-  assert_equal "$(cat "bash/a")" "$expected"
-}
-
-@test "lintball fix bash (inferred from lintball directive)" {
-  run lintball fix "bash/b"
+@test 'lintball fix # lintball lang=bash' {
+  run lintball fix "b_bash"
   assert_success
   directive="# lintball lang=bash"
   expected="$(
@@ -155,47 +38,59 @@ for var in "\${c[@]}"; do
 done
 EOF
   )"
-  assert_equal "$(cat "bash/b")" "$expected"
+  assert_equal "$(cat "b_bash")" "$expected"
 }
 
-@test "lintball fix bats" {
-  run lintball fix "bats"
-  assert_success
-  assert_equal "$(cat "bats/c.bats")" "$(cat "bats/c.expected")"
-}
-
-@test "lintball fix javascript" {
-  run lintball fix "javascript/a.js"
+@test 'lintball fix #!/bin/sh' {
+  run lintball fix "a_sh"
   assert_success
   expected="$(
     cat <<EOF
-modules.exports = {
-  foo: function() {},
-  bar: () => ({})
-};
-EOF
-  )"
-  assert_equal "$(cat "javascript/a.js")" "$expected"
+#!/bin/sh
+
+a() {
+  echo
+
 }
 
-@test "lintball fix javascript (inferred from node shebang)" {
-  run lintball fix "javascript/a"
+b() {
+
+  echo
+}
+EOF
+  )"
+  assert_equal "$(cat "a_sh")" "$expected"
+}
+
+@test 'lintball fix #!/usr/bin/env bash' {
+  run lintball fix "a_bash"
   assert_success
   expected="$(
     cat <<EOF
-#!/usr/bin/env node
+#!/usr/bin/env bash
 
-modules.exports = {
-  foo: function() {},
-  bar: () => ({})
-};
-EOF
-  )"
-  assert_equal "$(cat "javascript/a")" "$expected"
+a() {
+  echo
+
 }
 
-@test "lintball fix javascript (inferred from deno shebang)" {
-  run lintball fix "javascript/b"
+b() {
+
+  echo
+}
+
+c=("a" "b" "c")
+
+for var in "\${c[@]}"; do
+  echo "\$var"
+done
+EOF
+  )"
+  assert_equal "$(cat "a_bash")" "$expected"
+}
+
+@test 'lintball fix #!/usr/bin/env deno' {
+  run lintball fix "b_js"
   assert_success
   expected="$(
     cat <<EOF
@@ -207,35 +102,26 @@ modules.exports = {
 };
 EOF
   )"
-  assert_equal "$(cat "javascript/b")" "$expected"
+  assert_equal "$(cat "b_js")" "$expected"
 }
-
-@test "lintball fix python" {
-  run lintball fix "py th on/a.py"
+@test 'lintball fix #!/usr/bin/env node' {
+  run lintball fix "a_js"
   assert_success
   expected="$(
     cat <<EOF
-"""A Python module.
+#!/usr/bin/env node
 
-This module docstring should be dedented.
-"""
-
-import path
-import system
-
-
-def a(arg):
-    """This should be trimmed."""
-    print(arg, "b", "c", "d")
-    print(path)
-    print(system)
+modules.exports = {
+  foo: function() {},
+  bar: () => ({})
+};
 EOF
   )"
-  assert_equal "$(cat "py th on/a.py")" "$expected"
+  assert_equal "$(cat "a_js")" "$expected"
 }
 
-@test "lintball fix python (inferred from shebang)" {
-  run lintball fix "py th on/a"
+@test 'lintball fix #!/usr/bin/env python3' {
+  run lintball fix "a_py"
   assert_success
   expected="$(
     cat <<EOF
@@ -257,54 +143,11 @@ def a(arg):
     print(system)
 EOF
   )"
-  assert_equal "$(cat "py th on/a")" "$expected"
+  assert_equal "$(cat "a_py")" "$expected"
 }
 
-@test "lintball fix cython" {
-  run lintball fix "py th on/a.pyx"
-  assert_success
-  expected="$(
-    cat <<EOF
-
-cdef void fun(char * a) nogil:
-    cdef:
-        char * dest = a
-EOF
-  )"
-  assert_equal "$(cat "py th on/a.pyx")" "$expected"
-}
-
-@test "lintball fix nim" {
-  run lintball fix "a.nim"
-  assert_success
-  expected="$(
-    cat <<EOF
-
-type
-  A* = int
-  B* = int
-
-EOF
-  )"
-  assert_equal "$(cat "a.nim")" "$expected"
-}
-
-@test "lintball fix ruby" {
-  run lintball fix "ruby/a.rb"
-  assert_success
-  expected="$(
-    cat <<EOF
-# frozen_string_literal: true
-d = [123, 456, 789]
-
-echo d
-EOF
-  )"
-  assert_equal "$(cat "ruby/a.rb")" "$expected"
-}
-
-@test "lintball fix ruby (inferred from shebang)" {
-  run lintball fix "ruby/a"
+@test 'lintball fix #!/usr/bin/env ruby' {
+  run lintball fix "a_rb"
   assert_success
   expected="$(
     cat <<EOF
@@ -315,11 +158,42 @@ d = [123, 456, 789]
 echo d
 EOF
   )"
-  assert_equal "$(cat "ruby/a")" "$expected"
+  assert_equal "$(cat "a_rb")" "$expected"
 }
 
-@test "lintball fix c" {
-  run lintball fix "uncrustify/a.c"
+@test 'lintball fix *.bash' {
+  run lintball fix "a.bash"
+  assert_success
+  expected="$(
+    cat <<EOF
+a() {
+  echo
+
+}
+
+b() {
+
+  echo
+}
+
+c=("a" "b" "c")
+
+for var in "\${c[@]}"; do
+  echo "\$var"
+done
+EOF
+  )"
+  assert_equal "$(cat "a.bash")" "$expected"
+}
+
+@test 'lintball fix *.bats' {
+  run lintball fix "a.bats"
+  assert_success
+  assert_equal "$(cat "a.bats")" "$(cat "a.bats.expected")"
+}
+
+@test 'lintball fix *.c' {
+  run lintball fix "a.c"
   assert_success
   expected="$(
     cat <<EOF
@@ -332,11 +206,95 @@ int main()
 }
 EOF
   )"
-  assert_equal "$(cat "uncrustify/a.c")" "$expected"
+  assert_equal "$(cat "a.c")" "$expected"
 }
 
-@test "lintball fix c header" {
-  run lintball fix "uncrustify/a.h"
+@test 'lintball fix *.cpp' {
+  run lintball fix "a.cpp"
+  assert_success
+  expected="$(
+    cat <<EOF
+#include <iostream>
+
+int main()
+{
+  std::cout << "Hello World!";
+  return 0;
+}
+EOF
+  )"
+  assert_equal "$(cat "a.cpp")" "$expected"
+}
+
+@test 'lintball fix *.cs' {
+  run lintball fix "a.cs"
+  assert_success
+  expected="$(
+    cat <<EOF
+namespace HelloWorld {
+class Hello {
+  static void Main(string[] args)
+  {
+    System.Console.WriteLine("Hello World!");
+  }
+}
+}
+EOF
+  )"
+  assert_equal "$(cat "a.cs")" "$expected"
+}
+
+@test 'lintball fix *.css' {
+  run lintball fix "a.css"
+  assert_success
+  expected="$(
+    cat <<EOF
+html body h1 {
+  font-weight: 800;
+}
+EOF
+  )"
+  assert_equal "$(cat "a.css")" "$expected"
+}
+
+@test 'lintball fix *.d' {
+  run lintball fix "a.d"
+  assert_success
+  expected="$(
+    cat <<EOF
+
+import std.stdio;
+
+void main()   {
+  writeln(
+    "Hello, World!");
+}
+EOF
+  )"
+  assert_equal "$(cat "a.d")" "$expected"
+}
+
+@test 'lintball fix *.dash' {
+  run lintball fix "a.dash"
+  assert_success
+  expected="$(
+    cat <<EOF
+a() {
+  echo
+
+}
+
+b() {
+
+  echo
+}
+EOF
+  )"
+  assert_equal "$(cat "a.dash")" "$expected"
+}
+
+@test 'lintball fix *.h' {
+  run lintball fix "a.h"
   assert_success
   expected="$(
     cat <<EOF
@@ -345,11 +303,135 @@ EOF
 int main();
 EOF
   )"
-  assert_equal "$(cat "uncrustify/a.h")" "$expected"
+  assert_equal "$(cat "a.h")" "$expected"
 }
 
-@test "lintball fix objective-c" {
-  run lintball fix "uncrustify/a.m"
+@test 'lintball fix *.hpp' {
+  run lintball fix "a.hpp"
+  assert_success
+  expected="$(
+    cat <<EOF
+#include <iostream>
+
+int main();
+EOF
+  )"
+  assert_equal "$(cat "a.hpp")" "$expected"
+}
+
+@test 'lintball fix *.html' {
+  run lintball fix "a.html"
+  assert_success
+  expected="$(
+    cat <<EOF
+<html>
+  <head>
+    <title>A</title>
+  </head>
+
+  <body>
+    <h1>B</h1>
+  </body>
+</html>
+EOF
+  )"
+  assert_equal "$(cat "a.html")" "$expected"
+}
+
+@test 'lintball fix *.java' {
+  run lintball fix "a.java"
+  assert_success
+  expected="$(
+    cat <<EOF
+class HelloWorld {
+
+  public static void main(String[] args) {
+    System.out.println("Hello, World!");
+  }
+}
+EOF
+  )"
+  assert_equal "$(cat "a.java")" "$expected"
+}
+
+@test 'lintball fix *.js' {
+  run lintball fix "a.js"
+  assert_success
+  expected="$(
+    cat <<EOF
+modules.exports = {
+  foo: function() {},
+  bar: () => ({})
+};
+EOF
+  )"
+  assert_equal "$(cat "a.js")" "$expected"
+}
+
+@test 'lintball fix *.json' {
+  run lintball fix "a.json"
+  assert_success
+  expected="$(
+    cat <<EOF
+{ "a": "b", "c": "d" }
+EOF
+  )"
+  assert_equal "$(cat "a.json")" "$expected"
+}
+
+@test 'lintball fix *.jsx' {
+  run lintball fix "a.jsx"
+  assert_success
+  expected="$(
+    cat <<EOF
+ReactDOM.render(<h1>Hello, world!</h1>, document.getElementById("root"));
+EOF
+  )"
+  assert_equal "$(cat "a.jsx")" "$expected"
+}
+
+@test 'lintball fix *.ksh' {
+  run lintball fix "a.ksh"
+  assert_success
+  expected="$(
+    cat <<EOF
+a() {
+  echo
+
+}
+
+b() {
+
+  echo
+}
+
+c=("a" "b" "c")
+
+for var in "\${c[@]}"; do
+  echo "\$var"
+done
+EOF
+  )"
+  assert_equal "$(cat "a.ksh")" "$expected"
+}
+
+@test 'lintball fix *.lua' {
+  run lintball fix "a.lua"
+  assert_success
+  expected="$(
+    cat <<EOF
+type A = { b: number, c: number }
+
+local a: A = { b = 1, c = 2 }
+
+print(a.b, a.c)
+EOF
+  )"
+  assert_equal "$(cat "a.lua")" "$expected"
+}
+
+@test 'lintball fix *.m' {
+  run lintball fix "a.m"
   assert_success
   expected="$(
     cat <<EOF
@@ -364,81 +446,251 @@ int main(int argc, const char * argv[]) {
 }
 EOF
   )"
-  assert_equal "$(cat "uncrustify/a.m")" "$expected"
+  assert_equal "$(cat "a.m")" "$expected"
 }
 
-@test "lintball fix c++" {
-  run lintball fix "uncrustify/a.cpp"
+@test 'lintball fix *.md' {
+  run lintball fix "a.md"
   assert_success
   expected="$(
     cat <<EOF
-#include <iostream>
-
-int main()
-{
-  std::cout << "Hello World!";
-  return 0;
-}
+| aaaa | bbbbbb |  cc |
+| :--- | :----: | --: |
+| a    |   b    |   c |
 EOF
   )"
-  assert_equal "$(cat "uncrustify/a.cpp")" "$expected"
+  assert_equal "$(cat "a.md")" "$expected"
 }
 
-@test "lintball fix c++ header" {
-  run lintball fix "uncrustify/a.hpp"
+@test 'lintball fix *.mksh' {
+  run lintball fix "a.mksh"
   assert_success
   expected="$(
     cat <<EOF
-#include <iostream>
+a() {
+  echo
 
-int main();
+}
+
+b() {
+
+  echo
+}
+
+c=("a" "b" "c")
+
+for var in "\${c[@]}"; do
+  echo "\$var"
+done
 EOF
   )"
-  assert_equal "$(cat "uncrustify/a.hpp")" "$expected"
+  assert_equal "$(cat "a.mksh")" "$expected"
 }
 
-@test "lintball fix java" {
-  run lintball fix "uncrustify/a.java"
+@test 'lintball fix *.nim' {
+  run lintball fix "a.nim"
   assert_success
   expected="$(
     cat <<EOF
-class HelloWorld {
-  public static void main(String[] args) {
-    System.out.println("Hello, World!");
+
+type
+  A* = int
+  B* = int
+
+EOF
+  )"
+  assert_equal "$(cat "a.nim")" "$expected"
+}
+
+@test 'lintball fix *.pug' {
+  run lintball fix "a.pug"
+  assert_success
+  expected="$(
+    cat <<EOF
+html
+  head
+    title
+      | A
+  body
+    h1 B
+EOF
+  )"
+  assert_equal "$(cat "a.pug")" "$expected"
+}
+
+@test 'lintball fix *.py' {
+  run lintball fix "a.py"
+  assert_success
+  expected="$(
+    cat <<EOF
+"""A Python module.
+
+This module docstring should be dedented.
+"""
+
+import path
+import system
+
+
+def a(arg):
+    """This should be trimmed."""
+    print(arg, "b", "c", "d")
+    print(path)
+    print(system)
+EOF
+  )"
+  assert_equal "$(cat "a.py")" "$expected"
+}
+
+@test 'lintball fix *.pyx' {
+  run lintball fix "a.pyx"
+  assert_success
+  expected="$(
+    cat <<EOF
+
+cdef void fun(char * a) nogil:
+    cdef:
+        char * dest = a
+EOF
+  )"
+  assert_equal "$(cat "a.pyx")" "$expected"
+}
+
+@test 'lintball fix *.rb' {
+  run lintball fix "a.rb"
+  assert_success
+  expected="$(
+    cat <<EOF
+# frozen_string_literal: true
+d = [123, 456, 789]
+
+echo d
+EOF
+  )"
+  assert_equal "$(cat "a.rb")" "$expected"
+}
+
+@test 'lintball fix *.scss' {
+  run lintball fix "a.scss"
+  assert_success
+  expected="$(
+    cat <<EOF
+html {
+  body {
+    h1 {
+      font-weight: 800;
+    }
   }
 }
 EOF
   )"
-  assert_equal "$(cat "uncrustify/a.java")" "$expected"
+  assert_equal "$(cat "a.scss")" "$expected"
 }
 
-@test "lintball fix c#" {
-  run lintball fix "uncrustify/a.cs"
+@test 'lintball fix *.sh' {
+  run lintball fix "a.sh"
   assert_success
   expected="$(
     cat <<EOF
-namespace HelloWorld {
-class Hello {
-  static void Main(string[] args)
-  {
-    System.Console.WriteLine("Hello World!");
-  }
+a() {
+  echo
+
 }
+
+b() {
+
+  echo
 }
 EOF
   )"
-  assert_equal "$(cat "uncrustify/a.cs")" "$expected"
+  assert_equal "$(cat "a.sh")" "$expected"
 }
 
-@test "lintball fix unhandled is a no-op" {
-  run lintball fix "unhandled.txt"
+@test 'lintball fix *.tsx' {
+  run lintball fix "a.tsx"
   assert_success
+  expected="$(
+    cat <<EOF
+import { h, Component } from "preact";
+
+export interface HelloWorldProps {
+  name: string;
 }
 
-@test "lintball fix does not fix ignored files" {
+export default class HelloWorld extends Component<HelloWorldProps, any> {
+  render(props) {
+    return <p>Hello {props.name}!</p>;
+  }
+}
+EOF
+  )"
+  assert_equal "$(cat "a.tsx")" "$expected"
+}
+
+@test 'lintball fix *.xml' {
+  run lintball fix "a.xml"
+  assert_success
+  expected="$(
+    cat <<EOF
+<?xml version="1.0" encoding="UTF-8" ?>
+<items>
+    <a>A</a>
+    <b>B</b>
+    <c />
+</items>
+EOF
+  )"
+  assert_equal "$(cat "a.xml")" "$expected"
+}
+
+@test 'lintball fix *.yml' {
+  run lintball fix "a.yml"
+  assert_success
+  expected="$(
+    cat <<EOF
+key: value
+hello: world
+EOF
+  )"
+  assert_equal "$(cat "a.yml")" "$expected"
+}
+
+@test 'lintball fix Cargo.toml' {
+  run lintball fix "Cargo.toml"
+  assert_success
+  assert_equal "$(cat "src/main.rs")" "$(cat "src/main.rs.fixed")"
+}
+
+@test 'lintball fix does not fix ignored files' {
   mkdir -p vendor
-  cp ruby/a.rb vendor/
+  cp a.rb vendor/
   run lintball fix vendor/a.rb
   assert_success
-  assert_equal "$(cat "vendor/a.rb")" "$(cat "ruby/a.rb")"
+  assert_equal "$(cat "vendor/a.rb")" "$(cat "a.rb")"
+}
+
+@test 'lintball fix package.json' {
+  run lintball fix "package.json"
+  assert_success
+  expected="$(
+    cat <<EOF
+{
+  "main": "a.js",
+  "name": "fixture",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
+EOF
+  )"
+  assert_equal "$(cat "package.json")" "$expected"
+}
+
+@test 'lintball fix unhandled is a no-op' {
+  run lintball fix "a.txt"
+  assert_success
 }

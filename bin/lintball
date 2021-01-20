@@ -7,7 +7,8 @@ LINTBALL_DIR="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
 # shellcheck source=SCRIPTDIR/../lib/utils.bash
 source "${LINTBALL_DIR}/lib/utils.bash"
 
-# Load default config
-load_config "${LINTBALL_DIR}/configs/lintballrc.json"
+# Load default configs
+load_config "${LINTBALL_DIR}/configs/lintballrc-defaults.json"
+load_config "${LINTBALL_DIR}/configs/lintballrc-ignores.json"
 
 parse_args "$@"

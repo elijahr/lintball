@@ -17,7 +17,7 @@ update_repo() {
     local version
     cd "$LB_DIR"
 
-    version="${LINTBALL_VERSION:-"$(git ls-remote --tags "$LINTBALL_REPO" | awk '{ print $2 }' | sort | tail -n1)"}"
+    version="${LINTBALL_VERSION:-"$(git ls-remote --tags "$LINTBALL_REPO" | grep -v "-rc" | awk '{ print $2 }' | sort | tail -n1)"}"
 
     # Strip ref info
     version="${version//refs\/heads\//}"
@@ -107,6 +107,8 @@ update_deps() {
       rustup update
     fi
     rustup component add clippy
+    # nightly is needed for clippy to fix issues
+    rustup toolchain install nightly
   else
     echo -e "Warning: cannot install cargo requirements - could not find an cargo executable."
   fi

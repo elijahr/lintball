@@ -8,13 +8,12 @@ if [ ! -d "$LINTBALL_DIR" ]; then
   curl -o- https://raw.githubusercontent.com/elijahr/lintball/devel/install.sh | bash
 fi
 
-# >>> remove
 if [[ "$(basename "$(pwd)")" =~ lintball$ ]]; then
   # For lintball development
   LINTBALL_DIR="$(pwd)"
   export LINTBALL_DIR
 fi
-# <<< remove
+
 # shellcheck disable=SC1090
 source "${LINTBALL_DIR}/lib/utils.bash"
 
@@ -35,7 +34,6 @@ fully_staged() {
 main() {
   local paths line
   paths="$(fully_staged)"
-
   if [ -n "$paths" ]; then
     tmp="$(mktemp -d)"
     eval "$(cmd_find "$paths")" | while read -r line; do
@@ -59,7 +57,9 @@ main() {
   fi
 }
 
-load_config "${LINTBALL_DIR}/configs/lintballrc.json"
+# Load default configs
+load_config "${LINTBALL_DIR}/configs/lintballrc-defaults.json"
+load_config "${LINTBALL_DIR}/configs/lintballrc-ignores.json"
 
 if [ -z "${LINTBALL_CONFIG:-}" ]; then
   LINTBALL_CONFIG="$(find_config)"

@@ -1,0 +1,22 @@
+{
+  "ignores": [
+    "*/.build/*",
+    "*/.bundle/*",
+    "*/.cache/*",
+    "*/.git/*",
+    "*/.hg/*",
+    "*/.next/*",
+    "*/.serverless_nextjs/*",
+    "*/.tmp/*",
+    "*/__pycache__/*",
+    "*/build/*",
+    "*/dist/*",
+    "*/Gemfile.lock",
+    "*/node_modules/*",
+    "*/package-lock.json",
+    "*/Pipfile.lock",
+    "*/target/*",
+    "*/tmp/*",
+    "*/vendor/*"
+  ]
+}

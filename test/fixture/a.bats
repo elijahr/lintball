@@ -1,11 +1,9 @@
 #!/usr/bin/env bats
 
-@test "a" {
+@test 'a' {
               echo
 }
 
-@test      "b" {
-
-
+@test      'b' {
 echo
 }
