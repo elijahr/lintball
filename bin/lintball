@@ -2,7 +2,22 @@
 
 set -ueo pipefail
 
-LINTBALL_DIR="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
+# path to node_modules/.bin
+BIN_DIR="$(dirname "${BASH_SOURCE[0]}")"
+
+if [ "$(basename "$BIN_DIR")" = ".bin" ]; then
+  # path to node_modules/lintball
+  LINTBALL_DIR="$(
+    cd "${BIN_DIR}/../lintball"
+    pwd
+  )"
+else
+  # path to repo
+  LINTBALL_DIR="$(
+    cd "${BIN_DIR}/.."
+    pwd
+  )"
+fi
 
 # shellcheck source=SCRIPTDIR/../lib/utils.bash
 source "${LINTBALL_DIR}/lib/utils.bash"

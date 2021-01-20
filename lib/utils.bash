@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-LINTBALL_DIR="${LINTBALL_DIR:-"$PWD"}"
+LINTBALL_DIR="${LINTBALL_DIR:-"${PWD}/lintball"}"
 
 DOTS="..................................."
 LINTBALL_IGNORES=()
@@ -905,8 +905,7 @@ Commands:
                             check with the given configuration. Useful for
                             debugging the ignores section of a .lintballrc.json
                             config file.
-  update                    Update lintball to the latest version.
-  githooks [path]           Install lintball githooks in the working directory
+  install-githooks [path]   Install lintball githooks in the working directory
                             or [path].
   lintballrc [path]         Place a default .lintballrc.json config file in
                             the working directory or [path]
@@ -1016,7 +1015,7 @@ find_git_dir() {
   done
 }
 
-githooks() {
+install_githooks() {
   local git_dir hooks_path hook dest status tmp
   git_dir="$(find_git_dir "$1" || true)"
   if [ -z "$git_dir" ]; then
@@ -1088,6 +1087,24 @@ list() {
   done
 }
 
+fully_staged() {
+  local staged line
+  staged="$(git diff --name-only --cached | sort)"
+  echo "$staged" | while read -r line; do
+    # shellcheck disable=SC2143
+    if [ -z "$(git diff --name-only | grep -F "$line")" ]; then
+      if [ -f "$line" ]; then
+        # path exists, is staged and has no unstaged changes
+        echo "$line"
+      fi
+    fi
+  done
+}
+
+pre_commit() {
+  check_or_fix "yes" "$(fully_staged)"
+}
+
 entrypoint() {
   case "${1:-}" in
     -h | --help)
@@ -1123,8 +1140,7 @@ subcommand() {
 
   if [ -z "${1:-}" ]; then
     echo >&2
-    echo "Missing subcommand" >&2
-    echo >&2
+    echo "# Error: missing subcommand" >&2
     usage
     exit 1
   fi
@@ -1142,10 +1158,11 @@ subcommand() {
       shift
       eval "$command" "$@"
       ;;
-    update)
-      exec "${LINTBALL_DIR}/install.sh"
+    pre-commit)
+      shift
+      pre_commit
       ;;
-    githooks | lintballrc)
+    install-githooks | lintballrc)
       command="${1//-/_}"
       shift
       case "${1:-}" in
