@@ -101,7 +101,7 @@ lintball update
 
 ## Dependencies
 
-Lintball does not have any hard dependencies besides bash. Running `install.sh`
+Lintball does not have any hard dependencies besides bash and npm. Running `install.sh`
 or `lintball update` will install linter packages for Python, Ruby, and/or
 Node.js if those languages are found on your system. `nimpretty` is already
 installed if you have Nim, and `shellcheck` and `shfmt` are available via
@@ -167,9 +167,14 @@ jobs:
       #     tool_versions: |
       #       nim 1.4.2
 
+      ## Uncomment if your project contains Rust code
+      # - uses: hecrj/setup-rust-action@v1
+      #  with:
+      #    rust-version: nightly
+
       - name: Install lintball
         shell: bash
-        run: curl -o- https://raw.githubusercontent.com/elijahr/lintball/devel/install.sh | bash
+        run: npm install -g lintball
 
       - name: Check for linter issues
         run: lintball check

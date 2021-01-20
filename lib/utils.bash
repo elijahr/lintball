@@ -1051,13 +1051,21 @@ lintballrc() {
 }
 
 check_or_fix() {
-  local fix tmp line
+  local fix gitadd tmp path
   fix="$1"
+  gitadd="$2"
+  shift
   shift
   tmp="$(mktemp -d)"
-  eval "$(cmd_find "$@")" | while read -r line; do
-    if assert_handled_path "$line"; then
-      lint_any "$fix" "$line" || touch "${tmp}/error"
+  eval "$(cmd_find "$@")" | while read -r path; do
+    if assert_handled_path "$path"; then
+      if lint_any "$fix" "$path"; then
+        if [ "$gitadd" = "yes" ]; then
+          git add "$path"
+        fi
+      else
+        touch "${tmp}/error"
+      fi
     fi
   done
 
@@ -1070,11 +1078,11 @@ check_or_fix() {
 }
 
 check() {
-  check_or_fix "no" "$@"
+  check_or_fix "no" "no" "$@"
 }
 
 fix() {
-  check_or_fix "yes" "$@"
+  check_or_fix "yes" "no" "$@"
 }
 
 list() {
@@ -1102,7 +1110,7 @@ fully_staged() {
 }
 
 pre_commit() {
-  check_or_fix "yes" "$(fully_staged)"
+  check_or_fix "yes" "yes" "$(fully_staged)"
 }
 
 entrypoint() {

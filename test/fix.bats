@@ -97,7 +97,7 @@ EOF
 #!/usr/bin/env deno
 
 modules.exports = {
-  foo: function() {},
+  foo() {},
   bar: () => ({}),
 };
 EOF
@@ -112,7 +112,7 @@ EOF
 #!/usr/bin/env node
 
 modules.exports = {
-  foo: function() {},
+  foo() {},
   bar: () => ({}),
 };
 EOF
@@ -360,7 +360,7 @@ EOF
   expected="$(
     cat <<EOF
 modules.exports = {
-  foo: function() {},
+  foo() {},
   bar: () => ({}),
 };
 EOF
