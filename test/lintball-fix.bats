@@ -659,6 +659,7 @@ EOF
   run lintball fix "Cargo.toml"
   expected="$(
     cat <<EOF
+
 #![allow(clippy::stable_sort_primitive)]
 
 
