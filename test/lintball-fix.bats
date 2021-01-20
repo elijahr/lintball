@@ -98,7 +98,7 @@ EOF
 
 modules.exports = {
   foo: function() {},
-  bar: () => ({})
+  bar: () => ({}),
 };
 EOF
   )"
@@ -113,7 +113,7 @@ EOF
 
 modules.exports = {
   foo: function() {},
-  bar: () => ({})
+  bar: () => ({}),
 };
 EOF
   )"
@@ -361,7 +361,7 @@ EOF
     cat <<EOF
 modules.exports = {
   foo: function() {},
-  bar: () => ({})
+  bar: () => ({}),
 };
 EOF
   )"
