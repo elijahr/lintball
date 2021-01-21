@@ -2,7 +2,6 @@
 
 load ../node_modules/bats-support/load
 load ../node_modules/bats-assert/load
-load ../lib/utils
 load ./lib/test_utils
 
 setup() {
@@ -97,8 +96,8 @@ EOF
 #!/usr/bin/env deno
 
 modules.exports = {
-  foo() {},
-  bar: () => ({}),
+  foo: function() {},
+  bar: () => ({})
 };
 EOF
   )"
@@ -112,8 +111,8 @@ EOF
 #!/usr/bin/env node
 
 modules.exports = {
-  foo() {},
-  bar: () => ({}),
+  foo: function() {},
+  bar: () => ({})
 };
 EOF
   )"

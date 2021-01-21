@@ -26,8 +26,7 @@
   "scripts": {
     "test": "bats test --tap",
     "prettier": "cd \"$npm_config_path\" && prettier",
-    "prettier-eslint": "cd \"$npm_config_path\" && prettier-eslint",
-    "preinstall": "sh ./scripts/preinstall.sh"
+    "prettier-eslint": "cd \"$npm_config_path\" && prettier-eslint"
   },
   "bin": {
     "lintball": "./bin/lintball"

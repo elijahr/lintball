@@ -4,12 +4,12 @@ export PROJECT_DIR
 LINTBALL_DIR="$PROJECT_DIR"
 export LINTBALL_DIR
 
-ORIGINAL_PATH="$PATH"
-export ORIGINAL_PATH
+# ORIGINAL_PATH="$PATH"
+# export ORIGINAL_PATH
 
 setup_test() {
-  PATH="${LINTBALL_DIR}/bin:$PATH"
-  export PATH
+  # PATH="${LINTBALL_DIR}/bin:$PATH"
+  # export PATH
   TEST_PROJECT_DIR="$(mktemp -d)/fixture"
   export TEST_PROJECT_DIR
   cp -r "${LINTBALL_DIR}/test/fixture/" "${TEST_PROJECT_DIR}/"
@@ -22,8 +22,8 @@ setup_test() {
 teardown_test() {
   rm -rf "$(dirname "$TEST_PROJECT_DIR")"
   unset TEST_PROJECT_DIR
-  PATH="$ORIGINAL_PATH"
-  export PATH
+  # PATH="$ORIGINAL_PATH"
+  # export PATH
 }
 
 git_branch() {

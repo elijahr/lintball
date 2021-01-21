@@ -19,11 +19,7 @@ else
   )"
 fi
 
-# shellcheck source=SCRIPTDIR/../lib/utils.bash
-source "${LINTBALL_DIR}/lib/utils.bash"
+# shellcheck source=SCRIPTDIR/../lib/cli.bash
+source "${LINTBALL_DIR}/lib/cli.bash"
 
-# Load default configs
-load_config "${LINTBALL_DIR}/configs/lintballrc-defaults.json"
-load_config "${LINTBALL_DIR}/configs/lintballrc-ignores.json"
-
-entrypoint "$@"
+cli_entrypoint "$@"

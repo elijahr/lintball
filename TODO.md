@@ -19,6 +19,7 @@
   - [ ] test that syntax errors cause check failure
   - [ ] test that syntax errors cause fix failure
   - [ ] Perhaps some method for ensuring all supported file types are tested?
+  - [ ] Syntax error behavior for each file type
 - [ ] Additional tools:
   - tslint
   - eslint
@@ -27,3 +28,4 @@
   - infer (facebook)
 - [ ] Install script should allow installing different "profiles" for different languages.
   - Auto-detect?
+- [ ] Replace `eval echo` for args creation with safer templating
