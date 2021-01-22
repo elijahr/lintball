@@ -108,7 +108,7 @@ jobs:
       ## Uncomment if your project contains Ruby code
       # - uses: actions/setup-ruby@v1
       #   with:
-      #     ruby-version: "3.x"
+      #     ruby-version: "3.0.0"
 
       ## Uncomment if your project contains shell scripts
       # - name: Install shellcheck & shfmt
