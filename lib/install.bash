@@ -78,6 +78,8 @@ install_shell_tools() {
       fi
     elif [ -n "$(which pacman)" ]; then
       sudo pacman -Syu "${packages[*]}"
+    elif [ -n "$(which apk)" ]; then
+      apk --update add "${packages[*]}"
     else
       echo "Error: cannot install requirements: ${packages[*]}" >&2
       echo "Try installing manually." >&2
@@ -110,6 +112,8 @@ install_uncrustify() {
     fi
   elif [ -n "$(pacman)" ]; then
     sudo pacman -Syu uncrustify
+  elif [ -n "$(which apk)" ]; then
+    apk --update add uncrustify
   else
     echo "Error: cannot install requirements: uncrustify" >&2
     echo "Try installing manually." >&2
