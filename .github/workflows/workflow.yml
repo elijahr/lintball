@@ -10,9 +10,16 @@ on:
 
 jobs:
   tests:
-    name: bats unit tests
+    name: bats unit tests (${{ matrix.runs-on }})
+    strategy:
+      matrix:
+        runs-on:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runs-on }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -40,55 +47,16 @@ jobs:
         with:
           rust-version: nightly
 
-      # Install packages in a cache-friendly way, uses config from cache.js
-      - uses: ktmud/cached-dependencies@v1
-        with:
-          run: |
-            set -euxo pipefail
+      - name: Install dependencies
+        run: |
+          set -euxo pipefail
 
-            cache-restore npmDev
-            npm install --include=dev
-            # seems to be necessary for node >= 15
-            [ -n "$(which bats)" ] || (cd deps; npm link bats)
-            cache-save npmDev
+          npm install --include=dev
 
-            cache-restore pip
-            python3 -m venv "${PWD}/deps/python-env"
-            deps/python-env/bin/pip install -r deps/requirements-pip.txt
-            cache-save pip
+          # seems to be necessary for node >= 15
+          [ -n "$(which bats)" ] || (cd deps; npm link bats)
 
-            cache-restore gem
-            gem install bundler
-            cache-save gem
-
-            BUNDLE_GEMFILE="${PWD}/deps/Gemfile"
-            export BUNDLE_GEMFILE
-
-            bundle config set --local deployment 'true'
-            cache-restore bundler
-            bundle install
-            cache-save bundler
-
-            cache-restore brew
-            brew install $(cat deps/requirements-brew.txt)
-            cache-save brew
-
-            cache-restore apt
-            sudo apt-get update
-            sudo apt-get install -y $(cat deps/requirements-apt.txt)
-            cache-save apt
-
-            cache-restore cargo
-            cargo install stylua --features luau
-            if [ -z "$(which rustup)" ]; then
-              # Install rustup
-              curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-            else
-              rustup self update
-              rustup update
-            fi
-            rustup component add clippy
-            cache-save cargo
+          npx lintball install-deps --all --yes
 
       - name: Run tests
         run: npm run test
@@ -101,45 +69,42 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '15.x'
+      # - uses: actions/setup-node@v2
+      #   with:
+      #     node-version: '15.x'
 
-      # Install packages in a cache-friendly way, uses config from cache.js
-      - uses: ktmud/cached-dependencies@v1
-        with:
-          run: |
-            set -euxo pipefail
+      # - uses: actions/setup-python@v2
+      #   with:
+      #     python-version: '3.x'
 
-            cache-restore npm
-            npm install
-            cache-save npm
-
-            cache-restore brew
-            brew install $(cat deps/requirements-brew.txt)
-            cache-save brew
+      - name: Install dependencies
+        run: ./bin/lintball install-deps --yes yaml bash json
 
       - name: Check for linter issues
         run: ./bin/lintball check
 
-  test:
+  install-local:
     name: test
-    runs-on: ${{ matrix.runs-on }}
-
-    strategy:
-      matrix:
-        runs-on:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Install
+      - name: Install lintball
         shell: bash
         run: npm install "https://github.com/${GITHUB_REPOSITORY}.git#${GITHUB_SHA}"
 
-      - name: Verify
+      - name: Run lintball
         shell: bash
-        run: |
-          npx lintball --help
-          npm test
+        run: npx lintball --help
+
+  install-global:
+    name: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install lintball
+        shell: bash
+        run: npm install -g "https://github.com/${GITHUB_REPOSITORY}.git#${GITHUB_SHA}"
+
+      - name: Run lintball
+        shell: bash
+        run: lintball --help
