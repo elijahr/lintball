@@ -1,12 +1,12 @@
 {
   "ignores": [
     "*/.git/*",
-    "*/deps/Gemfile",
+    "*/tools/Gemfile",
     "*/node_modules/*",
-    "*/deps/package-lock.json",
-    "*/deps/python-env/*",
-    "*/deps/vendor/*",
-    "*/deps/target/*",
+    "*/tools/package-lock.json",
+    "*/tools/python-env/*",
+    "*/tools/vendor/*",
+    "*/tools/target/*",
     "*/lib/jwalk/*",
     "*/test/fixture/*",
     "*/test/fixture/target/*"

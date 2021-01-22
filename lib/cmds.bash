@@ -3,11 +3,11 @@ cmd_autoflake() {
   mode="$1"
   path="$2"
   if [ "$mode" = "mode=write" ]; then
-    echo "${LINTBALL_DIR}/deps/python-env/bin/autoflake \
+    echo "${LINTBALL_DIR}/tools/python-env/bin/autoflake \
       $(eval echo "${LINTBALL__WRITE_ARGS__AUTOFLAKE}") \
       '$path'"
   else
-    echo "${LINTBALL_DIR}/deps/python-env/bin/autoflake \
+    echo "${LINTBALL_DIR}/tools/python-env/bin/autoflake \
       $(eval echo "${LINTBALL__CHECK_ARGS__AUTOFLAKE}") \
       '$path'"
   fi
@@ -18,11 +18,11 @@ cmd_autopep8() {
   mode="$1"
   path="$2"
   if [ "$mode" = "mode=write" ]; then
-    echo "${LINTBALL_DIR}/deps/python-env/bin/autopep8 \
+    echo "${LINTBALL_DIR}/tools/python-env/bin/autopep8 \
       $(eval echo "${LINTBALL__WRITE_ARGS__AUTOPEP8}") \
       '$path'"
   else
-    echo "${LINTBALL_DIR}/deps/python-env/bin/autopep8 \
+    echo "${LINTBALL_DIR}/tools/python-env/bin/autopep8 \
       $(eval echo "${LINTBALL__CHECK_ARGS__AUTOPEP8}") \
       '$path'"
   fi
@@ -33,11 +33,11 @@ cmd_black() {
   mode="$1"
   path="$2"
   if [ "$mode" = "mode=write" ]; then
-    echo "${LINTBALL_DIR}/deps/python-env/bin/black \
+    echo "${LINTBALL_DIR}/tools/python-env/bin/black \
       $(eval echo "${LINTBALL__WRITE_ARGS__BLACK}") \
       '$path'"
   else
-    echo "${LINTBALL_DIR}/deps/python-env/bin/black \
+    echo "${LINTBALL_DIR}/tools/python-env/bin/black \
       $(eval echo "${LINTBALL__CHECK_ARGS__BLACK}") \
       '$path'"
   fi
@@ -63,11 +63,11 @@ cmd_docformatter() {
   mode="$1"
   path="$2"
   if [ "$mode" = "mode=write" ]; then
-    echo "${LINTBALL_DIR}/deps/python-env/bin/docformatter \
+    echo "${LINTBALL_DIR}/tools/python-env/bin/docformatter \
       $(eval echo "${LINTBALL__WRITE_ARGS__DOCFORMATTER}") \
       '$path'"
   else
-    echo "${LINTBALL_DIR}/deps/python-env/bin/docformatter \
+    echo "${LINTBALL_DIR}/tools/python-env/bin/docformatter \
       $(eval echo "${LINTBALL__CHECK_ARGS__DOCFORMATTER}") \
       '$path'"
   fi
@@ -78,11 +78,11 @@ cmd_isort() {
   mode="$1"
   path="$2"
   if [ "$mode" = "mode=write" ]; then
-    echo "${LINTBALL_DIR}/deps/python-env/bin/isort \
+    echo "${LINTBALL_DIR}/tools/python-env/bin/isort \
       $(eval echo "${LINTBALL__WRITE_ARGS__ISORT}") \
       '$path'"
   else
-    echo "${LINTBALL_DIR}/deps/python-env/bin/isort \
+    echo "${LINTBALL_DIR}/tools/python-env/bin/isort \
       $(eval echo "${LINTBALL__CHECK_ARGS__ISORT}") \
       '$path'"
   fi

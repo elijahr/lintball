@@ -4,7 +4,7 @@ install_bundler_requirements() {
   fi
   if [ -n "$(which bundle)" ]; then
     (
-      cd "${LINTBALL_DIR}/deps"
+      cd "${LINTBALL_DIR}/tools"
       bundle config set --local deployment 'true'
       bundle install
     )
@@ -36,7 +36,7 @@ install_clippy() {
 install_pip_requirements() {
   local pyexe
   pyexe=""
-  if [ ! -d "${LINTBALL_DIR}/deps/python-env" ]; then
+  if [ ! -d "${LINTBALL_DIR}/tools/python-env" ]; then
     if [ -n "$(which python3)" ]; then
       pyexe="python3"
     elif [ -n "$(which python)" ]; then
@@ -45,7 +45,7 @@ install_pip_requirements() {
       fi
     fi
     if [ -n "$pyexe" ]; then
-      "$pyexe" -m venv "${LINTBALL_DIR}/deps/python-env"
+      "$pyexe" -m venv "${LINTBALL_DIR}/tools/python-env"
     else
       echo "Error: cannot install pip requirements." >&2
       echo "could not find a suitable Python version (>=3.3.0)." >&2
@@ -53,7 +53,7 @@ install_pip_requirements() {
     fi
   fi
 
-  "${LINTBALL_DIR}/deps/python-env/bin/pip" install -r "${LINTBALL_DIR}/deps/requirements-pip.txt"
+  "${LINTBALL_DIR}/tools/python-env/bin/pip" install -r "${LINTBALL_DIR}/tools/requirements-pip.txt"
 }
 
 install_shell_tools() {

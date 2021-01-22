@@ -6,7 +6,7 @@ export LINTBALL_DIR
 IGNORE_GLOBS=()
 
 # For rubocop
-BUNDLE_GEMFILE="${LINTBALL_DIR}/deps/Gemfile"
+BUNDLE_GEMFILE="${LINTBALL_DIR}/tools/Gemfile"
 export BUNDLE_GEMFILE
 
 # shellcheck source=SCRIPTDIR/cmds.bash
