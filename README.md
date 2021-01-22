@@ -106,7 +106,7 @@ jobs:
       #     python-version: "3.x"
 
       ## Uncomment if your project contains Ruby code
-      # - uses: actions/setup-ruby@v1
+      # - uses: ruby/setup-ruby@v1
       #   with:
       #     ruby-version: "3.0.0"
 
