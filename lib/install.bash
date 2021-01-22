@@ -1,4 +1,7 @@
 install_bundler_requirements() {
+  if [ -z "$(which bundle)" ] && [ -n "$(which gem)" ]; then
+    gem install bundler || sudo gem install bundler
+  fi
   if [ -n "$(which bundle)" ]; then
     (
       cd "${LINTBALL_DIR}/deps"
@@ -66,6 +69,15 @@ install_shell_tools() {
     if [ -n "$(which brew)" ]; then
       brew update
       brew install "${packages[*]}"
+    elif [ -n "$(which apt-get)" ]; then
+      sudo apt-get update
+      if [ "$answer" = "$answer=yes" ]; then
+        sudo apt-get install -y "${packages[*]}"
+      else
+        sudo apt-get install "${packages[*]}"
+      fi
+    elif [ -n "$(which pacman)" ]; then
+      sudo pacman -Syu "${packages[*]}"
     else
       echo "Error: cannot install requirements: ${packages[*]}" >&2
       echo "Try installing manually." >&2
@@ -84,9 +96,20 @@ install_stylua() {
 }
 
 install_uncrustify() {
+  local answer
+  answer="$1"
   if [ -n "$(which brew)" ]; then
     brew update
     brew install uncrustify
+  elif [ -n "$(which apt-get)" ]; then
+    sudo apt-get update
+    if [ "$answer" = "$answer=yes" ]; then
+      sudo apt-get install -y uncrustify
+    else
+      sudo apt-get install uncrustify
+    fi
+  elif [ -n "$(pacman)" ]; then
+    sudo pacman -Syu uncrustify
   else
     echo "Error: cannot install requirements: uncrustify" >&2
     echo "Try installing manually." >&2

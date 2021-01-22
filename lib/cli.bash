@@ -9,26 +9,6 @@ IGNORE_GLOBS=()
 BUNDLE_GEMFILE="${LINTBALL_DIR}/deps/Gemfile"
 export BUNDLE_GEMFILE
 
-ALL_TOOLS="$(
-  cat <<EOF
-autoflake
-autopep8
-black
-clippy
-docformatter
-isort
-nimpretty
-prettier
-prettier-eslint
-rubocop
-shellcheck
-shfmt
-stylua
-uncrustify
-yamllint
-EOF
-)"
-
 # shellcheck source=SCRIPTDIR/cmds.bash
 source "${LINTBALL_DIR}/lib/cmds.bash"
 
@@ -47,11 +27,13 @@ cli_entrypoint() {
     case "${1:-}" in
       -h | --help)
         usage
-        exit 0
+        support_table
+        documentation_link
+        return 0
         ;;
       -v | --version)
         echo "v0.3.0"
-        exit 0
+        return 0
         ;;
       -c | --config)
         shift
@@ -61,8 +43,9 @@ cli_entrypoint() {
       -*)
         echo >&2
         echo "Unknown option $1" >&2
-        echo >&2
-        exit 1
+        usage >&2
+        documentation_link >&2
+        return 1
         ;;
       *)
         break
@@ -83,7 +66,7 @@ cli_entrypoint() {
     echo
     echo "# lintball: using config file ${config}"
     echo
-    config_load "$config" || exit 1
+    config_load "$config" || return 1
   fi
 
   # Parse subcommand
@@ -123,9 +106,12 @@ cli_entrypoint() {
             shift
             ;;
           -*)
-            echo "Unknown argument '$1'" >&2
             echo >&2
-            exit 1
+            echo "Unknown option $1" >&2
+            usage >&2
+            documentation_link >&2
+            echo >&2
+            return 1
             ;;
           *)
             break
@@ -134,13 +120,17 @@ cli_entrypoint() {
       done
       path="${path:-$PWD}"
       if [ "$subcommand" = "subcommand_install_tools" ]; then
+        if [ "$all" = "all=yes" ] && [ "$#" -gt 0 ]; then
+
+          return 1
+        fi
         # Pass extensions to install_tools
         "$subcommand" "$path" "$answer" "$all" "$@"
       else
         if [ "$#" -gt 0 ]; then
           echo "$subcommand: unexpected argument '$1'" >&2
           echo >&2
-          exit 1
+          return 1
         fi
         "$subcommand" "$path" "$answer"
       fi
@@ -151,8 +141,9 @@ cli_entrypoint() {
       else
         echo "unknown subcommand '$1'" >&2
       fi
-      echo >&2
-      exit 1
+      usage >&2
+      documentation_link >&2
+      return 1
       ;;
   esac
 }
@@ -260,6 +251,12 @@ confirm_copy() {
     cp -Rf "$src" "$dest"
     echo "Copied ${src//${HOME}/"~"} → ${dest//${HOME}/"~"}"
   fi
+}
+
+documentation_link() {
+  echo "Additional documentation can be found in ${LINTBALL_DIR}/README.md"
+  echo "or at https://github.com/elijahr/lintball"
+  echo
 }
 
 find_git_dir() {
@@ -526,7 +523,7 @@ subcommand_install_githooks() {
     echo >&2
     echo "Could not find a .git directory at or above $path" >&2
     echo >&2
-    exit 1
+    return 1
   fi
 
   hooks_path="$(git --git-dir="$git_dir" config --local core.hooksPath || true)"
@@ -538,14 +535,14 @@ subcommand_install_githooks() {
     dest="${hooks_path}/$(basename "$hook")"
     confirm_copy "$hook" "$dest" "$answer" "yes" || status=$?
     if [ "$status" -gt 0 ]; then
-      exit $status
+      return $status
     fi
   done
   git --git-dir="$git_dir" config --local core.hooksPath "$hooks_path"
   echo
   echo "Set git hooks path → $hooks_path"
   echo
-  exit 0
+  return 0
 }
 
 subcommand_install_lintballrc() {
@@ -554,7 +551,7 @@ subcommand_install_lintballrc() {
   confirm_copy \
     "${LINTBALL_DIR}/configs/lintballrc-ignores.json" \
     "${2}/.lintballrc.json" \
-    "$answer" || exit $?
+    "$answer" || return $?
 }
 
 subcommand_install_tools() {
@@ -567,7 +564,25 @@ subcommand_install_tools() {
 
   if [ "$all" = "all=yes" ]; then
     # install everything
-    tools="$ALL_TOOLS"
+    tools="$(
+      cat <<EOF
+autoflake
+autopep8
+black
+clippy
+docformatter
+isort
+nimpretty
+prettier
+prettier-eslint
+rubocop
+shellcheck
+shfmt
+stylua
+uncrustify
+yamllint
+EOF
+    )"
   elif [ "$#" -gt 0 ]; then
     # extensions provided by user on command line
     tools="$(
@@ -587,28 +602,20 @@ subcommand_install_tools() {
   installers="$(
     while read -r tool; do
       case "$tool" in
-        autoflake | autopep8 | black | docformatter | isort | yamllint) echo "pip" ;;
-        clippy) echo "clippy" ;;
+        autoflake | autopep8 | black | docformatter | isort | yamllint) echo "install_pip_requirements" ;;
+        clippy) echo "install_clippy" ;;
         nimpretty) echo "nimpretty" ;;
         prettier | prettier-eslint) ;; # no-op, these are installed by npm
-        rubocop) echo "bundler" ;;
-        shellcheck | shfmt) echo "shell" ;;
-        stylua) echo "stylua" ;;
-        uncrustify) echo "uncrustify" ;;
+        rubocop) echo "install_bundler_requirements" ;;
+        shellcheck | shfmt) echo "install_shell_tools" ;;
+        stylua) echo "install_stylua" ;;
+        uncrustify) echo "install_uncrustify" ;;
       esac
     done <<<"$tools"
   )"
 
   while read -r installer; do
-    case "$installer" in
-      pip) install_pip_requirements ;;
-      clippy) install_clippy ;;
-      nimpretty) validate_nimpretty ;;
-      bundler) install_bundler_requirements ;;
-      shell) install_shell_tools ;;
-      stylua) install_stylua ;;
-      uncrustify) install_uncrustify ;;
-    esac
+    eval "$installer" "$answer"
   done <<<"$(echo "$installers" | sort | uniq)"
 }
 
@@ -625,7 +632,86 @@ subcommand_process_files() {
   status=0
   [ ! -f "$err" ] || status=1
   rm -rf "$(dirname "$err")"
-  exit "$status"
+  return "$status"
+}
+
+support_table() {
+  cat <<EOF
+Supported tools:
+  | Language     |                                      Tools used |
+  | :----------- | ----------------------------------------------: |
+  | bash         |                               shellcheck, shfmt |
+  | bats         |                               shellcheck, shfmt |
+  | C            |                                      uncrustify |
+  | C#           |                                      uncrustify |
+  | C++          |                                      uncrustify |
+  | CSS          |                                        prettier |
+  | Cython       |               autoflake, autopep8, docformatter |
+  | D            |                                      uncrustify |
+  | dash         |                               shellcheck, shfmt |
+  | GraphQL      |                                        prettier |
+  | HTML         |                                        prettier |
+  | Java         |                                   prettier-java |
+  | JavaScript   |                                 prettier-eslint |
+  | JSON         |                                        prettier |
+  | JSX          |                                 prettier-eslint |
+  | ksh          |                               shellcheck, shfmt |
+  | Lua          |                                          StyLua |
+  | Luau         |                                          StyLua |
+  | Markdown     |                                        prettier |
+  | mksh         |                               shellcheck, shfmt |
+  | Nim          |                                       nimpretty |
+  | Objective-C  |                                      uncrustify |
+  | package.json |                           prettier-package-json |
+  | pug          |                             prettier/plugin-pug |
+  | Python       | autoflake, autopep8, black, docformatter, isort |
+  | Ruby         |                  @prettier/plugin-ruby, rubocop |
+  | Rust         |                                          clippy |
+  | SASS         |                                        prettier |
+  | sh           |                               shellcheck, shfmt |
+  | TSX          |                                 prettier-eslint |
+  | TypeScript   |                                 prettier-eslint |
+  | XML          |                             prettier/plugin-xml |
+  | YAML         |                              prettier, yamllint |
+
+Detection methods:
+  | Language     |                                           Detection |
+  | :----------- | --------------------------------------------------: |
+  | bash         |                         *.bash, #!/usr/bin/env bash |
+  | bats         |                         *.bats, #!/usr/bin/env bats |
+  | C            |                                            *.c, *.h |
+  | C#           |                                                *.cs |
+  | C++          |                                        *.cpp, *.hpp |
+  | CSS          |                                               *.css |
+  | Cython       |                                 *.pyx, *.pxd, *.pxi |
+  | D            |                                                 *.d |
+  | dash         |                         *.dash, #!/usr/bin/env dash |
+  | GraphQL      |                                           *.graphql |
+  | HTML         |                                              *.html |
+  | Java         |                                              *.java |
+  | JavaScript   |      *.js, #!/usr/bin/env node, #!/usr/bin/env deno |
+  | JSON         |                                              *.json |
+  | JSX          |                                               *.jsx |
+  | ksh          |                           *.ksh, #!/usr/bin/env ksh |
+  | Lua          |                                               *.lua |
+  | Luau         |                                              *.luau |
+  | Markdown     |                                                *.md |
+  | mksh         |                         *.mksh, #!/usr/bin/env mksh |
+  | Nim          |                                               *.nim |
+  | Objective-C  |                                      *.m, *.mm, *.M |
+  | package.json |                                        package.json |
+  | pug          |                                               *.pug |
+  | Python       | *.py, #!/usr/bin/env python, #!/usr/bin/env python3 |
+  | Ruby         |                  *.rb, Gemfile, #!/usr/bin/env ruby |
+  | Rust         |                                          Cargo.toml |
+  | SASS         |                                              *.scss |
+  | sh           |                                     *.sh, #!/bin/sh |
+  | TSX          |                                               *.tsx |
+  | TypeScript   |                                                *.ts |
+  | XML          |                                               *.xml |
+  | YAML         |                                       *.yml, *.yaml |
+
+EOF
 }
 
 usage() {
@@ -633,94 +719,75 @@ usage() {
 
 █   █ █▄ █ ▀█▀ ██▄ ▄▀▄ █   █
 █▄▄ █ █ ▀█  █  █▄█ █▀█ █▄▄ █▄▄
-keep your code tidy with one command.
+keep your entire project tidy with one command.
 
-Usage: lintball [options] [command] [command options]
+Usage:
+  lintball [-h | -v]
+  lintball [-c <path>] check [paths …]
+  lintball [-c <path>] fix [paths …]
+  lintball [-c <path>] install-githooks [-y | -n] [-p <path>]
+  lintball [-c <path>] install-lintballrc [-y | -n] [-p <path>]
+  lintball [-c <path>] install-tools [-y | -n] [-a] [-p <path>] [ext …]
+  lintball [-c <path>] pre-commit
 
 Options:
   -h, --help                Show this help message & exit.
   -v, --version             Print version & exit.
-  -c, --config <path>       Use the \`.lintballrc.json\` config file at <path>.
+  -c, --config <path>       Use the config file at <path>.
 
-Commands:
+Subcommands:
   check [paths …]           Recursively check for issues.
-                            Exits with status 1 if any issues are found.
+                              Exit 1 if any issues.
   fix [paths …]             Recursively fix issues.
-                            Exits with status 1 if any issues exist which cannot
-                            be fixed.
+                              Exit 1 if unfixable issues.
   install-githooks          Install lintball githooks in a git repository.
-    --path <path>           The path to the git repository. Defaults to the
-                            working directory if not provided.
-    -y, --yes               Overwrite existing core.hooksPath git config.
-    -n, --no                Do not overwrite existing core.hooksPath git config.
-                            Exits with status 1 if core.hooksPath is already
-                            set.
-  install-lintballrc        Create a default \`.lintballrc.json\` config file.
-    --path <path>           The directory to place the config file. Defaults to
-                            the working directory if not provided.
-    -y, --yes               Overwrite an existing \`.lintballrc.json\`.
-    -n, --no                Do not overwrite an existing \`.lintballrc.json\`.
-                            Exits with status 1 if a a config already exists, 0
-                            otherwise.
+    -p, --path <path>       Git repo path.
+                              Default: working directory.
+    -y, --yes               Skip prompt & replace repo's githooks.
+    -n, --no                Skip prompt & exit 1 if repo already has githooks.
+  install-lintballrc        Create a default .lintballrc.json config file.
+    -p, --path <path>       Where to install the config file.
+                              Default: working directory
+    -y, --yes               Skip prompt & replace existing .lintballrc.json.
+    -n, --no                Skip prompt & exit 1 if .lintballrc.json exists.
   install-tools [ext …]     Install tools for fixing files having extensions
                             [ext]. If no [ext] are provided, lintball will
-                            recursively examine the directory for file types
-                            to install support for.
-    --path <path>           The path to the directory to examine for file types.
-                            Defaults to the working directory if not provided.
-    -y, --yes               Automatically install any missing dependencies.
-    -n, --no                Do not install any missing dependencies. Exits with
-                            status 1 if any dependencies are missing, 0
-                            otherwise.
-    -a, --all               Install all tools.
+                            autodetect which tools to install based on files in
+                            <path>.
+    -p, --path <path>       The path to search for file types.
+                              Default: working directory
+    -y, --yes               Skip prompt & install missing dependencies.
+    -a, --all               Install *all* tools.
+  pre-commit                Recursively fix issues on files that are fully
+                            staged for commit. Recursively check for issues on
+                            files that are partially staged for commit.
+                              Exit 1 if unfixable issues on fully staged files.
+                              Exit 1 if any issues on partially staged files.
 
 Examples:
-  \$ lintball check          # Check the working directory for issues.
-  \$ lintball fix            # Fix issues in the working directory.
-  \$ lintball check foo      # Check the foo directory for issues.
-  \$ lintball fix foo        # Fix issues in the foo directory.
-  \$ lintball check foo.py   # Check the foo.py file for issues.
-  \$ lintball fix foo.py     # Fix issues in the foo.py file.
-
-Tools:
-
-| Language     |                   Tools used                    |
-| :----------- | :---------------------------------------------: |
-| bash         |                shellcheck, shfmt                |
-| bats         |                shellcheck, shfmt                |
-| C            |                   uncrustify                    |
-| C#           |                   uncrustify                    |
-| C++          |                   uncrustify                    |
-| D            |                   uncrustify                    |
-| CSS          |                    prettier                     |
-| Cython       |        autoflake, autopep8, docformatter        |
-| dash         |                shellcheck, shfmt                |
-| GraphQL      |                    prettier                     |
-| HTML         |                    prettier                     |
-| Java         |                  prettier-java                  |
-| JavaScript   |                 prettier-eslint                 |
-| JSON         |                    prettier                     |
-| JSX          |                 prettier-eslint                 |
-| ksh          |                shellcheck, shfmt                |
-| Lua          |                     StyLua                      |
-| Luau         |                     StyLua                      |
-| Markdown     |                    prettier                     |
-| Nim          |                    nimpretty                    |
-| Objective-C  |                   uncrustify                    |
-| package.json |              prettier-package-json              |
-| pug          |              @prettier/plugin-pug               |
-| Python       | autoflake, autopep8, black, docformatter, isort |
-| Ruby         |         @prettier/plugin-ruby, rubocop          |
-| Rust         |                     clippy                      |
-| SASS         |                    prettier                     |
-| sh           |                shellcheck, shfmt                |
-| TSX          |                 prettier-eslint                 |
-| TypeScript   |                 prettier-eslint                 |
-| XML          |              @prettier/plugin-xml               |
-| YAML         |               prettier, yamllint                |
-
-Additional documentation can be found in ${LINTBALL_DIR}/README.md
-or at https://github.com/elijahr/lintball
+  \$ lintball check                       # Check working directory for issues.
+  \$ lintball check foo                   # Check the foo directory for issues.
+  \$ lintball check foo.py                # Check the foo.py file for issues.
+  \$ lintball fix                         # Fix issues in the working directory.
+  \$ lintball -c foo/.lintballrc.json fix # Fix issues in the working directory
+                                         # using the specified config.
+  \$ lintball fix foo                     # Fix issues in the foo directory.
+  \$ lintball fix foo.py                  # Fix issues in the foo.py file.
+  \$ lintball install-githooks -p foo     # Install githooks in directory foo.
+  \$ lintball install-githooks --yes      # Install a githooks config, replacing
+                                         # any existing githooks config.
+  \$ lintball install-lintballrc          # Install a default .lintballrc.json
+                                         # in the working directory.
+  \$ lintball install-lintballrc -p foo   # Install default .lintballrc.json in
+                                         # directory foo.
+  \$ lintball install-tools --yes         # Autodetect tools for working
+                                         # directory and install them, no
+                                         # prompt.
+  \$ lintball install-tools -p foo        # Autodetect tools for directory foo
+                                         # and install them.
+  \$ lintball install-tools --all         # Install all tools.
+  \$ lintball install-tools py java yaml  # Install tools for checking Python,
+                                         # JavaScript, & YAML.
 
 EOF
 }

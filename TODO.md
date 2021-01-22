@@ -1,5 +1,10 @@
-- [ ] Convert to npm package.
+- [x] Convert to npm package.
   - Relies heaviy on prettier anyways for common use cases.
+- [ ] Update CI example in readme to use install-tools
+- [ ] Handler `answer` in install functions
+- [ ] Hide installer output unless failed
+- [ ] pre-commit should run a check on partially-staged files after a
+      successful fix run of fully-staged files.
 - [x] Add missing test coverage:
   - [x] css
   - [x] dash

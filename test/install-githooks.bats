@@ -13,17 +13,17 @@ teardown() {
   teardown_test
 }
 
-@test 'lintball install-githooks sans arg' {
+@test 'lintball install-githooks without --path' {
   run lintball install-githooks --no
   assert_success
   assert_equal "$(git --git-dir="${TEST_PROJECT_DIR}/.git" config --local core.hooksPath)" "${TEST_PROJECT_DIR}/.githooks"
   assert [ -x "${TEST_PROJECT_DIR}/.githooks/pre-commit" ]
 }
 
-@test 'lintball install-githooks with arg' {
+@test 'lintball install-githooks with --path' {
   tmp="$(mktemp -d)"
   git init "$tmp"
-  run lintball install-githooks --no "$tmp"
+  run lintball install-githooks --no --path "$tmp"
   assert_success
   assert_equal "$(git --git-dir="${tmp}/.git" config --local core.hooksPath)" "${tmp}/.githooks"
   assert [ -x "${tmp}/.githooks/pre-commit" ]

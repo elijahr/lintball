@@ -22,4 +22,4 @@ fi
 # shellcheck source=SCRIPTDIR/../lib/cli.bash
 source "${LINTBALL_DIR}/lib/cli.bash"
 
-cli_entrypoint "$@"
+cli_entrypoint "$@" || exit $?

@@ -2,13 +2,24 @@
 
 set -ueo pipefail
 
-# path to lintball dir
-GITHOOKS_DIR="$(dirname "${BASH_SOURCE[0]}")"
+# path to node_modules/.bin
+BIN_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
-# path to repo/package
-LINTBALL_DIR="$(
-  cd "${GITHOOKS_DIR}/.."
-  pwd
-)"
+if [ "$(basename "$BIN_DIR")" = ".bin" ]; then
+  # path to node_modules/lintball
+  LINTBALL_DIR="$(
+    cd "${BIN_DIR}/../lintball"
+    pwd
+  )"
+else
+  # path to repo
+  LINTBALL_DIR="$(
+    cd "${BIN_DIR}/.."
+    pwd
+  )"
+fi
 
-"${LINTBALL_DIR}/bin/lintball" pre-commit
+# shellcheck source=SCRIPTDIR/../lib/cli.bash
+source "${LINTBALL_DIR}/lib/cli.bash"
+
+cli_entrypoint pre-commit || exit $?
