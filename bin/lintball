@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+env
+
 set -ueo pipefail
 
 # path to node_modules/.bin

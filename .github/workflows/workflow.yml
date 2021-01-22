@@ -57,7 +57,7 @@ jobs:
           # seems to be necessary for node >= 15
           [ -n "$(which bats)" ] || npm link bats --verbose
 
-          npx lintball install-tools --all --yes
+          ./bin/lintball install-tools --all --yes
 
       - name: Run tests
         run: npm run test
