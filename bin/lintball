@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
+set -x
 env
+
+npm config get prefix
 
 set -ueo pipefail
 
@@ -8,7 +11,7 @@ set -ueo pipefail
 BIN_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
 if [ "$(basename "$BIN_DIR")" = ".bin" ]; then
-  # path to node_modules/lintball
+  # path to local node_modules/lintball
   LINTBALL_DIR="$(
     cd "${BIN_DIR}/../lintball"
     pwd
