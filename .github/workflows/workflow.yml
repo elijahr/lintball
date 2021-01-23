@@ -10,61 +10,61 @@ on:
     tags: ['*']
 
 jobs:
-  # tests:
-  #   name: bats unit tests (${{ matrix.runs-on }})
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       runs-on:
-  #         - ubuntu-latest
-  #         - macos-latest
-  #         - windows-latest
+  tests:
+    name: bats unit tests (${{ matrix.runs-on }})
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
 
-  #   runs-on: ${{ matrix.runs-on }}
+    runs-on: ${{ matrix.runs-on }}
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  #     - uses: ruby/setup-ruby@v1
-  #       with:
-  #         ruby-version: '3.0.0'
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0.0'
 
-  #     - uses: actions/setup-python@v2
-  #       with:
-  #         python-version: '3.x'
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
 
-  #     - uses: actions/setup-node@v2
-  #       with:
-  #         node-version: '15.x'
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '15.x'
 
-  #     - uses: asdf-vm/actions/install@v1
-  #       if: runner.os != 'Windows'
-  #       with:
-  #         tool_versions: |
-  #           nim 1.4.2
+      - uses: asdf-vm/actions/install@v1
+        if: runner.os != 'Windows'
+        with:
+          tool_versions: |
+            nim 1.4.2
 
-  #     - uses: jiro4989/setup-nim-action@v1
-  #       if: runner.os == 'Windows'
+      - uses: jiro4989/setup-nim-action@v1
+        if: runner.os == 'Windows'
 
-  #     - uses: hecrj/setup-rust-action@v1
-  #       with:
-  #         rust-version: nightly
+      - uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: nightly
 
-  #     - name: Install tools
-  #       shell: bash
-  #       run: |
-  #         set -euxo pipefail
+      - name: Install tools
+        shell: bash
+        run: |
+          set -euxo pipefail
 
-  #         npm install --include=dev  --verbose
+          npm install --include=dev  --verbose
 
-  #         # seems to be necessary for node >= 15
-  #         [ -n "$(which bats)" ] || npm link bats --verbose
+          # seems to be necessary for node >= 15
+          [ -n "$(which bats)" ] || npm link bats --verbose
 
-  #         ./bin/lintball install-tools --all --yes
+          ./bin/lintball install-tools --all --yes
 
-  #     - name: Run tests
-  #       run: npm run test
+      - name: Run tests
+        run: npm run test
 
   lint:
     name: lint
@@ -86,28 +86,28 @@ jobs:
         shell: bash
         run: lintball check
 
-  # install-local:
-  #   name: test local installation
-  #   runs-on: ubuntu-latest
+  install-local:
+    name: test local installation
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Install lintball
-  #       shell: bash
-  #       run: npm install "https://github.com/${GITHUB_REPOSITORY}.git#${GITHUB_SHA}"
+    steps:
+      - name: Install lintball
+        shell: bash
+        run: npm install "https://github.com/${GITHUB_REPOSITORY}.git#${GITHUB_SHA}"
 
-  #     - name: Run lintball
-  #       shell: bash
-  #       run: npx lintball --help
+      - name: Run lintball
+        shell: bash
+        run: npx lintball --help
 
-  # install-global:
-  #   name: test global installation
-  #   runs-on: ubuntu-latest
+  install-global:
+    name: test global installation
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Install lintball
-  #       shell: bash
-  #       run: sudo npm install -g "https://github.com/${GITHUB_REPOSITORY}.git#${GITHUB_SHA}"
+    steps:
+      - name: Install lintball
+        shell: bash
+        run: sudo npm install -g "https://github.com/${GITHUB_REPOSITORY}.git#${GITHUB_SHA}"
 
-  #     - name: Run lintball
-  #       shell: bash
-  #       run: lintball --help
+      - name: Run lintball
+        shell: bash
+        run: lintball --help
