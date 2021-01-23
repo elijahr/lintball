@@ -79,6 +79,7 @@ function version_compare_convert() {
 
   # Extract any pre-release label.
   local prerelease
+  prerelease=""
   [[ ${version} == *"-"* ]] && prerelease=${version##*-}
   [ -n "${prerelease}" ] && prerelease="-${prerelease}"
 
