@@ -1,18 +1,20 @@
 install_bundler_requirements() {
-  if [ -z "$(which bundle)" ] && [ -n "$(which gem)" ]; then
-    gem install bundler || sudo gem install bundler
-  fi
-  if [ -n "$(which bundle)" ]; then
-    (
-      cd "${LINTBALL_DIR}/tools"
-      bundle config set --local deployment 'true'
-      bundle install
-    )
-  else
-    echo "Error: cannot install bundler requirements - could not find a bundle executable." >&2
-    echo "If ruby is installed, try gem install bundler and re-run this script." >&2
-    return 1
-  fi
+  (
+    cd "${LINTBALL_DIR}/tools"
+    if [ -z "$(which bundle)" ] && [ -n "$(which gem)" ]; then
+      gem install bundler || sudo gem install bundler
+    fi
+    if [ -n "$(which bundle)" ]; then
+      (
+        bundle config set --local deployment 'true'
+        bundle install
+      )
+    else
+      echo "Error: cannot install bundler requirements - could not find a bundle executable." >&2
+      echo "If ruby is installed, try gem install bundler and re-run this script." >&2
+      return 1
+    fi
+  )
 }
 
 install_clippy() {
@@ -34,26 +36,28 @@ install_clippy() {
 }
 
 install_pip_requirements() {
-  local pyexe
-  pyexe=""
-  if [ ! -d "${LINTBALL_DIR}/tools/python-env" ]; then
-    if [ -n "$(which python3)" ]; then
-      pyexe="python3"
-    elif [ -n "$(which python)" ]; then
-      if python -c "import sys; sys.exit(0 if sys.version_info >= (3,3,0) else 1)"; then
-        pyexe="python"
+  (
+    cd "${LINTBALL_DIR}/tools"
+    local pyexe
+    pyexe=""
+    if [ ! -d "python-env" ]; then
+      if [ -n "$(which python3)" ]; then
+        pyexe="python3"
+      elif [ -n "$(which python)" ]; then
+        if python -c "import sys; sys.exit(0 if sys.version_info >= (3,3,0) else 1)"; then
+          pyexe="python"
+        fi
+      fi
+      if [ -n "$pyexe" ]; then
+        "$pyexe" -m venv "python-env"
+      else
+        echo "Error: cannot install pip requirements." >&2
+        echo "could not find a suitable Python version (>=3.3.0)." >&2
+        return 1
       fi
     fi
-    if [ -n "$pyexe" ]; then
-      "$pyexe" -m venv "${LINTBALL_DIR}/tools/python-env"
-    else
-      echo "Error: cannot install pip requirements." >&2
-      echo "could not find a suitable Python version (>=3.3.0)." >&2
-      return 1
-    fi
-  fi
-
-  "${LINTBALL_DIR}/tools/python-env/bin/pip" install -r "${LINTBALL_DIR}/tools/requirements-pip.txt"
+    python-env/bin/pip install -r requirements-pip.txt
+  )
 }
 
 install_shell_tools() {

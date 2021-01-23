@@ -602,10 +602,14 @@ EOF
   installers="$(
     while read -r tool; do
       case "$tool" in
-        autoflake | autopep8 | black | docformatter | isort | yamllint) echo "install_pip_requirements" ;;
+        autoflake | autopep8 | black | docformatter | isort | yamllint)
+          echo "install_pip_requirements"
+          ;;
         clippy) echo "install_clippy" ;;
-        nimpretty) echo "nimpretty" ;;
-        prettier | prettier-eslint) ;; # no-op, these are installed by npm
+        nimpretty) echo "validate_nimpretty" ;;
+        prettier | prettier-eslint)
+          continue
+          ;; # no-op, these are installed by npm
         rubocop) echo "install_bundler_requirements" ;;
         shellcheck | shfmt) echo "install_shell_tools" ;;
         stylua) echo "install_stylua" ;;
