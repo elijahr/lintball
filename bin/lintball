@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
-set -x
 env
 
 npm config get prefix
+
+echo ">>>>"
+find "$(npm config get prefix)"
+echo "<<<<"
 
 set -ueo pipefail
 

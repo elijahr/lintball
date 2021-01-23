@@ -195,13 +195,17 @@ Many of the tools used by lintball can be configured to suit your needs. See:
 
 If you need to pass custom arguments to a tool (such as specifying a config file), run `lintball install-lintballrc` and override `write_args` and/or `check_args` as needed in the created `.lintballrc.json` file. The default `write_args` and `check_args` are defined in [configs/lintballrc-defaults.json][21].
 
+## Known issues
+
+If shellcheck fails with `unrecognized option '--severity=style'`, your version of shellcheck needs to be updated. Please install a more [recent version](https://github.com/koalaman/shellcheck/releases).
+
 ## Acknowledgements
 
 lintball is a wrapper around existing tools. Many thanks to the authors of the tools used by lintball! This project (and your tidy code) stand on the shoulders of giants.
 
 ## Contributing
 
-Pull requests are welcome! lintball has a suite of unit tests written with bats, located in the `test` directory. The tests can be run locally with `npm run test`. Please ensure that your features or fixes come with unit tests.
+Pull requests are welcome! lintball has a suite of unit tests, located in the `test` directory. The tests can be run locally with `npm run test`. Please ensure that your features or fixes come with unit tests.
 
 [1]: https://www.shellcheck.net/
 [2]: https://github.com/mvdan/sh
