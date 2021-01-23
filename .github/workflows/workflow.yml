@@ -40,7 +40,7 @@ jobs:
           node-version: '15.x'
 
       - uses: asdf-vm/actions/install@v1
-        if: runner.os =!= 'Windows'
+        if: runner.os != 'Windows'
         with:
           tool_versions: |
             nim 1.4.2
