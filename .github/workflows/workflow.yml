@@ -40,9 +40,13 @@ jobs:
           node-version: '15.x'
 
       - uses: asdf-vm/actions/install@v1
+        if: runner.os =!= 'Windows'
         with:
           tool_versions: |
             nim 1.4.2
+
+      - uses: jiro4989/setup-nim-action@v1
+        if: runner.os == 'Windows'
 
       - uses: hecrj/setup-rust-action@v1
         with:
