@@ -11,13 +11,13 @@ if [ -f "${BIN_DIR}/../configs/lintballrc-defaults.json" ]; then
     cd "${BIN_DIR}/.."
     pwd
   )"
-elif [ -d "${BIN_DIR}/../lintball/configs/lintballrc-defaults.json" ]; then
+elif [ -f "${BIN_DIR}/../lintball/configs/lintballrc-defaults.json" ]; then
   # path to installation via npm, local
   LINTBALL_DIR="$(
     cd "${BIN_DIR}/../lintball"
     pwd
   )"
-elif [ -d "${BIN_DIR}/../node_modules/lintball/configs/lintballrc-defaults.json" ]; then
+elif [ -f "${BIN_DIR}/../node_modules/lintball/configs/lintballrc-defaults.json" ]; then
   # path to installation via npm, global
   LINTBALL_DIR="$(
     cd "${BIN_DIR}/../node_modules/lintball"
@@ -25,7 +25,6 @@ elif [ -d "${BIN_DIR}/../node_modules/lintball/configs/lintballrc-defaults.json"
   )"
 else
   echo "Cannot find lintball installation from ${BASH_SOURCE[0]}" >&2
-  find "$BIN_DIR/.."
   exit 1
 fi
 
