@@ -20,7 +20,7 @@ elif [ -f "${BIN_DIR}/../lintball/configs/lintballrc-defaults.json" ]; then
 elif [ -f "${BIN_DIR}/../lib/node_modules/lintball/configs/lintballrc-defaults.json" ]; then
   # path to installation via npm, global
   LINTBALL_DIR="$(
-    cd "${BIN_DIR}/../node_modules/lintball"
+    cd "${BIN_DIR}/../lib/node_modules/lintball"
     pwd
   )"
 else
