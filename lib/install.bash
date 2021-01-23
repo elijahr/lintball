@@ -9,8 +9,8 @@ install_bundler_requirements() {
     fi
     if [ -n "$(which bundle)" ]; then
       (
-        bundle config set --local deployment 'true'
-        bundle install
+        bundle config set --local deployment 'true' || sudo bundle config set --local deployment 'true'
+        bundle install || sudo bundle install
       )
     else
       echo "Error: cannot install bundler requirements - could not find a bundle executable." >&2
@@ -61,11 +61,11 @@ install_pip_requirements() {
     fi
     if [ ! -f "python-env/bin/pip" ]; then
       curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
-      python-env/bin/python get-pip.py
+      python-env/bin/python get-pip.py || sudo python-env/bin/python get-pip.py
       rm /tmp/get-pip.py
     fi
-    python-env/bin/pip install wheel
-    python-env/bin/pip install -r requirements-pip.txt
+    python-env/bin/pip install wheel || sudo python-env/bin/pip install wheel
+    python-env/bin/pip install -r requirements-pip.txt || sudo python-env/bin/pip install -r requirements-pip.txt
   )
 }
 
