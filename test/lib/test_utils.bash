@@ -7,6 +7,9 @@ export PROJECT_DIR
 LINTBALL_DIR="$PROJECT_DIR"
 export LINTBALL_DIR
 
+PATH="${LINTBALL_DIR}/bin:$PATH"
+export PATH
+
 setup_test() {
   TEST_PROJECT_DIR="$(mktemp -d)/fixture"
   export TEST_PROJECT_DIR
