@@ -629,7 +629,9 @@ EOF
   )"
 
   echo "$installers" | sort | uniq | while read -r installer; do
-    "$installer" "$answer"
+    if [ -n "$installer" ]; then
+      "$installer" "$answer"
+    fi
   done
 }
 
