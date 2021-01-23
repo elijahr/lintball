@@ -25,6 +25,7 @@ elif [ -f "${BIN_DIR}/../node_modules/lintball/configs/lintballrc-defaults.json"
   )"
 else
   echo "Cannot find lintball installation from ${BASH_SOURCE[0]}" >&2
+  find "$BIN_DIR/.."
   exit 1
 fi
 
