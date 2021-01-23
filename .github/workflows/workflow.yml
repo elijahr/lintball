@@ -24,8 +24,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -69,25 +67,23 @@ jobs:
 
   lint:
     name: lint
-
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # - uses: actions/setup-node@v2
-      #   with:
-      #     node-version: '15.x'
-
-      # - uses: actions/setup-python@v2
-      #   with:
-      #     python-version: '3.x'
+      - name: Install lintball
+        shell: bash
+        run: sudo npm install -g "https://github.com/${GITHUB_REPOSITORY}.git#${GITHUB_SHA}"
 
       - name: Install tools
-        run: ./bin/lintball install-tools --yes yaml bash json
+        shell: bash
+        run: lintball install-tools --yes
 
-      - name: Check for linter issues
-        run: ./bin/lintball check
+      - name: Run lintball
+        shell: bash
+        run: lintball check
 
   install-local:
     name: test local installation
