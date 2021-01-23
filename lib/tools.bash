@@ -160,11 +160,12 @@ run_tool_prettier_eslint() {
   if [ "$status" -eq 0 ]; then
     if [[ "$(cat "$stderr")" =~ unchanged ]]; then
       printf "%s%s%s\n" "↳ ${tool}" "${DOTS:offset}" "ok"
-    elif [[ "$(cat "$stderr")" =~ success\ formatting ]]; then
+    elif [ "$mode" = "mode=write" ] &&
+      [[ "$(cat "$stderr")" =~ success\ formatting ]]; then
       printf "%s%s%s\n" "↳ ${tool}" "${DOTS:offset}" "wrote"
     else
       printf "%s%s%s\n" "↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
-      echo "$patch"
+      cat "$stdout" 1>&2 2>/dev/null
       cat "$stderr" 1>&2 2>/dev/null
       status=1
     fi

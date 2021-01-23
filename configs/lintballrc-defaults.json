@@ -25,7 +25,7 @@
     "isort": "--profile black",
     "nimpretty": "",
     "prettier": "--write --config '$LINTBALL_DIR/configs/.prettierrc.json'",
-    "prettier-eslint": "--eslint-config-path '$LINTBALL_DIR/configs/.eslintrc.json' --config '$LINTBALL_DIR/configs/.prettierrc.json' --write",
+    "prettier-eslint": "--write --eslint-config-path '$LINTBALL_DIR/configs/.eslintrc.json' --config '$LINTBALL_DIR/configs/.prettierrc.json'",
     "rubocop": "--config '$LINTBALL_DIR/configs/rubocop.yml' --auto-correct-all",
     "shellcheck": "--external-sources --shell=$lang --severity=style --exclude=SC2164",
     "shfmt": "-d -i 2 -s -ci -ln '$lang' -w",
