@@ -53,6 +53,7 @@ jobs:
           rust-version: nightly
 
       - name: Install tools
+        shell: bash
         run: |
           set -euxo pipefail
 
