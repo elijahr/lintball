@@ -492,6 +492,16 @@ normalize_path() {
   fi
 }
 
+# shellcheck disable=SC2120
+parse_version() {
+  local text line
+  text="${1:-"$(</dev/stdin)"}"
+  echo "$text" |
+    grep '\d\{1,\}\.\d\{1,\}\.\d\{1,\}' |
+    head -n 1 |
+    sed 's/.*\([0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}\).*/\1/'
+}
+
 process_file() {
   local path mode gitadd status extension tools tool
   path="$1"

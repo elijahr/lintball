@@ -8,6 +8,7 @@
     "*/tools/vendor/*",
     "*/tools/target/*",
     "*/lib/jwalk/*",
+    "*/lib/version_compare/*",
     "*/test/fixture/*",
     "*/test/fixture/target/*"
   ]

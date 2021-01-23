@@ -1,3 +1,6 @@
+# shellcheck source=SCRIPTDIR/version_compare/version_compare
+source "${LINTBALL_DIR}/lib/version_compare/version_compare"
+
 install_bundler_requirements() {
   (
     cd "${LINTBALL_DIR}/tools"
@@ -61,8 +64,15 @@ install_pip_requirements() {
 }
 
 install_shell_tools() {
+  local shellcheck_version
   packages=()
-  if [ -z "$(which shellcheck)" ]; then
+  if [ -n "$(which shellcheck)" ]; then
+    # min version 0.6.0, for --severity=style
+    shellcheck_version="$(shellcheck -V | parse_version)"
+    if version_compare "$shellcheck_version" "0.6.0" "<"; then
+      packages+=("shellcheck")
+    fi
+  else
     packages+=("shellcheck")
   fi
   packages=()
