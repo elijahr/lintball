@@ -64,6 +64,9 @@ install_pip_requirements() {
 }
 
 install_shell_tools() {
+  echo "shellcheck -V >>>>>"
+  shellcheck -V
+
   local shellcheck_version
   packages=()
   if [ -n "$(which shellcheck)" ]; then
