@@ -1,3 +1,5 @@
+# shellcheck disable=SC2086
+
 # shellcheck source=SCRIPTDIR/version_compare/version_compare
 source "${LINTBALL_DIR}/lib/version_compare/version_compare"
 
@@ -70,40 +72,36 @@ install_pip_requirements() {
 }
 
 install_shell_tools() {
-  echo "shellcheck -V >>>>>"
-  shellcheck -V
-
-  local shellcheck_version
+  local packages shellcheck_version
   packages=()
   if [ -n "$(which shellcheck)" ]; then
     # min version 0.6.0, for --severity=style
     shellcheck_version="$(parse_version "$(shellcheck -V)")"
-    echo "shellcheck_version=$shellcheck_version"
+    echo "$shellcheck_version" "<" "0.6.0" "?"
     if version_compare "$shellcheck_version" "0.6.0" "<"; then
       packages+=("shellcheck")
     fi
   else
     packages+=("shellcheck")
   fi
-  packages=()
   if [ -z "$(which shfmt)" ]; then
     packages+=("shfmt")
   fi
   if [ "${#packages[@]}" -gt 0 ]; then
     if [ -n "$(which brew)" ]; then
       brew update
-      brew install "${packages[*]}"
+      brew install ${packages[*]}
     elif [ -n "$(which apt-get)" ]; then
       sudo apt-get update
       if [ "$answer" = "$answer=yes" ]; then
-        sudo apt-get install -y "${packages[*]}"
+        sudo apt-get install -y ${packages[*]}
       else
-        sudo apt-get install "${packages[*]}"
+        sudo apt-get install ${packages[*]}
       fi
     elif [ -n "$(which pacman)" ]; then
-      sudo pacman -Syu "${packages[*]}"
+      sudo pacman -Syu ${packages[*]}
     elif [ -n "$(which apk)" ]; then
-      apk --update add "${packages[*]}"
+      apk --update add ${packages[*]}
     else
       echo "Error: cannot install requirements: ${packages[*]}" >&2
       echo "Try installing manually." >&2
