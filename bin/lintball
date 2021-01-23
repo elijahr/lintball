@@ -1,30 +1,31 @@
 #!/usr/bin/env bash
 
-env
-
-npm config get prefix
-
-echo ">>>>"
-find "$(npm config get prefix)"
-echo "<<<<"
-
 set -ueo pipefail
 
 # path to node_modules/.bin
 BIN_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
-if [ "$(basename "$BIN_DIR")" = ".bin" ]; then
-  # path to local node_modules/lintball
-  LINTBALL_DIR="$(
-    cd "${BIN_DIR}/../lintball"
-    pwd
-  )"
-else
+if [ -f "${BIN_DIR}/../configs/lintballrc-defaults.json" ]; then
   # path to repo
   LINTBALL_DIR="$(
     cd "${BIN_DIR}/.."
     pwd
   )"
+elif [ -d "${BIN_DIR}/../lintball/configs/lintballrc-defaults.json" ]; then
+  # path to installation via npm, local
+  LINTBALL_DIR="$(
+    cd "${BIN_DIR}/../lintball"
+    pwd
+  )"
+elif [ -d "${BIN_DIR}/../node_modules/lintball/configs/lintballrc-defaults.json" ]; then
+  # path to installation via npm, global
+  LINTBALL_DIR="$(
+    cd "${BIN_DIR}/../node_modules/lintball"
+    pwd
+  )"
+else
+  echo "Cannot find lintball installation" >&2
+  exit 1
 fi
 
 # shellcheck source=SCRIPTDIR/../lib/cli.bash
