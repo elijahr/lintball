@@ -52,7 +52,7 @@ install_pip_requirements() {
         fi
       fi
       if [ -n "$pyexe" ]; then
-        "$pyexe" -m venv "python-env"
+        "$pyexe" -m venv "python-env" || sudo "$pyexe" -m venv "python-env"
       else
         echo "Error: cannot install pip requirements." >&2
         echo "could not find a suitable Python version (>=3.3.0)." >&2
@@ -60,9 +60,9 @@ install_pip_requirements() {
       fi
     fi
     if [ ! -f "python-env/bin/pip" ]; then
-      curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+      curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
       python-env/bin/python get-pip.py
-      rm get-pip.py
+      rm /tmp/get-pip.py
     fi
     python-env/bin/pip install -r requirements-pip.txt
   )
