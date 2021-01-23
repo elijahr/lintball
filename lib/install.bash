@@ -59,6 +59,11 @@ install_pip_requirements() {
         return 1
       fi
     fi
+    if [ ! -f "python-env/bin/pip" ]; then
+      curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+      python-env/bin/python get-pip.py
+      rm get-pip.py
+    fi
     python-env/bin/pip install -r requirements-pip.txt
   )
 }
@@ -72,6 +77,7 @@ install_shell_tools() {
   if [ -n "$(which shellcheck)" ]; then
     # min version 0.6.0, for --severity=style
     shellcheck_version="$(shellcheck -V | parse_version)"
+    echo "shellcheck_version=$shellcheck_version"
     if version_compare "$shellcheck_version" "0.6.0" "<"; then
       packages+=("shellcheck")
     fi
