@@ -583,6 +583,7 @@ subcommand_install_tools() {
   all="$3"
   shift
   shift
+  shift
 
   if [ "$all" = "all=yes" ]; then
     # install everything
