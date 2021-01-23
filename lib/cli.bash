@@ -122,7 +122,7 @@ cli_entrypoint() {
       if [ "$subcommand" = "subcommand_install_tools" ]; then
         # Pass extensions to install_tools
 
-        echo "calling $subcommand: path=$path, answer=$mode, all=$all"
+        echo "calling $subcommand: path=$path, answer=$answer, all=$all"
         "$subcommand" "$path" "$answer" "$all" "$@"
       else
         if [ "$#" -gt 0 ]; then
@@ -130,7 +130,7 @@ cli_entrypoint() {
           echo >&2
           return 1
         fi
-        echo "calling $subcommand: path=$path, answer=$mode"
+        echo "calling $subcommand: path=$path, answer=$answer"
 
         "$subcommand" "$path" "$answer"
       fi
