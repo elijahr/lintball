@@ -287,6 +287,25 @@ get_fully_staged_paths() {
   done
 }
 
+get_installer_for_tool() {
+  local tool
+  tool="$1"
+  case "$tool" in
+    autoflake | autopep8 | black | docformatter | isort | yamllint)
+      echo "install_pip_requirements"
+      ;;
+    clippy) echo "install_clippy" ;;
+    nimpretty) echo "validate_nimpretty" ;;
+    prettier | prettier-eslint)
+      return
+      ;; # no-op, these are installed by npm
+    rubocop) echo "install_bundler_requirements" ;;
+    shellcheck | shfmt) echo "install_shell_tools" ;;
+    stylua) echo "install_stylua" ;;
+    uncrustify) echo "install_uncrustify" ;;
+  esac
+}
+
 get_lang_shellcheck() {
   local extension
   extension="$1"
@@ -600,27 +619,14 @@ EOF
   fi
 
   installers="$(
-    while read -r tool; do
-      case "$tool" in
-        autoflake | autopep8 | black | docformatter | isort | yamllint)
-          echo "install_pip_requirements"
-          ;;
-        clippy) echo "install_clippy" ;;
-        nimpretty) echo "validate_nimpretty" ;;
-        prettier | prettier-eslint)
-          continue
-          ;; # no-op, these are installed by npm
-        rubocop) echo "install_bundler_requirements" ;;
-        shellcheck | shfmt) echo "install_shell_tools" ;;
-        stylua) echo "install_stylua" ;;
-        uncrustify) echo "install_uncrustify" ;;
-      esac
-    done <<<"$tools"
+    echo "$tools" | while read -r tool; do
+      get_installer_for_tool "$tool"
+    done
   )"
 
-  while read -r installer; do
-    eval "$installer" "$answer"
-  done <<<"$(echo "$installers" | sort | uniq)"
+  echo "$installers" | sort | uniq | while read -r installer; do
+    "$installer" "$answer"
+  done
 }
 
 subcommand_process_files() {
