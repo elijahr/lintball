@@ -495,7 +495,7 @@ normalize_path() {
 # shellcheck disable=SC2120
 parse_version() {
   local text line
-  text="${1:-"$(</dev/stdin)"}"
+  text="$1"
   echo "$text" |
     grep '\d\{1,\}\.\d\{1,\}\.\d\{1,\}' |
     head -n 1 |
