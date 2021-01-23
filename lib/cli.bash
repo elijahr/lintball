@@ -121,6 +121,8 @@ cli_entrypoint() {
       path="${path:-$PWD}"
       if [ "$subcommand" = "subcommand_install_tools" ]; then
         # Pass extensions to install_tools
+
+        echo "calling $subcommand: path=$path, answer=$mode, all=$all"
         "$subcommand" "$path" "$answer" "$all" "$@"
       else
         if [ "$#" -gt 0 ]; then
@@ -128,6 +130,8 @@ cli_entrypoint() {
           echo >&2
           return 1
         fi
+        echo "calling $subcommand: path=$path, answer=$mode"
+
         "$subcommand" "$path" "$answer"
       fi
       ;;
@@ -334,6 +338,7 @@ get_lang_uncrustify() {
 get_shebang() {
   local path
   path="$1"
+  echo "get_shebang: path=$path"
   (
     LC_CTYPE="C"
     export LC_CTYPE
@@ -407,6 +412,7 @@ get_tools_for_file() {
 normalize_extension() {
   local path lang filename extension
   path="$1"
+  echo "normalize_extension: path=$path"
 
   # Check for `# lintball lang=foo` directives
   if [ -f "$path" ]; then
@@ -497,6 +503,7 @@ process_file() {
   path="$1"
   mode="$2"
   gitadd="$3"
+  echo "process_file: path=$path, mode=$mode, gitadd=$gitadd"
 
   status=0
   path="$(normalize_path "$path")"
