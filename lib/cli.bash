@@ -120,10 +120,6 @@ cli_entrypoint() {
       done
       path="${path:-$PWD}"
       if [ "$subcommand" = "subcommand_install_tools" ]; then
-        if [ "$all" = "all=yes" ] && [ "$#" -gt 0 ]; then
-
-          return 1
-        fi
         # Pass extensions to install_tools
         "$subcommand" "$path" "$answer" "$all" "$@"
       else
@@ -341,7 +337,7 @@ get_shebang() {
   (
     LC_CTYPE="C"
     export LC_CTYPE
-    if [ "$(tr '\0' '\n' <"$path" | head -c2 2>/dev/null)" = "#!" ]; then
+    if [ "$(tr '\0' ' ' <"$path" | head -c2 2>/dev/null)" = "#!" ]; then
       head -n1 "$path"
     fi
   )
@@ -574,7 +570,7 @@ subcommand_install_lintballrc() {
 }
 
 subcommand_install_tools() {
-  local answer path extension tools tool file installers installer
+  local path answer all extension tools tool file installers installer
   path="$1"
   answer="$2"
   all="$3"
