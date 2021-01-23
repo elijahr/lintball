@@ -64,6 +64,7 @@ install_pip_requirements() {
       python-env/bin/python get-pip.py
       rm /tmp/get-pip.py
     fi
+    python-env/bin/pip install wheel
     python-env/bin/pip install -r requirements-pip.txt
   )
 }
