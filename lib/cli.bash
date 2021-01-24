@@ -32,7 +32,7 @@ cli_entrypoint() {
         return 0
         ;;
       -v | --version)
-        echo "v0.3.0"
+        echo "v1.1.0"
         return 0
         ;;
       -c | --config)
