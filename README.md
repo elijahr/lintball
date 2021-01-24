@@ -59,7 +59,48 @@ npm install https://github.com/elijahr/lintball.git
 ## Usage
 
 ```
+Usage:
+  lintball [-h | -v]
+  lintball [-c <path>] check [paths …]
+  lintball [-c <path>] fix [paths …]
+  lintball [-c <path>] install-githooks [-y | -n] [-p <path>]
+  lintball [-c <path>] install-lintballrc [-y | -n] [-p <path>]
+  lintball [-c <path>] install-tools [-y | -n] [-a] [-p <path>] [ext …]
+  lintball [-c <path>] pre-commit
 
+Options:
+  -h, --help                Show this help message & exit.
+  -v, --version             Print version & exit.
+  -c, --config <path>       Use the config file at <path>.
+
+Subcommands:
+  check [paths …]           Recursively check for issues.
+                              Exit 1 if any issues.
+  fix [paths …]             Recursively fix issues.
+                              Exit 1 if unfixable issues.
+  install-githooks          Install lintball githooks in a git repository.
+    -p, --path <path>       Git repo path.
+                              Default: working directory.
+    -y, --yes               Skip prompt & replace repo's githooks.
+    -n, --no                Skip prompt & exit 1 if repo already has githooks.
+  install-lintballrc        Create a default .lintballrc.json config file.
+    -p, --path <path>       Where to install the config file.
+                              Default: working directory
+    -y, --yes               Skip prompt & replace existing .lintballrc.json.
+    -n, --no                Skip prompt & exit 1 if .lintballrc.json exists.
+  install-tools [ext …]     Install tools for fixing files having extensions
+                            [ext]. If no [ext] are provided, lintball will
+                            autodetect which tools to install based on files in
+                            <path>.
+    -p, --path <path>       The path to search for file types.
+                              Default: working directory
+    -y, --yes               Skip prompt & install missing dependencies.
+    -a, --all               Install *all* tools.
+  pre-commit                Recursively fix issues on files that are fully
+                            staged for commit. Recursively check for issues on
+                            files that are partially staged for commit.
+                              Exit 1 if unfixable issues on fully staged files.
+                              Exit 1 if any issues on partially staged files.
 ```
 
 ## Updating
@@ -164,22 +205,11 @@ By default, lintball will not check files matching the following globs:
 */vendor/*
 ```
 
-Patterns should match what is passed to the `find` command's `-path` argument.
-To add or remove items from this list, run `lintball install-lintballrc` and edit the `ignores` section in the created `.lintballrc.json` file.
+To add or remove items from this list, run `lintball install-lintballrc` and edit the `ignores` section in the created `.lintballrc.json` file. Patterns should match what is passed to the `find` command's `-path` argument.
 
-### Disabling tools
+### Disabling specific tools
 
-Many of the tools used by lintball can be configured to suit your needs. See:
-
-- autopep8: https://pypi.org/project/autopep8/#configuration
-- clippy: https://github.com/rust-lang/rust-clippy#configuration
-- eslint: https://eslint.org/docs/user-guide/configuring
-- prettier: https://prettier.io/docs/en/configuration.html
-- rubocop: https://docs.rubocop.org/rubocop/1.8/configuration.html
-- shellcheck: https://www.mankier.com/1/shellcheck#RC_Files
-- uncrustify: https://github.com/uncrustify/uncrustify#configuring-the-program
-
-If you need to pass custom arguments to a tool (such as specifying a config file), run `lintball install-lintballrc` and override `write_args` and/or `check_args` as needed in the created `.lintballrc.json` file. The default `write_args` and `check_args` are defined in [configs/lintballrc-defaults.json][21].
+If you need to disable a tool, create a `.lintballrc.json` file in your project and add a `use` section with only the tools that you wish to use. The default `use` section is defined in [configs/lintballrc-defaults.json][21].
 
 ### Tool configuration
 
@@ -193,7 +223,7 @@ Many of the tools used by lintball can be configured to suit your needs. See:
 - shellcheck: https://www.mankier.com/1/shellcheck#RC_Files
 - uncrustify: https://github.com/uncrustify/uncrustify#configuring-the-program
 
-If you need to pass custom arguments to a tool (such as specifying a config file), run `lintball install-lintballrc` and override `write_args` and/or `check_args` as needed in the created `.lintballrc.json` file. The default `write_args` and `check_args` are defined in [configs/lintballrc-defaults.json][21].
+If you need to pass custom arguments to a tool (such as specifying a config file), create a `.lintballrc.json` file in your project with custom `write_args` and `check_args`. The default `write_args` and `check_args` are defined in [configs/lintballrc-defaults.json][21].
 
 ## Known issues
 
