@@ -136,43 +136,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      ## Uncomment if your project contains JS, CSS, Markdown, HTML, GraphQL or YAML
-      # - uses: actions/setup-node@v2
-      #   with:
-      #     node-version: "15.x"
-
-      ## Uncomment if your project contains Python code or YAML
-      # - uses: actions/setup-python@v2
-      #   with:
-      #     python-version: "3.x"
-
-      ## Uncomment if your project contains Ruby code
-      # - uses: ruby/setup-ruby@v1
-      #   with:
-      #     ruby-version: "3.0.0"
-
-      ## Uncomment if your project contains shell scripts
-      # - name: Install shellcheck & shfmt
-      #   run: |
-      #     # Linuxbrew has more recent versions than apt
-      #     brew install shellcheck shfmt
-
-      ## Uncomment if your project contains Nim code
-      # - uses: asdf-vm/actions/install@v1
-      #   with:
-      #     tool_versions: |
-      #       nim 1.4.2
-
-      ## Uncomment if your project contains Rust code
-      # - uses: hecrj/setup-rust-action@v1
-      #  with:
-      #    rust-version: nightly
-
       - name: Install lintball
         shell: bash
         run: |
           npm install -g https://github.com/elijahr/lintball.git
-          npx lintball install-tools --yes
+          lintball install-tools --yes
 
       - name: Check for linter issues
         run: lintball check
