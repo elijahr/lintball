@@ -74,14 +74,17 @@ cli_entrypoint() {
     check)
       shift
       subcommand_process_files "mode=check" "gitadd=no" "$@"
+      return $?
       ;;
     fix)
       shift
       subcommand_process_files "mode=write" "gitadd=no" "$@"
+      return $?
       ;;
     pre-commit)
       shift
       subcommand_process_files "mode=write" "gitadd=yes" "$(get_fully_staged_paths)"
+      return $?
       ;;
     install-githooks | install-lintballrc | install-tools)
       subcommand="subcommand_${1//-/_}"
@@ -122,6 +125,7 @@ cli_entrypoint() {
       if [ "$subcommand" = "subcommand_install_tools" ]; then
         # Pass extensions to install_tools
         "$subcommand" "$path" "$answer" "$all" "$@"
+        return $?
       else
         if [ "$#" -gt 0 ]; then
           echo "$subcommand: unexpected argument '$1'" >&2
@@ -129,6 +133,7 @@ cli_entrypoint() {
           return 1
         fi
         "$subcommand" "$path" "$answer"
+        return $?
       fi
       ;;
     *)
@@ -214,8 +219,8 @@ confirm_copy() {
   local src dest answer symlink
   src="$1"
   dest="$2"
-  answer="${3:-}"
-  symlink="${4:-"no"}"
+  answer="$3"
+  symlink="$4"
   if [ -d "$src" ] || [ -d "$dest" ]; then
     echo >&2
     echo "Source and destination must be file paths, not directories." >&2
@@ -558,7 +563,7 @@ subcommand_install_githooks() {
   for hook in "${LINTBALL_DIR}/githooks/"*; do
     status=0
     dest="${hooks_path}/$(basename "$hook")"
-    confirm_copy "$hook" "$dest" "$answer" "yes" || status=$?
+    confirm_copy "$hook" "$dest" "$answer" "symlink=yes" || status=$?
     if [ "$status" -gt 0 ]; then
       return $status
     fi
@@ -571,12 +576,14 @@ subcommand_install_githooks() {
 }
 
 subcommand_install_lintballrc() {
-  local answer
-  answer="$1"
+  local path answer
+  path="$1"
+  answer="$2"
   confirm_copy \
     "${LINTBALL_DIR}/configs/lintballrc-ignores.json" \
-    "${2}/.lintballrc.json" \
-    "$answer" || return $?
+    "${path}/.lintballrc.json" \
+    "$answer" \
+    "symlink=no" || return $?
 }
 
 subcommand_install_tools() {

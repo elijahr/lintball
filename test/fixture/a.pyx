@@ -1,4 +1,5 @@
 
-cdef void fun(char *a) nogil:
+cdef void fun(char *       a) nogil:
+    """ test """
     cdef:
-        char* dest = a
+        char       *     dest          = a
