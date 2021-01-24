@@ -2,12 +2,34 @@
 
 set -ueo pipefail
 
-LINTBALL_DIR="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
+# path to node_modules/.bin
+BIN_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
-# shellcheck source=SCRIPTDIR/../lib/utils.bash
-source "${LINTBALL_DIR}/lib/utils.bash"
+if [ -f "${BIN_DIR}/../configs/lintballrc-defaults.json" ]; then
+  # path to repo
+  LINTBALL_DIR="$(
+    cd "${BIN_DIR}/.."
+    pwd
+  )"
+elif [ -f "${BIN_DIR}/../lintball/configs/lintballrc-defaults.json" ]; then
+  # path to installation via npm, local
+  LINTBALL_DIR="$(
+    cd "${BIN_DIR}/../lintball"
+    pwd
+  )"
+elif [ -f "${BIN_DIR}/../lib/node_modules/lintball/configs/lintballrc-defaults.json" ]; then
+  # path to installation via npm, global
+  LINTBALL_DIR="$(
+    cd "${BIN_DIR}/../lib/node_modules/lintball"
+    pwd
+  )"
+else
+  echo "Cannot find lintball installation from ${BASH_SOURCE[0]}" >&2
+  find "$BIN_DIR/.."
+  exit 1
+fi
 
-# Load default config
-load_config "${LINTBALL_DIR}/configs/lintballrc.json"
+# shellcheck source=SCRIPTDIR/../lib/cli.bash
+source "${LINTBALL_DIR}/lib/cli.bash"
 
-parse_args "$@"
+cli_entrypoint "$@" || exit $?

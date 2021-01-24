@@ -1,6 +1,0 @@
-#!/usr/bin/env deno
-
-modules.exports = {
-  foo: function   () {},
-  bar: ()    => ({   })
-}
