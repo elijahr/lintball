@@ -53,7 +53,7 @@ Most software projects contain more than one programming language. Besides sourc
 ## Installation
 
 ```sh
-npm install https://github.com/elijahr/lintball.git
+npm install lintball
 ```
 
 ## Usage
