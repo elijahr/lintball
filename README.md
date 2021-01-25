@@ -225,4 +225,4 @@ Pull requests are welcome! lintball has a suite of unit tests, located in the `t
 [18]: https://github.com/rust-lang/rust-clippy
 [19]: https://github.com/prettier/plugin-xml
 [20]: https://yamllint.readthedocs.io/en/stable/
-[21]: https://github.com/elijahr/lintball/tree/devel/config/lintballrc-defaults.json
+[21]: https://github.com/elijahr/lintball/tree/devel/configs/lintballrc-defaults.json
