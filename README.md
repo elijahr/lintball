@@ -10,7 +10,7 @@ lintball is a wrapper script around linters (static code analysis tools) and cod
 
 ## Why use lintball?
 
-Most software projects contain more than one programming language. Besides source code, there will be docs, configs, scripts, and so on. Each language may have tools to find and fix issues - but configuring CI, git hooks, etc for each of these tools can be tedious. The goal of lintball is to streamline the installation and running of these tools so that you have more time to play with your dog and work on your art.
+Most software projects consist of more than one programming language. Besides the source code, there will be docs, configs, scripts, and so on. Each language may have tools to find and fix issues - but configuring CI, git hooks, etc for each of these tools for each of your projects can be tedious. The goal of lintball is to streamline the installation and running of these tools so that you have more time to play with your dog and work on your art.
 
 ## Supported languages
 
@@ -53,7 +53,7 @@ Most software projects contain more than one programming language. Besides sourc
 ## Installation
 
 ```sh
-npm install lintball
+npm install -g lintball
 ```
 
 ## Usage
