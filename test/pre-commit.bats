@@ -6,9 +6,6 @@ load ./lib/test_utils
 
 setup() {
   setup_test
-  git init .
-  git config --local user.name "Bats Test"
-  git config --local user.email "test@example.org"
   git add .gitignore
   git commit -m "Initial commit"
 }

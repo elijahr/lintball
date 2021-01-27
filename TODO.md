@@ -5,6 +5,7 @@
 - [ ] Hide installer output unless failed
 - [ ] pre-commit should run a check on partially-staged files after a
       successful fix run of fully-staged files.
+- [ ] Mercurial support.
 - [x] Add missing test coverage:
   - [x] css
   - [x] dash

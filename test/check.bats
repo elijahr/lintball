@@ -12,6 +12,29 @@ teardown() {
   teardown_test
 }
 
+@test 'lintball check --since HEAD~1' {
+  git init
+  git add .
+  git reset a.html a.xml a.yml
+  git commit -m "commit 1"
+  git add a.html
+  git commit -m "commit 2"
+  git add a.yml
+  run lintball check --since HEAD~1
+  assert_failure
+  # previously committed
+  assert_line "[warn] a.html"
+  # untracked
+  assert_line "[warn] a.xml"
+  # staged, never committed
+  assert_line "[warn] a.yml"
+  # committed before HEAD~1
+  refute_line "[warn] a.css"
+  run lintball fix --since HEAD~1
+  run lintball check --since HEAD~1
+  assert_success
+}
+
 @test 'lintball check # lintball lang=bash' {
   run lintball check "b_bash"
   assert_failure
@@ -321,6 +344,14 @@ teardown() {
   cp a.rb vendor/
   run lintball check vendor/a.rb
   assert_success
+}
+
+@test 'lintball check handles paths with spaces' {
+  mkdir -p "aaa aaa/bbb bbb"
+  cp "a.yml" "aaa aaa/bbb bbb/a b.yml"
+  run lintball check "aaa aaa/bbb bbb/a b.yml"
+  assert_failure
+  assert_line "[warn] aaa aaa/bbb bbb/a b.yml"
 }
 
 @test 'lintball check package.json' {

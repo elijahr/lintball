@@ -19,7 +19,7 @@ source "${LINTBALL_DIR}/lib/install.bash"
 source "${LINTBALL_DIR}/lib/tools.bash"
 
 cli_entrypoint() {
-  local config subcommand path answer all
+  local config mode commit paths fn path answer all
   config=""
 
   # Parse base options
@@ -71,14 +71,26 @@ cli_entrypoint() {
 
   # Parse subcommand
   case "${1:-}" in
-    check)
+    check | fix)
+      case "$1" in
+        check) mode="mode=check" ;;
+        fix) mode="mode=write" ;;
+      esac
       shift
-      subcommand_process_files "mode=check" "gitadd=no" "$@"
-      return $?
-      ;;
-    fix)
-      shift
-      subcommand_process_files "mode=write" "gitadd=no" "$@"
+      case "${1:-}" in
+        -s | --since)
+          shift
+          commit="$1"
+          paths="$(get_paths_changed_since_commit "$commit")"
+          shift
+          ;;
+        *) paths="$(
+          for path in "$@"; do
+            echo "$path"
+          done
+        )" ;;
+      esac
+      subcommand_process_files "$mode" "gitadd=no" "$paths"
       return $?
       ;;
     pre-commit)
@@ -87,7 +99,7 @@ cli_entrypoint() {
       return $?
       ;;
     install-githooks | install-lintballrc | install-tools)
-      subcommand="subcommand_${1//-/_}"
+      fn="subcommand_${1//-/_}"
       shift
       while true; do
         case "${1:-}" in
@@ -122,17 +134,17 @@ cli_entrypoint() {
         esac
       done
       path="${path:-$PWD}"
-      if [ "$subcommand" = "subcommand_install_tools" ]; then
+      if [ "$fn" = "subcommand_install_tools" ]; then
         # Pass extensions to install_tools
-        "$subcommand" "$path" "$answer" "$all" "$@"
+        "$fn" "$path" "$answer" "$all" "$@"
         return $?
       else
         if [ "$#" -gt 0 ]; then
-          echo "$subcommand: unexpected argument '$1'" >&2
+          echo "$fn: unexpected argument '$1'" >&2
           echo >&2
           return 1
         fi
-        "$subcommand" "$path" "$answer"
+        "$fn" "$path" "$answer"
         return $?
       fi
       ;;
@@ -334,6 +346,15 @@ get_lang_uncrustify() {
     cs | cpp | d | hpp) echo "cpp" ;;
     m | mm | M) echo "objc" ;;
   esac
+}
+
+get_paths_changed_since_commit() {
+  local commit
+  commit="$1"
+  (
+    git diff --name-only "$commit"
+    git ls-files . --exclude-standard --others
+  ) | sort | uniq
 }
 
 get_shebang() {
@@ -749,8 +770,8 @@ keep your entire project tidy with one command.
 
 Usage:
   lintball [-h | -v]
-  lintball [-c <path>] check [paths …]
-  lintball [-c <path>] fix [paths …]
+  lintball [-c <path>] check [--since <commit>] [paths …]
+  lintball [-c <path>] fix [--since <commit>] [paths …]
   lintball [-c <path>] install-githooks [-y | -n] [-p <path>]
   lintball [-c <path>] install-lintballrc [-y | -n] [-p <path>]
   lintball [-c <path>] install-tools [-y | -n] [-a] [-p <path>] [ext …]
@@ -764,8 +785,16 @@ Options:
 Subcommands:
   check [paths …]           Recursively check for issues.
                               Exit 1 if any issues.
+    -s, --since <commit>    Check only files changed since <commit>. This
+                            includes both committed and uncommitted changes.
+                            <commit> may be a commit hash or a committish, such
+                            as HEAD~1 or master.
   fix [paths …]             Recursively fix issues.
                               Exit 1 if unfixable issues.
+    -s, --since <commit>    Fix only files changed since <commit>. This
+                            includes both committed and uncommitted changes.
+                            <commit> may be a commit hash or a committish, such
+                            as HEAD~1 or master.
   install-githooks          Install lintball githooks in a git repository.
     -p, --path <path>       Git repo path.
                               Default: working directory.
@@ -792,6 +821,9 @@ Subcommands:
 
 Examples:
   \$ lintball check                       # Check working directory for issues.
+  \$ lintball check --since HEAD~1        # Check working directory for issues
+                                         # in all files changes since the commit
+                                         # before last.
   \$ lintball check foo                   # Check the foo directory for issues.
   \$ lintball check foo.py                # Check the foo.py file for issues.
   \$ lintball fix                         # Fix issues in the working directory.

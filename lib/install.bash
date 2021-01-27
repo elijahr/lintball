@@ -77,7 +77,6 @@ install_shell_tools() {
   if [ -n "$(which shellcheck)" ]; then
     # min version 0.6.0, for --severity=style
     shellcheck_version="$(parse_version "$(shellcheck -V)")"
-    echo "$shellcheck_version" "<" "0.6.0" "?"
     if version_compare "$shellcheck_version" "0.6.0" "<"; then
       packages+=("shellcheck")
     fi

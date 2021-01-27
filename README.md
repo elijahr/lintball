@@ -61,8 +61,8 @@ npm install -g lintball
 ```
 Usage:
   lintball [-h | -v]
-  lintball [-c <path>] check [paths …]
-  lintball [-c <path>] fix [paths …]
+  lintball [-c <path>] check [--since <commit>] [paths …]
+  lintball [-c <path>] fix [--since <commit>] [paths …]
   lintball [-c <path>] install-githooks [-y | -n] [-p <path>]
   lintball [-c <path>] install-lintballrc [-y | -n] [-p <path>]
   lintball [-c <path>] install-tools [-y | -n] [-a] [-p <path>] [ext …]
@@ -76,8 +76,16 @@ Options:
 Subcommands:
   check [paths …]           Recursively check for issues.
                               Exit 1 if any issues.
+    -s, --since <commit>    Check only files changed since <commit>. This
+                            includes both committed and uncommitted changes.
+                            <commit> may be a commit hash or a committish, such
+                            as HEAD~1 or master.
   fix [paths …]             Recursively fix issues.
                               Exit 1 if unfixable issues.
+    -s, --since <commit>    Fix only files changed since <commit>. This
+                            includes both committed and uncommitted changes.
+                            <commit> may be a commit hash or a committish, such
+                            as HEAD~1 or master.
   install-githooks          Install lintball githooks in a git repository.
     -p, --path <path>       Git repo path.
                               Default: working directory.

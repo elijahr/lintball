@@ -18,6 +18,9 @@ setup_test() {
   echo "nim 1.4.2" >"${TEST_PROJECT_DIR}/.tool-versions"
   rustup override set nightly --path "$TEST_PROJECT_DIR"
   cd "$TEST_PROJECT_DIR"
+  git init .
+  git config --local user.name "Bats Test"
+  git config --local user.email "test@example.org"
 }
 
 teardown_test() {

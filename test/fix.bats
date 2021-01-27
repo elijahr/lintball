@@ -12,6 +12,32 @@ teardown() {
   teardown_test
 }
 
+@test 'lintball fix --since HEAD~1' {
+  git init
+  git add .
+  git reset a.html a.xml a.yml
+  git commit -m "commit 1"
+  git add a.html
+  git commit -m "commit 2"
+  git add a.yml
+  run lintball fix --since HEAD~1
+  assert_success
+  expected="$(
+    cat <<EOF
+# ./a.html
+↳ prettier...........................wrote
+
+# ./a.xml
+↳ prettier...........................wrote
+
+# ./a.yml
+↳ prettier...........................wrote
+↳ yamllint...........................ok
+EOF
+  )"
+  assert_output "$expected"
+}
+
 @test 'lintball fix # lintball lang=bash' {
   run lintball fix "b_bash"
   assert_success
