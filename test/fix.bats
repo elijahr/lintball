@@ -36,8 +36,10 @@ EOF
   git commit -m "commit 1"
   git add a.html
   git commit -m "commit 2"
+  git rm a.md
+  git commit -m "commit 3"
   git add a.yml
-  run lintball fix --since HEAD~1
+  run lintball fix --since HEAD~2
   assert_success
   expected="$(
     cat <<EOF

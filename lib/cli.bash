@@ -357,7 +357,7 @@ get_paths_changed_since_commit() {
   (
     git diff --name-only "$commit"
     git ls-files . --exclude-standard --others
-  ) | sort | uniq
+  ) | sort | uniq | xargs -I{} sh -c "test -f '{}' && echo '{}'"
 }
 
 get_shebang() {

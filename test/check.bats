@@ -28,8 +28,10 @@ teardown() {
   git commit -m "commit 1"
   git add a.html
   git commit -m "commit 2"
+  git rm a.md
+  git commit -m "commit 3"
   git add a.yml
-  run lintball check --since HEAD~1
+  run lintball check --since HEAD~2
   assert_failure
   # previously committed
   assert_line "[warn] a.html"
@@ -37,7 +39,9 @@ teardown() {
   assert_line "[warn] a.xml"
   # staged, never committed
   assert_line "[warn] a.yml"
-  # committed before HEAD~1
+  # deleted
+  refute_line "[warn] a.md"
+  # committed before HEAD~2
   refute_line "[warn] a.css"
   run lintball fix --since HEAD~1
   run lintball check --since HEAD~1
