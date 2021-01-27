@@ -166,7 +166,9 @@ If you have a large project with many files, you may want to limit the number of
     lintball install-tools --yes py js yml # Put extensions here for languages in your project
 
 - name: Check for linter issues
+  shell: bash
   run: |
+    set -uexo pipefail
     if [ "$GITHUB_REF" = "refs/heads/devel" ]; then
       # Push to devel, just check files changed in most recent commit
       lintball check --since HEAD~1
@@ -175,7 +177,7 @@ If you have a large project with many files, you may want to limit the number of
       lintball check --since "$(git merge-base -a $GITHUB_BASE_REF $GITHUB_HEAD_REF)"
     else
       # Not yet a PR, check files changed between devel and current commit
-      lintball check --since "$(git merge-base -a refs/heads/devel $GITHUB_REF)"
+      lintball check --since "$(git merge-base -a refs/remotes/origin/devel $GITHUB_REF)"
     fi
 ```
 
