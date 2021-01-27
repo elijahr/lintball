@@ -1,11 +1,11 @@
 {
   "check_args": {
     "autoflake": "--check --expand-star-imports --remove-all-unused-imports --remove-duplicate-keys --remove-unused-variables",
-    "autopep8": "--aggressive --aggressive --aggressive --diff",
+    "autopep8": "--global-config '$LINTBALL_DIR/configs/pyproject.toml' --diff",
     "black": "--check",
     "clippy": "-- -D clippy::all",
     "docformatter": "--check",
-    "isort": "--profile black --check-only",
+    "isort": "--settings-path '$LINTBALL_DIR/configs/pyproject.toml' --check-only",
     "nimpretty": "",
     "prettier": "--config '$LINTBALL_DIR/configs/.prettierrc.json'",
     "prettier-eslint": "--eslint-config-path '$LINTBALL_DIR/configs/.eslintrc.json' --config '$LINTBALL_DIR/configs/.prettierrc.json'",
@@ -18,11 +18,11 @@
   },
   "write_args": {
     "autoflake": "--in-place --expand-star-imports --remove-all-unused-imports --remove-duplicate-keys --remove-unused-variables",
-    "autopep8": "--aggressive --aggressive --aggressive --in-place",
+    "autopep8": "--global-config '$LINTBALL_DIR/configs/pyproject.toml' --in-place",
     "black": "",
     "clippy": "--allow-no-vcs --fix -Z unstable-options -- -D clippy::all",
     "docformatter": "--in-place",
-    "isort": "--profile black",
+    "isort": "--settings-path '$LINTBALL_DIR/configs/pyproject.toml'",
     "nimpretty": "",
     "prettier": "--write --config '$LINTBALL_DIR/configs/.prettierrc.json'",
     "prettier-eslint": "--write --eslint-config-path '$LINTBALL_DIR/configs/.eslintrc.json' --config '$LINTBALL_DIR/configs/.prettierrc.json'",

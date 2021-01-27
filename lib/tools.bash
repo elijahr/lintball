@@ -25,11 +25,10 @@ run_tool() {
   set +f
   if [ "$(cat "$path")" = "$original" ]; then
     if [ "$status" -gt 0 ] || {
-      [ "$mode" = "mode=write" ] &&
-        [ "$(head -n1 "$stdout" | head -c4)" = "--- " ] &&
+      [ "$(head -n1 "$stdout" | head -c4)" = "--- " ] &&
         [ "$(head -n2 "$stdout" | tail -n 1 | head -c4)" = "+++ " ]
     }; then
-      # Some error message
+      # Some error message or diff
       printf "%s%s%s\n" "↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
       cat "$stdout" 2>/dev/null
       cat "$stderr" 1>&2 2>/dev/null
