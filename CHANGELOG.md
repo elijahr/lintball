@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.6] - 2020-01-26
+
+### Changed
+
+- Fix `check` and `fix` issue when no path argument is provided (regression from
+  1.1.4).
+
+## [1.1.5] - 2020-01-26
+
+### Changed
+
+- Fix `--version`.
+
 ## [1.1.4] - 2020-01-26
 
 ### Added

@@ -164,11 +164,14 @@ cli_entrypoint() {
 cmd_find() {
   local line
   printf 'find '
-  if [ "$#" -eq 0 ]; then
+  if [ "${*// /}" = "" ]; then
+    # all args were whitespace only, so default to current dir
     printf '"." '
   else
     echo "$@" | while read -r line; do
-      printf '"%s" ' "$(normalize_path "$line")"
+      if [ -n "${line// /}" ]; then
+        printf '"%s" ' "$(normalize_path "$line")"
+      fi
     done
   fi
 

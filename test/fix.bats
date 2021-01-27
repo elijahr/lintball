@@ -12,8 +12,25 @@ teardown() {
   teardown_test
 }
 
+@test 'lintball fix' {
+  # Remove all but two files - just an optimization
+  find . -type f -not -name 'a.json' -not -name 'a.yml' -delete
+  run lintball fix
+  assert_success
+  expected="$(
+    cat <<EOF
+# ./a.json
+↳ prettier...........................wrote
+
+# ./a.yml
+↳ prettier...........................wrote
+↳ yamllint...........................ok
+EOF
+  )"
+  assert_output "$expected"
+}
+
 @test 'lintball fix --since HEAD~1' {
-  git init
   git add .
   git reset a.html a.xml a.yml
   git commit -m "commit 1"
