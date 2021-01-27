@@ -81,8 +81,11 @@ cli_entrypoint() {
         -s | --since)
           shift
           commit="$1"
-          paths="$(get_paths_changed_since_commit "$commit")"
           shift
+          paths="$(get_paths_changed_since_commit "$commit")"
+          if [ -z "$paths" ]; then
+            return 0
+          fi
           ;;
         *) paths="$(
           for path in "$@"; do
@@ -95,7 +98,11 @@ cli_entrypoint() {
       ;;
     pre-commit)
       shift
-      subcommand_process_files "mode=write" "gitadd=yes" "$(get_fully_staged_paths)"
+      paths="$(get_fully_staged_paths)"
+      if [ -z "$paths" ]; then
+        return 0
+      fi
+      subcommand_process_files "mode=write" "gitadd=yes" "$paths"
       return $?
       ;;
     install-githooks | install-lintballrc | install-tools)

@@ -72,6 +72,16 @@ EOF
   assert_equal "$(git diff --name-only)" ""
 }
 
+@test 'pre-commit does not interfere with delete-only commits' {
+  git add .
+  git commit -m "commit 1"
+  git rm a.md
+  run "${LINTBALL_DIR}/githooks/pre-commit"
+  assert_success
+  assert_output ""
+  assert [ ! -f "a.md" ]
+}
+
 @test 'pre-commit does not fix ignored files' {
   mkdir -p vendor
   cp a.rb vendor/
