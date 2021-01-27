@@ -97,6 +97,11 @@ cli_entrypoint() {
       return $?
       ;;
     pre-commit)
+      if git rebase --show-current-patch 2>/dev/null; then
+        echo "Rebase in progress, not running lintball pre-commit hook."
+        echo
+        return 0
+      fi
       shift
       paths="$(get_fully_staged_paths)"
       if [ -z "$paths" ]; then

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.9] - 2020-01-27
+
+### Added
+
+- Helpful error message if pre-commit hook can't find `lintball` command.
+
+### Changed
+
+- Disable pre-commit hook during rebase.
+
 ## [1.1.8] - 2020-01-27
 
 ### Changed

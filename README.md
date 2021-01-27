@@ -144,21 +144,46 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '15'
+
       - name: Install lintball
-        shell: bash
         run: |
-          npm install -g https://github.com/elijahr/lintball.git
+          npm install -g lintball
           lintball install-tools --yes
 
       - name: Check for linter issues
         run: lintball check
 ```
 
+If you have a large project with many files, you may want to limit the number of files checked using the `--since` option. You can also skip automatic detection of which tools to install. Assuming your repo's default branch is named `devel`:
+
+```yaml
+- name: Install lintball
+  run: |
+    npm install -g lintball
+    lintball install-tools --yes py js yml # Put extensions here for languages in your project
+
+- name: Check for linter issues
+  run: |
+    if [ "$GITHUB_REF" = "refs/heads/devel" ]; then
+      # Push to devel, just check files changed in most recent commit
+      lintball check --since HEAD~1
+    elif [ -n "$GITHUB_BASE_REF" ] && [ -n "$GITHUB_HEAD_REF" ]; then
+      # Pull request, check files changed since merge base
+      lintball check --since "$(git merge-base -a $GITHUB_BASE_REF $GITHUB_HEAD_REF)"
+    else
+      # Not yet a PR, check files changed between devel and current commit
+      lintball check --since "$(git merge-base -a refs/heads/devel $GITHUB_REF)"
+    fi
+```
+
 ## Configuration
 
 ### Ignore patterns
 
-By default, lintball will not check files matching the following globs:
+By default, lintball will not process files matching the following globs:
 
 ```sh
 */.build/*
@@ -185,7 +210,7 @@ To add or remove items from this list, run `lintball install-lintballrc` and edi
 
 ### Disabling specific tools
 
-If you need to disable a tool, create a `.lintballrc.json` file in your project and add a `use` section with only the tools that you wish to use. The default `use` section is defined in [configs/lintballrc-defaults.json][21].
+If you need to disable a tool, create a `.lintballrc.json` file in your project and add a `use` section with only the tools enabled that you wish to use. Note that to disable a tool, explicitly set its value to `false`, otherwise the default value of `true` will take precedence. The default `use` section is defined in [configs/lintballrc-defaults.json][21].
 
 ### Tool configuration
 

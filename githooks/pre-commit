@@ -2,8 +2,24 @@
 
 set -ueo pipefail
 
-if [ -n "${LINTBALL_DIR:-}" ]; then
-  "${LINTBALL_DIR}/bin/lintball" pre-commit
-else
+if [ -f "${LINTBALL_DIR:-.}/bin/lintball" ]; then
+  "${LINTBALL_DIR:-.}/bin/lintball" pre-commit
+elif [ -n "$(which lintball)" ]; then
   lintball pre-commit
+else
+  {
+    echo
+    echo "Error: could not find a lintball executable, but lintball's pre-commit hook is enabled."
+    echo
+    echo "Solutions:"
+    echo
+    echo '- Install lintball globally:'
+    echo '    npm install -g lintball'
+    echo '- Ensure that that lintball can be found in PATH'
+    echo '- Disable all git hooks:'
+    echo '    git config --local core.hooksPath ""'
+    echo "- Delete ${BASH_SOURCE[0]}"
+    echo
+  } >&2
+  exit 1
 fi
