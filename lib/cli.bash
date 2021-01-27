@@ -32,7 +32,7 @@ cli_entrypoint() {
         return 0
         ;;
       -v | --version)
-        bash "${LINTBALL_DIR}/lib/jwalk/lib/jwalk.sh" <package.json | grep "^version" | awk '{ print $3 }'
+        bash "${LINTBALL_DIR}/lib/jwalk/lib/jwalk.sh" <"${LINTBALL_DIR}/package.json" | grep "^version" | awk '{ print $3 }'
         return 0
         ;;
       -c | --config)
