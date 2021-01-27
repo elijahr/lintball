@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.7] - 2020-01-27
+
+### Changed
+
+- Proper handling of deleted files in pre-commit git hook.
+- Proper handling of deleted files in `fix`/`check` with `--since`.
+
 ## [1.1.6] - 2020-01-26
 
 ### Changed
