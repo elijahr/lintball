@@ -182,37 +182,32 @@ If you have a large project with many files, you may want to limit the number of
   shell: bash
   run: |
     set -uexo pipefail
-    if [ "$GITHUB_REF" = "refs/heads/master" ]; then
-      # A push to master.
 
+    default_branch=master
+    if [ "$GITHUB_REF" = "refs/heads/$default_branch" ]; then
+      # A push to the default branch.
       # Check files which were changed in the most recent commit.
       commitish="HEAD~1"
-
-    elif [ -n "$GITHUB_BASE_REF" ] && [ -n "$GITHUB_HEAD_REF" ]; then
+    elif [ -n "$GITHUB_BASE_REF" ]; then
       # A pull request.
-
       # Check files which have changed between the merge base and the
       # current commit.
-      commitish="$(git merge-base -a $GITHUB_BASE_REF $GITHUB_HEAD_REF)"
-
+      commitish="$(git merge-base -a refs/remotes/origin/$GITHUB_BASE_REF $GITHUB_SHA)"
     else
-      # A push to a non-master, non-PR branch.
-
-      # Check files which have changed between master and the current
+      # A push to a non-default, non-PR branch.
+      # Check files which have changed between default branch and the current
       # commit.
-      commitish="$(git merge-base -a refs/remotes/origin/master $GITHUB_REF)"
-
+      commitish="$(git merge-base -a refs/remotes/origin/${default_branch} $GITHUB_SHA)"
     fi
+
     status=0
     lintball check --since "$commitish" || status=$?
     if [ "$status" -gt 0 ]; then
-      {
-        echo
-        echo "The above issues were found by lintball."
-        echo "To detect and auto-fix issues locally, install lintball's git hooks."
-        echo "See https://github.com/elijahr/lintball"
-        echo
-      } >&2
+      echo
+      echo "The above issues were found by lintball."
+      echo "To detect and auto-fix issues before pushing, install lintball's git hooks."
+      echo "See https://github.com/elijahr/lintball"
+      echo
     fi
 ```
 

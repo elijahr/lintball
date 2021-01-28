@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.12] - 2020-01-28
+
+### Changed
+
+- Fix issue where black would not run due to "mach-o, wrong architecture" in dependencies.
+
 ## [1.1.11] - 2020-01-27
 
 ### Changed

@@ -65,9 +65,10 @@ install_pip_requirements() {
       curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
       python-env/bin/python get-pip.py || sudo python-env/bin/python get-pip.py
       rm /tmp/get-pip.py
+    else
+      python-env/bin/pip install pip --force
     fi
-    python-env/bin/pip install wheel || sudo python-env/bin/pip install wheel
-    python-env/bin/pip install -r requirements-pip.txt || sudo python-env/bin/pip install -r requirements-pip.txt
+    python-env/bin/pip install -r requirements-pip.txt --force || sudo python-env/bin/pip install -r requirements-pip.txt --force
   )
 }
 
