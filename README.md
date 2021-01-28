@@ -120,12 +120,16 @@ Subcommands:
                               Exit 1 if any issues on partially staged files.
 ```
 
-## Updating
-
-You can update to the latest version of lintball by running:
+## Updating to latest lintball
 
 ```sh
-lintball update
+npm install --upgrade -g lintball
+
+cd my-project
+
+# Auto-detect formatters for my-project, install them.
+# Must be re-run after updating.
+lintball install-tools
 ```
 
 ## Continuous Integration
@@ -166,7 +170,7 @@ jobs:
         run: lintball check
 ```
 
-If you have a large project with many files, you may want to limit the number of files checked using the `--since` option. You can also skip automatic detection of which tools to install. Assuming your repo's default branch is named `master`:
+If you have a large project with many files, you may want to limit the number of files checked using the `--since` option. You can also tell lintball which tools to install for a faster run. Assuming your repo's default branch is named `master`:
 
 ```yaml
 - name: Install lintball
