@@ -506,6 +506,32 @@ EOF
   assert_equal "$(cat "a.md")" "$expected"
 }
 
+@test 'lintball fix *.mdx' {
+  run lintball fix "a.mdx"
+  assert_success
+  expected="$(
+    cat <<EOF
+function Foo () {
+return (<h1>
+hello world
+
+  </h1>);
+}
+
+<Meta title="some page" component={Foo} />
+
+# Foo
+
+It's a Foo!
+
+## Example
+
+<Foo></Foo>
+EOF
+  )"
+  assert_equal "$(cat "a.mdx")" "$expected"
+}
+
 @test 'lintball fix *.mksh' {
   run lintball fix "a.mksh"
   assert_success

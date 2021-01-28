@@ -256,6 +256,14 @@ teardown() {
   assert_success
 }
 
+@test 'lintball check *.mdx' {
+  run lintball check "a.mdx"
+  assert_failure
+  run lintball fix "a.mdx"
+  run lintball check "a.mdx"
+  assert_success
+}
+
 @test 'lintball check *.mksh' {
   run lintball check "a.mksh"
   assert_failure

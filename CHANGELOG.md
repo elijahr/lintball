@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.10] - 2020-01-27
+
+### Added
+
+- Added support for MDX.
+
 ### Changed
 
 - Fixed GitHub Actions example in README using `--since`.

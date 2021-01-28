@@ -42,6 +42,7 @@ a.ksh
 a.lua
 a.m
 a.md
+a.mdx
 a.mksh
 a.nim
 a.pug
@@ -135,6 +136,7 @@ a.ksh
 a.lua
 a.m
 a.md
+a.mdx
 a.mksh
 a.nim
 a.pug

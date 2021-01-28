@@ -35,6 +35,7 @@ Most software projects consist of more than one programming language. Besides th
 | Lua          | `*.lua`                                                   |                                [StyLua][10]                                |
 | Luau         | `*.lua`                                                   |                                [StyLua][10]                                |
 | Markdown     | `*.md`                                                    |                               [prettier][4]                                |
+| MDX          | `*.mdx`                                                   |                               [prettier][4]                                |
 | mksh         | `*.mksh`, `#!/usr/bin/env mksh`                           |                        [shellcheck][1], [shfmt][2]                         |
 | Nim          | `*.nim`                                                   |                              [nimpretty][11]                               |
 | Objective-C  | `*.m`, `*.mm`, `*.M`                                      |                              [uncrustify][3]                               |

@@ -393,7 +393,7 @@ get_tools_for_file() {
   extension="$(normalize_extension "$path")"
 
   case "$extension" in
-    css | graphql | html | jade | java | json | md | pug | scss | xml)
+    css | graphql | html | jade | java | json | md | mdx | pug | scss | xml)
       echo "prettier"
       ;;
     bash | bats | dash | ksh | mksh | sh)
@@ -480,9 +480,9 @@ normalize_extension() {
 
   case "$extension" in
     bash | bats | c | cpp | cs | css | d | dash | graphql | h | hpp | html | \
-      jade | java | js | json | jsx | ksh | lua | m | M | md | mksh | mm | \
-      nim | pug | pxd | pxi | py | pyx | rb | rs | scss | toml | ts | tsx | \
-      xml | yml)
+      jade | java | js | json | jsx | ksh | lua | m | M | md | mdx | mksh | \
+      mm | nim | pug | pxd | pxi | py | pyx | rb | rs | scss | toml | ts | \
+      tsx | xml | yml)
       echo "$extension"
       ;;
     sh)
@@ -721,6 +721,7 @@ Supported tools:
   | Lua          |                                          StyLua |
   | Luau         |                                          StyLua |
   | Markdown     |                                        prettier |
+  | MDX          |                                        prettier |
   | mksh         |                               shellcheck, shfmt |
   | Nim          |                                       nimpretty |
   | Objective-C  |                                      uncrustify |
@@ -758,6 +759,7 @@ Detection methods:
   | Lua          |                                               *.lua |
   | Luau         |                                              *.luau |
   | Markdown     |                                                *.md |
+  | MDX          |                                               *.mdx |
   | mksh         |                         *.mksh, #!/usr/bin/env mksh |
   | Nim          |                                               *.nim |
   | Objective-C  |                                      *.m, *.mm, *.M |
