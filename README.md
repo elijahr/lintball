@@ -158,7 +158,7 @@ jobs:
         run: lintball check
 ```
 
-If you have a large project with many files, you may want to limit the number of files checked using the `--since` option. You can also skip automatic detection of which tools to install. Assuming your repo's default branch is named `devel`:
+If you have a large project with many files, you may want to limit the number of files checked using the `--since` option. You can also skip automatic detection of which tools to install. Assuming your repo's default branch is named `master`:
 
 ```yaml
 - name: Install lintball
@@ -170,16 +170,28 @@ If you have a large project with many files, you may want to limit the number of
   shell: bash
   run: |
     set -uexo pipefail
-    if [ "$GITHUB_REF" = "refs/heads/devel" ]; then
-      # Push to devel, just check files changed in most recent commit
-      lintball check --since HEAD~1
+    if [ "$GITHUB_REF" = "refs/heads/master" ]; then
+      # A push to master.
+
+      # Check files which were changed in the most recent commit.
+      commitish="HEAD~1"
+
     elif [ -n "$GITHUB_BASE_REF" ] && [ -n "$GITHUB_HEAD_REF" ]; then
-      # Pull request, check files changed since merge base
-      lintball check --since "$(git merge-base -a $GITHUB_BASE_REF $GITHUB_HEAD_REF)"
+      # A pull request.
+
+      # Check files which have changed between the merge base and the
+      # current commit.
+      commitish="$(git merge-base -a $GITHUB_BASE_REF $GITHUB_HEAD_REF)"
+
     else
-      # Not yet a PR, check files changed between devel and current commit
-      lintball check --since "$(git merge-base -a refs/remotes/origin/devel $GITHUB_REF)"
+      # A push to a non-master, non-PR branch.
+
+      # Check files which have changed between master and the current
+      # commit.
+      commitish="$(git merge-base -a refs/remotes/origin/master $GITHUB_REF)"
+
     fi
+    lintball check --since "$commitish"
 ```
 
 ## Configuration
