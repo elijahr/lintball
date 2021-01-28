@@ -55,6 +55,14 @@ Most software projects consist of more than one programming language. Besides th
 
 ```sh
 npm install -g lintball
+
+cd my-project
+
+# Auto-detect formatters for my-project, install them.
+lintball install-tools
+
+# Install git pre-commit hook to detect and auto-fix issues in my-project.
+lintball install-githooks
 ```
 
 ## Usage
@@ -191,7 +199,17 @@ If you have a large project with many files, you may want to limit the number of
       commitish="$(git merge-base -a refs/remotes/origin/master $GITHUB_REF)"
 
     fi
-    lintball check --since "$commitish"
+    status=0
+    lintball check --since "$commitish" || status=$?
+    if [ "$status" -gt 0 ]; then
+      {
+        echo
+        echo "The above issues were found by lintball."
+        echo "To detect and auto-fix issues locally, install lintball's git hooks."
+        echo "See https://github.com/elijahr/lintball"
+        echo
+      } >&2
+    fi
 ```
 
 ## Configuration
