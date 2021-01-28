@@ -2,7 +2,7 @@
   "check_args": {
     "autoflake": "--check --expand-star-imports --remove-all-unused-imports --remove-duplicate-keys --remove-unused-variables --ignore-init-module-imports",
     "autopep8": "--global-config '$LINTBALL_DIR/configs/pyproject.toml' --diff",
-    "black": "--check",
+    "black": "--config '$LINTBALL_DIR/configs/pyproject.toml' --check",
     "clippy": "-- -D clippy::all",
     "docformatter": "--check",
     "isort": "--settings-path '$LINTBALL_DIR/configs/pyproject.toml' --check-only",
@@ -19,7 +19,7 @@
   "write_args": {
     "autoflake": "--in-place --expand-star-imports --remove-all-unused-imports --remove-duplicate-keys --remove-unused-variables --ignore-init-module-imports",
     "autopep8": "--global-config '$LINTBALL_DIR/configs/pyproject.toml' --in-place",
-    "black": "",
+    "black": "--config '$LINTBALL_DIR/configs/pyproject.toml'",
     "clippy": "--allow-no-vcs --fix -Z unstable-options -- -D clippy::all",
     "docformatter": "--in-place",
     "isort": "--settings-path '$LINTBALL_DIR/configs/pyproject.toml'",
