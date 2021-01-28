@@ -522,7 +522,7 @@ hello world
 
 # Foo
 
-It's a Foo!
+It is a Foo!
 
 ## Example
 
