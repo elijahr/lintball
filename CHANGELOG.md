@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.11] - 2020-01-27
+
+### Changed
+
+- autoflake: don't remove "unused" imports in **init**.py
+
 ## [1.1.10] - 2020-01-27
 
 ### Added

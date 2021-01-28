@@ -1,6 +1,6 @@
 {
   "check_args": {
-    "autoflake": "--check --expand-star-imports --remove-all-unused-imports --remove-duplicate-keys --remove-unused-variables",
+    "autoflake": "--check --expand-star-imports --remove-all-unused-imports --remove-duplicate-keys --remove-unused-variables --ignore-init-module-imports",
     "autopep8": "--global-config '$LINTBALL_DIR/configs/pyproject.toml' --diff",
     "black": "--check",
     "clippy": "-- -D clippy::all",
@@ -17,7 +17,7 @@
     "yamllint": "--strict --config-file '$LINTBALL_DIR/configs/yamllint.yml'"
   },
   "write_args": {
-    "autoflake": "--in-place --expand-star-imports --remove-all-unused-imports --remove-duplicate-keys --remove-unused-variables",
+    "autoflake": "--in-place --expand-star-imports --remove-all-unused-imports --remove-duplicate-keys --remove-unused-variables --ignore-init-module-imports",
     "autopep8": "--global-config '$LINTBALL_DIR/configs/pyproject.toml' --in-place",
     "black": "",
     "clippy": "--allow-no-vcs --fix -Z unstable-options -- -D clippy::all",
