@@ -19,7 +19,7 @@ source "${LINTBALL_DIR}/lib/install.bash"
 source "${LINTBALL_DIR}/lib/tools.bash"
 
 cli_entrypoint() {
-  local config mode commit paths fn path answer all
+  local config mode commit num_jobs paths fn path answer all
   config=""
 
   # Parse base options
@@ -69,6 +69,7 @@ cli_entrypoint() {
     config_load "$config" || return 1
   fi
 
+  num_jobs="$LINTBALL__NUM_JOBS"
   # Parse subcommand
   case "${1:-}" in
     check | fix)
@@ -87,13 +88,18 @@ cli_entrypoint() {
             return 0
           fi
           ;;
+        -j | --jobs)
+          shift
+          num_jobs="$1"
+          shift
+          ;;
         *) paths="$(
           for path in "$@"; do
             echo "$path"
           done
         )" ;;
       esac
-      subcommand_process_files "$mode" "gitadd=no" "$paths"
+      subcommand_process_files "$mode" "gitadd=no" "num_jobs=$num_jobs" "$paths"
       return $?
       ;;
     pre-commit)
@@ -107,7 +113,7 @@ cli_entrypoint() {
       if [ -z "$paths" ]; then
         return 0
       fi
-      subcommand_process_files "mode=write" "gitadd=yes" "$paths"
+      subcommand_process_files "mode=write" "gitadd=yes" "num_jobs=$num_jobs" "$paths"
       return $?
       ;;
     install-githooks | install-lintballrc | install-tools)
@@ -224,6 +230,11 @@ config_load() {
 
   while read -r line; do
     case "$line" in
+      num_jobs*)
+        name="LINTBALL__$(echo "$line" | awk '{ print $1 }' | sed 's/[^a-z0-9]/_/g' | tr '[:lower:]' '[:upper:]')"
+        value="$(echo "$line" | awk -F $'\t' 'BEGIN {OFS = FS}{print $3}')"
+        export "${name}=${value}"
+        ;;
       write_args* | check_args* | use*)
         if [ "$(echo "$line" | cut -f2)" = "object" ]; then
           continue
@@ -690,15 +701,56 @@ EOF
 }
 
 subcommand_process_files() {
-  local mode gitadd err path status
+  local mode gitadd num_jobs tmp err paths_by_pid pid path status
   mode="$1"
   gitadd="$2"
+  num_jobs="$3"
   shift
   shift
-  err="$(mktemp -d)/err"
+  shift
+  tmp="$(mktemp -d)"
+  err="${tmp}/err"
+  if [ "$num_jobs" = "num_jobs=auto" ]; then
+    if [ -n "$(which nproc)" ]; then
+      # coreutils
+      num_jobs="$(nproc)"
+    elif [ -n "$(which sysctl)" ]; then
+      # macOS
+      num_jobs="$(sysctl -n hw.ncpu)"
+    else
+      # who knows
+      num_jobs="4"
+    fi
+  else
+    num_jobs="${num_jobs//num_jobs=/}"
+  fi
+
+  declare -A paths_by_pid
+  paths_by_pid=()
+
   eval "$(cmd_find "$@")" | while read -r path; do
-    process_file "$path" "$mode" "$gitadd" || touch "$err"
+    while [ "${#paths_by_pid[@]}" -eq "$num_jobs" ]; do
+      for pid in "${!paths_by_pid[@]}"; do
+        if ! kill -0 "$pid" 2>/dev/null; then
+          # background job finished; show output and remove from array
+          cat "${paths_by_pid[$pid]}"
+          rm -r "${paths_by_pid[$pid]}"
+          unset 'paths_by_pid[$pid]'
+          break
+        fi
+      done
+      sleep 0.1
+    done
+    mkdir -p "${tmp}/${path}"
+    touch "${tmp}/${path}/out"
+    (
+      {
+        process_file "$path" "$mode" "$gitadd" || touch "$err"
+      } 1>"${tmp}/${path}/out" 2>&1
+    ) &
+    paths_by_pid["$!"]="${tmp}/${path}/out"
   done
+  wait
   status=0
   [ ! -f "$err" ] || status=1
   rm -rf "$(dirname "$err")"
@@ -795,8 +847,8 @@ keep your entire project tidy with one command.
 
 Usage:
   lintball [-h | -v]
-  lintball [-c <path>] check [--since <commit>] [paths …]
-  lintball [-c <path>] fix [--since <commit>] [paths …]
+  lintball [-c <path>] check [--since <commit>] [--jobs <n>] [paths …]
+  lintball [-c <path>] fix [--since <commit>] [--jobs <n>] [paths …]
   lintball [-c <path>] install-githooks [-y | -n] [-p <path>]
   lintball [-c <path>] install-lintballrc [-y | -n] [-p <path>]
   lintball [-c <path>] install-tools [-y | -n] [-a] [-p <path>] [ext …]
@@ -814,12 +866,16 @@ Subcommands:
                             includes both committed and uncommitted changes.
                             <commit> may be a commit hash or a committish, such
                             as HEAD~1 or master.
+    -j, --jobs <n>          The number of parallel jobs to run.
+                              Default: the number of available CPUs.
   fix [paths …]             Recursively fix issues.
                               Exit 1 if unfixable issues.
     -s, --since <commit>    Fix only files changed since <commit>. This
                             includes both committed and uncommitted changes.
                             <commit> may be a commit hash or a committish, such
                             as HEAD~1 or master.
+    -j, --jobs <n>          The number of parallel jobs to run.
+                              Default: the number of available CPUs.
   install-githooks          Install lintball githooks in a git repository.
     -p, --path <path>       Git repo path.
                               Default: working directory.

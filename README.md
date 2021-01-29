@@ -70,8 +70,8 @@ lintball install-githooks
 ```
 Usage:
   lintball [-h | -v]
-  lintball [-c <path>] check [--since <commit>] [paths …]
-  lintball [-c <path>] fix [--since <commit>] [paths …]
+  lintball [-c <path>] check [--since <commit>] [--jobs <n>] [paths …]
+  lintball [-c <path>] fix [--since <commit>] [--jobs <n>] [paths …]
   lintball [-c <path>] install-githooks [-y | -n] [-p <path>]
   lintball [-c <path>] install-lintballrc [-y | -n] [-p <path>]
   lintball [-c <path>] install-tools [-y | -n] [-a] [-p <path>] [ext …]
@@ -89,12 +89,16 @@ Subcommands:
                             includes both committed and uncommitted changes.
                             <commit> may be a commit hash or a committish, such
                             as HEAD~1 or master.
+    -j, --jobs <n>          The number of parallel jobs to run.
+                              Default: the number of available CPUs.
   fix [paths …]             Recursively fix issues.
                               Exit 1 if unfixable issues.
     -s, --since <commit>    Fix only files changed since <commit>. This
                             includes both committed and uncommitted changes.
                             <commit> may be a commit hash or a committish, such
                             as HEAD~1 or master.
+    -j, --jobs <n>          The number of parallel jobs to run.
+                              Default: the number of available CPUs.
   install-githooks          Install lintball githooks in a git repository.
     -p, --path <path>       Git repo path.
                               Default: working directory.

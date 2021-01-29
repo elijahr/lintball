@@ -49,5 +49,6 @@
     "stylua": true,
     "uncrustify": true,
     "yamllint": true
-  }
+  },
+  "num_jobs": "auto"
 }
