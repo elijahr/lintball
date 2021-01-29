@@ -262,6 +262,18 @@ Many of the tools used by lintball can be configured to suit your needs. See:
 
 If you need to pass custom arguments to a tool (such as specifying a config file), create a `.lintballrc.json` file in your project with custom `write_args` and `check_args`. The default `write_args` and `check_args` are defined in [configs/lintballrc-defaults.json][21].
 
+### Known issues
+
+#### ShellCheck & Apple Silicon
+
+ghc, the Haskell compiler, has not been ported to macOS arm64 yet as of this writing (2021-01-29). ShellCheck is written in Haskell and thus `brew install shellcheck` will not work. You can work around this by installing x86 Homebrew alongside the arm64 Homebrew, and installing the x86 ShellCheck bottle. This will run emulated via Rosetta 2.
+
+```shell
+curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | arch -x86_64 /bin/bash
+/usr/local/Homebrew/bin/brew install shellcheck
+shellcheck --version
+```
+
 ## Acknowledgements
 
 lintball is a wrapper around existing tools. Many thanks to the authors of the tools used by lintball! This project (and your tidy code) stand on the shoulders of giants.
