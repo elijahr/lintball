@@ -74,32 +74,48 @@ cli_entrypoint() {
   case "${1:-}" in
     check | fix)
       case "$1" in
-        check) mode="mode=check" ;;
-        fix) mode="mode=write" ;;
+        check) mode="check" ;;
+        fix) mode="write" ;;
       esac
       shift
-      case "${1:-}" in
-        -s | --since)
-          shift
-          commit="$1"
-          shift
-          paths="$(get_paths_changed_since_commit "$commit")"
-          if [ -z "$paths" ]; then
-            return 0
-          fi
-          ;;
-        -j | --jobs)
-          shift
-          num_jobs="$1"
-          shift
-          ;;
-        *) paths="$(
-          for path in "$@"; do
-            echo "$path"
-          done
-        )" ;;
-      esac
-      subcommand_process_files "$mode" "gitadd=no" "num_jobs=$num_jobs" "$paths"
+      while true; do
+        case "${1:-}" in
+          -s | --since)
+            shift
+            commit="$1"
+            shift
+            paths="$(get_paths_changed_since_commit "$commit")"
+            if [ -z "$paths" ]; then
+              return 0
+            fi
+            ;;
+          -j | --jobs)
+            shift
+            num_jobs="$1"
+            shift
+            ;;
+          -*)
+            if [ -f "$1" ] || [ -d "$1" ]; then
+              continue
+            fi
+            echo >&2
+            echo "Unknown option $1" >&2
+            usage >&2
+            documentation_link >&2
+            echo >&2
+            return 1
+            ;;
+          *)
+            paths="$(
+              for path in "$@"; do
+                echo "$path"
+              done
+            )"
+            break
+            ;;
+        esac
+      done
+      subcommand_process_files "mode=$mode" "gitadd=no" "num_jobs=$num_jobs" "$paths"
       return $?
       ;;
     pre-commit)
@@ -700,17 +716,66 @@ EOF
   done
 }
 
+consume() {
+  local tmp consumer mode gitadd path output
+  tmp="${1//tmp=/}"
+  consumer="${2//consumer=/}"
+  mode="${3//mode=/}"
+  gitadd="${4//gitadd=/}"
+  while true; do
+    path="$(cat "${tmp}/queues/${consumer}")"
+    if [ "$path" = "<empty>" ]; then
+      echo "<empty>" >"${tmp}/outputs/${consumer}"
+      break
+    fi
+    output="$(process_file "$path" "mode=$mode" "gitadd=$gitadd" 2>&1 || touch "${tmp}/errfile")"
+    if [ -n "$output" ]; then
+      echo "$output"$'\n<empty>' >"${tmp}/outputs/${consumer}"
+    fi
+    sleep 0.01
+  done
+}
+
+produce() {
+  local tmp num_jobs path consumer_counter consumer
+  tmp="${1//tmp=/}"
+  num_jobs="${2//num_jobs=/}"
+  shift
+  shift
+  # Pipe paths to consumers
+  consumer_counter="${tmp}/consumer_counter"
+  echo 1 >"$consumer_counter"
+  eval "$(cmd_find "$@")" | while read -r path; do
+    consumer="$(cat "$consumer_counter")"
+    echo "$path" >"${tmp}/queues/${consumer}"
+    if [ "$consumer" -eq "$num_jobs" ]; then
+      # Reset
+      consumer="1"
+    else
+      # Increment
+      consumer="$((consumer + 1))"
+    fi
+    echo "$consumer" >"$consumer_counter"
+    sleep 0.01
+  done
+
+  # Notify consumers that work is done
+  for ((consumer = 1; consumer <= num_jobs; consumer++)); do
+    echo "<empty>" >"${tmp}/queues/${consumer}"
+    sleep 0.01
+  done
+}
+
 subcommand_process_files() {
-  local mode gitadd num_jobs tmp err paths_by_pid pid path status
-  mode="$1"
-  gitadd="$2"
-  num_jobs="$3"
+  local mode gitadd num_jobs consumer tmp num_done status
+  mode="${1//mode=/}"
+  gitadd="${2//gitadd=/}"
+  num_jobs="${3//num_jobs=/}"
   shift
   shift
   shift
-  tmp="$(mktemp -d)"
-  err="${tmp}/err"
-  if [ "$num_jobs" = "num_jobs=auto" ]; then
+
+  if [ "$num_jobs" = "auto" ]; then
     if [ -n "$(which nproc)" ]; then
       # coreutils
       num_jobs="$(nproc)"
@@ -721,39 +786,66 @@ subcommand_process_files() {
       # who knows
       num_jobs="4"
     fi
-  else
-    num_jobs="${num_jobs//num_jobs=/}"
   fi
 
-  declare -A paths_by_pid
-  paths_by_pid=()
+  tmp="$(mktemp -d)"
+  mkdir "${tmp}/queues"
+  mkdir "${tmp}/outputs"
+  mkdir "${tmp}/pids"
 
-  eval "$(cmd_find "$@")" | while read -r path; do
-    while [ "${#paths_by_pid[@]}" -eq "$num_jobs" ]; do
-      for pid in "${!paths_by_pid[@]}"; do
-        if ! kill -0 "$pid" 2>/dev/null; then
-          # background job finished; show output and remove from array
-          cat "${paths_by_pid[$pid]}"
-          rm -r "${paths_by_pid[$pid]}"
-          unset 'paths_by_pid[$pid]'
+  # Initialize consumer subprocesses
+  for ((consumer = 1; consumer <= num_jobs; consumer++)); do
+    mkfifo "${tmp}/queues/${consumer}"
+    mkfifo "${tmp}/outputs/${consumer}"
+    consume "tmp=$tmp" "consumer=$consumer" "mode=$mode" "gitadd=$gitadd" &
+    echo "$!" >"${tmp}/pids/${consumer}"
+  done
+
+  # Initialize producer subprocess
+  produce "tmp=$tmp" "num_jobs=$num_jobs" "$@" &
+
+  # Stream output from consumers
+  while true; do
+    num_done="0"
+    for ((consumer = 1; consumer <= num_jobs; consumer++)); do
+      # shellcheck disable=SC2094
+      while read -t 0 && read -r line; do
+        if [ "$line" = "<empty>" ]; then
+          echo
           break
+        elif [ -z "$line" ]; then
+          continue
         fi
-      done
-      sleep 0.1
+        echo "$line"
+      done <<<"$(cat 0<>"${tmp}/outputs/${consumer}" <"${tmp}/outputs/${consumer}")"
+
+      if ! kill -0 "$(cat "${tmp}/pids/${consumer}")" 2>/dev/null; then
+        # consumer is done
+        num_done="$((num_done + 1))"
+      fi
     done
-    mkdir -p "${tmp}/${path}"
-    touch "${tmp}/${path}/out"
-    (
-      {
-        process_file "$path" "$mode" "$gitadd" || touch "$err"
-      } 1>"${tmp}/${path}/out" 2>&1
-    ) &
-    paths_by_pid["$!"]="${tmp}/${path}/out"
+    if [ "$num_done" -eq "$num_jobs" ]; then
+      break
+    fi
+  done
+
+  for ((consumer = 1; consumer <= num_jobs; consumer++)); do
+    # shellcheck disable=SC2094
+    while read -t 0 && read -r line; do
+      if [ "$line" = "<empty>" ]; then
+        echo "<EMPTY>"
+
+        break
+      elif [ -z "$line" ]; then
+        continue
+      fi
+      echo "$line"
+    done <<<"$(cat 0<>"${tmp}/outputs/${consumer}" <"${tmp}/outputs/${consumer}")"
   done
   wait
   status=0
-  [ ! -f "$err" ] || status=1
-  rm -rf "$(dirname "$err")"
+  [ ! -f "${tmp}/errfile" ] || status=1
+  rm -rf "$tmp"
   return "$status"
 }
 
