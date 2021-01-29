@@ -184,12 +184,12 @@ cmd_yamllint() {
     format="colored"
   fi
   if [ "$mode" = "mode=write" ]; then
-    echo "yamllint \
+    echo "${LINTBALL_DIR}/tools/python-env/bin/yamllint \
       --format '$format' \
       $(eval echo "${LINTBALL__WRITE_ARGS__YAMLLINT}") \
       '$path'"
   else
-    echo "yamllint \
+    echo "${LINTBALL_DIR}/tools/python-env/bin/yamllint \
       --format '$format' \
       $(eval echo "${LINTBALL__CHECK_ARGS__YAMLLINT}") \
       '$path'"

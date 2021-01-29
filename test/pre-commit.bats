@@ -47,6 +47,7 @@ a.mksh
 a.nim
 a.pug
 a.py
+a.pyi
 a.pyx
 a.rb
 a.scss
@@ -141,6 +142,7 @@ a.mksh
 a.nim
 a.pug
 a.py
+a.pyi
 a.pyx
 a.rb
 a.scss

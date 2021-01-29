@@ -296,6 +296,14 @@ teardown() {
   assert_success
 }
 
+@test 'lintball check *.pyi' {
+  run lintball check "a.pyi"
+  assert_failure
+  run lintball fix "a.pyi"
+  run lintball check "a.pyi"
+  assert_success
+}
+
 @test 'lintball check *.pyx' {
   run lintball check "a.pyx"
   assert_failure

@@ -419,6 +419,14 @@ get_tools_for_file() {
       echo "isort"
       echo "black"
       ;;
+    pyi)
+      echo "docformatter"
+      echo "autopep8"
+      echo "autoflake"
+      echo "isort"
+      # pyi doesn't use black for now because black removes the two blank lines
+      # after imports but autopep8 and isort both re-add them.
+      ;;
     pyx | pxd | pxi)
       echo "docformatter"
       echo "autopep8"
@@ -481,8 +489,8 @@ normalize_extension() {
   case "$extension" in
     bash | bats | c | cpp | cs | css | d | dash | graphql | h | hpp | html | \
       jade | java | js | json | jsx | ksh | lua | m | M | md | mdx | mksh | \
-      mm | nim | pug | pxd | pxi | py | pyx | rb | rs | scss | toml | ts | \
-      tsx | xml | yml)
+      mm | nim | pug | pxd | pxi | py | pyi | pyx | rb | rs | scss | toml | \
+      ts | tsx | xml | yml)
       echo "$extension"
       ;;
     sh)
@@ -752,7 +760,7 @@ Detection methods:
   | GraphQL      |                                           *.graphql |
   | HTML         |                                              *.html |
   | Java         |                                              *.java |
-  | JavaScript   |      *.js, #!/usr/bin/env node, #!/usr/bin/env deno |
+  | JavaScript   |                           *.js, #!/usr/bin/env node |
   | JSON         |                                              *.json |
   | JSX          |                                               *.jsx |
   | ksh          |                           *.ksh, #!/usr/bin/env ksh |
@@ -765,7 +773,7 @@ Detection methods:
   | Objective-C  |                                      *.m, *.mm, *.M |
   | package.json |                                        package.json |
   | pug          |                                               *.pug |
-  | Python       | *.py, #!/usr/bin/env python, #!/usr/bin/env python3 |
+  | Python       |                  *.py, *.pyi, #!/usr/bin/env python |
   | Ruby         |                  *.rb, Gemfile, #!/usr/bin/env ruby |
   | Rust         |                                          Cargo.toml |
   | SASS         |                                              *.scss |

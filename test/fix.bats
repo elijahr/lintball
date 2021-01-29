@@ -612,6 +612,24 @@ EOF
   assert_equal "$(cat "a.py")" "$expected"
 }
 
+@test 'lintball fix *.pyi' {
+  run lintball fix "a.pyi"
+  assert_success
+  expected="$(
+    cat <<EOF
+from typing import Optional
+
+
+class Foo(object):
+    bar: str = ...
+    baz: str = ...
+    spam: int = ...
+    eggs: Optional[int] = ...
+EOF
+  )"
+  assert_equal "$(cat "a.pyi")" "$expected"
+}
+
 @test 'lintball fix *.pyx' {
   run lintball fix "a.pyx"
   assert_success
