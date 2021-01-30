@@ -1,8 +1,8 @@
 cmd_autoflake() {
   local mode path
-  mode="$1"
-  path="$2"
-  if [ "$mode" = "mode=write" ]; then
+  mode="${1//mode=/}"
+  path="${2//path=/}"
+  if [ "$mode" = "write" ]; then
     echo "${LINTBALL_DIR}/tools/python-env/bin/autoflake \
       $(eval echo "${LINTBALL__WRITE_ARGS__AUTOFLAKE}") \
       '$path'"
@@ -15,9 +15,9 @@ cmd_autoflake() {
 
 cmd_autopep8() {
   local mode path
-  mode="$1"
-  path="$2"
-  if [ "$mode" = "mode=write" ]; then
+  mode="${1//mode=/}"
+  path="${2//path=/}"
+  if [ "$mode" = "write" ]; then
     echo "${LINTBALL_DIR}/tools/python-env/bin/autopep8 \
       $(eval echo "${LINTBALL__WRITE_ARGS__AUTOPEP8}") \
       '$path'"
@@ -30,9 +30,9 @@ cmd_autopep8() {
 
 cmd_black() {
   local mode path
-  mode="$1"
-  path="$2"
-  if [ "$mode" = "mode=write" ]; then
+  mode="${1//mode=/}"
+  path="${2//path=/}"
+  if [ "$mode" = "write" ]; then
     echo "${LINTBALL_DIR}/tools/python-env/bin/black \
       $(eval echo "${LINTBALL__WRITE_ARGS__BLACK}") \
       '$path'"
@@ -45,11 +45,11 @@ cmd_black() {
 
 cmd_clippy() {
   local mode path dir
-  mode="$1"
-  path="$2"
+  mode="${1//mode=/}"
+  path="${2//path=/}"
   # path is Cargo.toml, so cd to containing directory to run clippy
   dir="$(dirname "$path")"
-  if [ "$mode" = "mode=write" ]; then
+  if [ "$mode" = "write" ]; then
     echo "(cd '$dir'; cargo clippy \
       $(eval echo "${LINTBALL__WRITE_ARGS__CLIPPY}"))"
   else
@@ -60,9 +60,9 @@ cmd_clippy() {
 
 cmd_docformatter() {
   local mode path
-  mode="$1"
-  path="$2"
-  if [ "$mode" = "mode=write" ]; then
+  mode="${1//mode=/}"
+  path="${2//path=/}"
+  if [ "$mode" = "write" ]; then
     echo "${LINTBALL_DIR}/tools/python-env/bin/docformatter \
       $(eval echo "${LINTBALL__WRITE_ARGS__DOCFORMATTER}") \
       '$path'"
@@ -75,9 +75,9 @@ cmd_docformatter() {
 
 cmd_isort() {
   local mode path
-  mode="$1"
-  path="$2"
-  if [ "$mode" = "mode=write" ]; then
+  mode="${1//mode=/}"
+  path="${2//path=/}"
+  if [ "$mode" = "write" ]; then
     echo "${LINTBALL_DIR}/tools/python-env/bin/isort \
       $(eval echo "${LINTBALL__WRITE_ARGS__ISORT}") \
       '$path'"
@@ -90,9 +90,9 @@ cmd_isort() {
 
 cmd_prettier() {
   local mode path
-  mode="$1"
-  path="$2"
-  if [ "$mode" = "mode=write" ]; then
+  mode="${1//mode=/}"
+  path="${2//path=/}"
+  if [ "$mode" = "write" ]; then
     echo "npm \
       --prefix='$LINTBALL_DIR' \
       run \
@@ -116,8 +116,8 @@ cmd_prettier() {
 
 cmd_rubocop() {
   local mode path color
-  mode="$1"
-  path="$2"
+  mode="${1//mode=/}"
+  path="${2//path=/}"
 
   # show colors in output only if interactive shell
   color="--no-color"
@@ -125,7 +125,7 @@ cmd_rubocop() {
     color="--color"
   fi
 
-  if [ "$mode" = "mode=write" ]; then
+  if [ "$mode" = "write" ]; then
     echo "bundle exec rubocop \
       $color \
       $(eval echo "${LINTBALL__WRITE_ARGS__RUBOCOP}") \
@@ -140,13 +140,13 @@ cmd_rubocop() {
 
 cmd_shfmt() {
   local mode path lang
-  mode="$1"
-  path="$2"
+  mode="${1//mode=/}"
+  path="${2//path=/}"
 
   # shellcheck disable=SC2034
   lang="$3"
 
-  if [ "$mode" = "mode=write" ]; then
+  if [ "$mode" = "write" ]; then
     echo "shfmt \
       $(eval echo "${LINTBALL__WRITE_ARGS__SHFMT}") \
       '$path'"
@@ -159,10 +159,10 @@ cmd_shfmt() {
 
 cmd_stylua() {
   local mode path
-  mode="$1"
-  path="$2"
+  mode="${1//mode=/}"
+  path="${2//path=/}"
 
-  if [ "$mode" = "mode=write" ]; then
+  if [ "$mode" = "write" ]; then
     echo "stylua \
       $(eval echo "${LINTBALL__WRITE_ARGS__STYLUA}") \
       '$path'"
@@ -175,15 +175,15 @@ cmd_stylua() {
 
 cmd_yamllint() {
   local mode path format
-  mode="$1"
-  path="$2"
+  mode="${1//mode=/}"
+  path="${2//path=/}"
 
   # show colors in output only if interactive shell
   format="auto"
   if [[ $- == *i* ]]; then
     format="colored"
   fi
-  if [ "$mode" = "mode=write" ]; then
+  if [ "$mode" = "write" ]; then
     echo "${LINTBALL_DIR}/tools/python-env/bin/yamllint \
       --format '$format' \
       $(eval echo "${LINTBALL__WRITE_ARGS__YAMLLINT}") \

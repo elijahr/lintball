@@ -2,10 +2,11 @@ DOTS="..................................."
 
 run_tool() {
   local tool mode path lang use status original cmd stdout stderr
-  tool="$1"
-  mode="$2"
-  path="$3"
+  tool="${1//tool=/}"
+  mode="${2//mode=/}"
+  path="${3//path=/}"
   lang="${4:-}"
+  lang="${lang//lang=/}"
 
   offset="${#tool}"
   use="LINTBALL__USE__$(echo "${tool//-/_}" | tr '[:lower:]' '[:upper:]')"
@@ -18,7 +19,7 @@ run_tool() {
   original="$(cat "$path")"
   stdout="$(mktemp)"
   stderr="$(mktemp)"
-  cmd="$(cmd_"${tool//-/_}" "$mode" "$path" "$lang")"
+  cmd="$(cmd_"${tool//-/_}" "mode=$mode" "path=$path" "lang=$lang")"
 
   set -f
   eval "$cmd" 1>"$stdout" 2>"$stderr" || status=$?
@@ -47,8 +48,8 @@ run_tool() {
 
 run_tool_nimpretty() {
   local mode path tool offset use args tmp patch stdout stderr status
-  mode="$1"
-  path="$2"
+  mode="${1//mode=/}"
+  path="${2//path=/}"
 
   tool="nimpretty"
   offset="${#tool}"
@@ -58,7 +59,7 @@ run_tool_nimpretty() {
     return 0
   fi
 
-  if [ "$mode" = "mode=write" ]; then
+  if [ "$mode" = "write" ]; then
     args="${LINTBALL__WRITE_ARGS__NIMPRETTY}"
   else
     args="${LINTBALL__CHECK_ARGS__NIMPRETTY}"
@@ -88,7 +89,7 @@ run_tool_nimpretty() {
     else
       patch="$(diff -u "$path" "$tmp")"
       if [ -n "$patch" ]; then
-        if [ "$mode" = "mode=write" ]; then
+        if [ "$mode" = "write" ]; then
           cat "$tmp" >"$path"
           printf "%s%s%s\n" "↳ ${tool}" "${DOTS:offset}" "wrote"
         else
@@ -115,8 +116,8 @@ run_tool_nimpretty() {
 
 run_tool_prettier_eslint() {
   local mode path tool offset cmd stdout stderr status
-  mode="$1"
-  path="$2"
+  mode="${1//mode=/}"
+  path="${2//path=/}"
 
   tool="prettier-eslint"
   offset="${#tool}"
@@ -126,7 +127,7 @@ run_tool_prettier_eslint() {
     return 0
   fi
 
-  if [ "$mode" = "mode=write" ]; then
+  if [ "$mode" = "write" ]; then
     cmd="npm \
       --prefix='$LINTBALL_DIR' \
       run \
@@ -159,7 +160,7 @@ run_tool_prettier_eslint() {
   if [ "$status" -eq 0 ]; then
     if [[ "$(cat "$stderr")" =~ unchanged ]]; then
       printf "%s%s%s\n" "↳ ${tool}" "${DOTS:offset}" "ok"
-    elif [ "$mode" = "mode=write" ] &&
+    elif [ "$mode" = "write" ] &&
       [[ "$(cat "$stderr")" =~ success\ formatting ]]; then
       printf "%s%s%s\n" "↳ ${tool}" "${DOTS:offset}" "wrote"
     else
@@ -180,9 +181,9 @@ run_tool_prettier_eslint() {
 
 run_tool_shellcheck() {
   local mode path args lang tool offset stdout stderr status color
-  mode="$1"
-  path="$2"
-  lang="$3"
+  mode="${1//mode=/}"
+  path="${2//path=/}"
+  lang="${3//lang=/}"
 
   tool="shellcheck"
   offset="${#tool}"
@@ -192,7 +193,7 @@ run_tool_shellcheck() {
     return 0
   fi
 
-  if [ "$mode" = "mode=write" ]; then
+  if [ "$mode" = "write" ]; then
     args="${LINTBALL__WRITE_ARGS__SHELLCHECK}"
   else
     args="${LINTBALL__CHECK_ARGS__SHELLCHECK}"
@@ -226,7 +227,7 @@ run_tool_shellcheck() {
   else
     # stdout contains the tool results
     # stderr contains an error message
-    if [ "$mode" = "mode=write" ] && [ -n "$(cat "$stdout" 2>/dev/null)" ]; then
+    if [ "$mode" = "write" ] && [ -n "$(cat "$stdout" 2>/dev/null)" ]; then
       # patchable, so generate a patchfile and apply it
       set -f
       eval "shellcheck \
@@ -269,9 +270,9 @@ run_tool_shellcheck() {
 
 run_tool_uncrustify() {
   local mode path lang tool offset args patch stdout stderr status
-  mode="$1"
-  path="$2"
-  lang="$3"
+  mode="${1//mode=/}"
+  path="${2//path=/}"
+  lang="${3//lang=/}"
 
   tool="uncrustify"
   offset="${#tool}"
@@ -281,7 +282,7 @@ run_tool_uncrustify() {
     return 0
   fi
 
-  if [ "$mode" = "mode=write" ]; then
+  if [ "$mode" = "write" ]; then
     args="${LINTBALL__WRITE_ARGS__UNCRUSTIFY}"
   else
     args="${LINTBALL__CHECK_ARGS__UNCRUSTIFY}"
@@ -309,7 +310,7 @@ run_tool_uncrustify() {
     else
       patch="$(diff -u "$path" "$stdout")"
       if [ -n "$patch" ]; then
-        if [ "$mode" = "mode=write" ]; then
+        if [ "$mode" = "write" ]; then
           cat "$stdout" >"$path"
           printf "%s%s%s\n" "↳ ${tool}" "${DOTS:offset}" "wrote"
         else

@@ -580,9 +580,9 @@ parse_version() {
 
 process_file() {
   local path mode gitadd status extension tools tool
-  path="$1"
-  mode="$2"
-  gitadd="$3"
+  path="${1//path=/}"
+  mode="${2//mode=/}"
+  gitadd="${3//gitadd=/}"
 
   status=0
   path="$(normalize_path "$path")"
@@ -596,12 +596,12 @@ process_file() {
   while read -r tool; do
     {
       case "$tool" in
-        nimpretty) run_tool_nimpretty "$mode" "$path" ;;
-        prettier-eslint) run_tool_prettier_eslint "$mode" "$path" ;;
-        shellcheck) run_tool_shellcheck "$mode" "$path" "$(get_lang_shellcheck "$extension")" ;;
-        shfmt) run_tool "shfmt" "$mode" "$path" "$(get_lang_shfmt "$extension")" ;;
-        uncrustify) run_tool_uncrustify "$mode" "$path" "$(get_lang_uncrustify "$extension")" ;;
-        *) run_tool "$tool" "$mode" "$path" ;;
+        nimpretty) run_tool_nimpretty "mode=$mode" "path=$path" ;;
+        prettier-eslint) run_tool_prettier_eslint "mode=$mode" "path=$path" ;;
+        shellcheck) run_tool_shellcheck "mode=$mode" "path=$path" "lang=$(get_lang_shellcheck "$extension")" ;;
+        shfmt) run_tool "shfmt" "mode=$mode" "path=$path" "lang=$(get_lang_shfmt "$extension")" ;;
+        uncrustify) run_tool_uncrustify "mode=$mode" "path=$path" "lang=$(get_lang_uncrustify "$extension")" ;;
+        *) run_tool "tool=$tool" "mode=$mode" "path=$path" ;;
       esac
     } || status=$?
   done <<<"$tools"
