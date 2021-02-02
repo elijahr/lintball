@@ -50,6 +50,10 @@ jobs:
         with:
           rust-version: nightly
 
+      - uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: stable
+
       - name: Install tools
         shell: bash
         run: |

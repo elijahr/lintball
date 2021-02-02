@@ -112,7 +112,7 @@ install_shell_tools() {
 
 install_stylua() {
   if [ -n "$(which cargo)" ]; then
-    cargo install stylua --features luau
+    cargo +stable install stylua --features luau
   else
     echo "Error: cannot install stylua - could not find a cargo executable." >&2
     return 1
