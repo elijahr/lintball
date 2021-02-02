@@ -59,14 +59,14 @@ cli_entrypoint() {
   all="all=no"
 
   # Load default configs
-  config_load "${LINTBALL_DIR}/configs/lintballrc-defaults.json"
-  config_load "${LINTBALL_DIR}/configs/lintballrc-ignores.json"
+  config_load "path=${LINTBALL_DIR}/configs/lintballrc-defaults.json"
+  config_load "path=${LINTBALL_DIR}/configs/lintballrc-ignores.json"
 
   if [ -n "$config" ]; then
     echo
     echo "# lintball: using config file ${config}"
     echo
-    config_load "$config" || return 1
+    config_load "path=$config" || return 1
   fi
 
   num_jobs="$LINTBALL__NUM_JOBS"
@@ -106,11 +106,13 @@ cli_entrypoint() {
             return 1
             ;;
           *)
-            paths="$(
-              for path in "$@"; do
-                echo "$path"
-              done
-            )"
+            if [ -n "${1:-}" ]; then
+              paths="$(
+                for path in "$@"; do
+                  echo "$path"
+                done
+              )"
+            fi
             break
             ;;
         esac
@@ -204,7 +206,7 @@ cmd_find() {
   else
     echo "$@" | while read -r line; do
       if [ -n "${line// /}" ]; then
-        printf '"%s" ' "$(normalize_path "$line")"
+        printf '"%s" ' "$(normalize_path "path=$line")"
       fi
     done
   fi
@@ -413,11 +415,10 @@ get_shebang() {
 
 get_tools_for_file() {
   local path extension
-  mode="$1"
-  path="$1"
+  path="${1//path=/}"
 
-  path="$(normalize_path "$path")"
-  extension="$(normalize_extension "$path")"
+  path="$(normalize_path "path=$path")"
+  extension="$(normalize_extension "path=$path")"
 
   case "$extension" in
     css | graphql | html | jade | java | json | md | mdx | pug | scss | xml)
@@ -482,7 +483,7 @@ get_tools_for_file() {
 
 normalize_extension() {
   local path lang filename extension
-  path="$1"
+  path="${1//path=/}"
 
   # Check for `# lintball lang=foo` directives
   if [ -f "$path" ]; then
@@ -549,7 +550,7 @@ normalize_extension() {
 
 normalize_path() {
   local path
-  path="$1"
+  path="${1//path=/}"
 
   # Strip redundant slashes
   while [[ $path =~ \/\/ ]]; do
@@ -585,13 +586,13 @@ process_file() {
   gitadd="${3//gitadd=/}"
 
   status=0
-  path="$(normalize_path "$path")"
-  tools="$(get_tools_for_file "$path")"
+  path="$(normalize_path "path=$path")"
+  tools="$(get_tools_for_file "path=$path")"
   if [ -z "$tools" ]; then
     return 0
   fi
 
-  extension="$(normalize_extension "$path")"
+  extension="$(normalize_extension "path=$path")"
   echo "# $path"
   while read -r tool; do
     {
@@ -725,14 +726,13 @@ consume() {
   while true; do
     path="$(cat "${tmp}/queues/${consumer}")"
     if [ "$path" = "<empty>" ]; then
-      echo "<empty>" >"${tmp}/outputs/${consumer}"
       break
     fi
     output="$(process_file "$path" "mode=$mode" "gitadd=$gitadd" 2>&1 || touch "${tmp}/errfile")"
     if [ -n "$output" ]; then
       echo "$output"$'\n<empty>' >"${tmp}/outputs/${consumer}"
     fi
-    sleep 0.01
+    sleep 0
   done
 }
 
@@ -756,13 +756,13 @@ produce() {
       consumer="$((consumer + 1))"
     fi
     echo "$consumer" >"$consumer_counter"
-    sleep 0.01
+    sleep 0
   done
 
   # Notify consumers that work is done
   for ((consumer = 1; consumer <= num_jobs; consumer++)); do
     echo "<empty>" >"${tmp}/queues/${consumer}"
-    sleep 0.01
+    sleep 0
   done
 }
 

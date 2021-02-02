@@ -17,17 +17,10 @@ teardown() {
   find . -type f -not -name 'a.json' -not -name 'a.yml' -delete
   run lintball fix
   assert_success
-  expected="$(
-    cat <<EOF
-# ./a.json
-↳ prettier...........................wrote
-
-# ./a.yml
-↳ prettier...........................wrote
-↳ yamllint...........................ok
-EOF
-  )"
-  assert_output "$expected"
+  assert_line "# ./a.json"
+  assert_line "# ./a.yml"
+  assert [ "$(echo "$output" | grep -cF "↳ prettier...........................wrote" -c)" -eq 2 ]
+  assert [ "$(echo "$output" | grep -cF "↳ yamllint...........................ok" -c)" -eq 1 ]
 }
 
 @test 'lintball fix --since HEAD~1' {
@@ -41,20 +34,11 @@ EOF
   git add a.yml
   run lintball fix --since HEAD~2
   assert_success
-  expected="$(
-    cat <<EOF
-# ./a.html
-↳ prettier...........................wrote
-
-# ./a.xml
-↳ prettier...........................wrote
-
-# ./a.yml
-↳ prettier...........................wrote
-↳ yamllint...........................ok
-EOF
-  )"
-  assert_output "$expected"
+  assert_line "# ./a.html"
+  assert_line "# ./a.xml"
+  assert_line "# ./a.yml"
+  assert [ "$(echo "$output" | grep -cF "↳ prettier...........................wrote")" -eq 3 ]
+  assert [ "$(echo "$output" | grep -cF "↳ yamllint...........................ok")" -eq 1 ]
 }
 
 @test 'lintball fix # lintball lang=bash' {
