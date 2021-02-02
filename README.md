@@ -148,7 +148,7 @@ Examples:
   $ lintball install-tools -p foo        # Autodetect tools for directory foo
                                          # and install them.
   $ lintball install-tools --all         # Install all tools.
-  $ lintball install-tools py java yaml  # Install tools for checking Python,
+  $ lintball install-tools py js yaml    # Install tools for checking Python,
                                          # JavaScript, & YAML.
 ```
 
