@@ -452,9 +452,6 @@ get_tools_for_file() {
       echo "docformatter"
       echo "autopep8"
       echo "autoflake"
-      echo "isort"
-      # pyi doesn't use black for now because black removes the two blank lines
-      # after imports but autopep8 and isort both re-add them.
       ;;
     pyx | pxd | pxi)
       echo "docformatter"
