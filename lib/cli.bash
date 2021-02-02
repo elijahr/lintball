@@ -78,6 +78,7 @@ cli_entrypoint() {
         fix) mode="write" ;;
       esac
       shift
+      paths=""
       while true; do
         case "${1:-}" in
           -s | --since)
