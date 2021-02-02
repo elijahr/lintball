@@ -109,7 +109,7 @@ EOF
 
 @test 'pre-commit handles paths with spaces' {
   mkdir -p "aaa aaa/bbb bbb"
-  cp "a.yml" "aaa aaa/bbb bbb/a b.yml"
+  mv "a.yml" "aaa aaa/bbb bbb/a b.yml"
   git add .
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
@@ -151,7 +151,6 @@ a.ts
 a.tsx
 a.txt
 a.xml
-a.yml
 a_bash
 a_js
 a_py

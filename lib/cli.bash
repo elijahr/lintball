@@ -145,15 +145,15 @@ cli_entrypoint() {
       while true; do
         case "${1:-}" in
           -y | --yes)
-            answer="answer=yes"
+            answer="yes"
             shift
             ;;
           -n | --no)
-            answer="answer=no"
+            answer="no"
             shift
             ;;
           -a | --all)
-            all="all=yes"
+            all="yes"
             shift
             ;;
           -p | --path)
@@ -185,7 +185,7 @@ cli_entrypoint() {
           echo >&2
           return 1
         fi
-        "$fn" "path=$path" "path=$answer"
+        "$fn" "path=$path" "answer=$answer"
         return $?
       fi
       ;;
