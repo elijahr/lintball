@@ -31,9 +31,9 @@ install_clippy() {
       rustup self update
       rustup update
     fi
-    rustup component add clippy
     # nightly is needed for clippy to fix issues
     rustup toolchain install nightly
+    rustup component add clippy --toolchain nightly
   else
     echo "Error: cannot install clippy - could not find a cargo executable." >&2
     return 1
