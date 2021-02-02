@@ -122,6 +122,34 @@ Subcommands:
                             files that are partially staged for commit.
                               Exit 1 if unfixable issues on fully staged files.
                               Exit 1 if any issues on partially staged files.
+
+Examples:
+  $ lintball check                       # Check working directory for issues.
+  $ lintball check --since HEAD~1        # Check working directory for issues
+                                         # in all files changes since the commit
+                                         # before last.
+  $ lintball check foo                   # Check the foo directory for issues.
+  $ lintball check foo.py                # Check the foo.py file for issues.
+  $ lintball fix                         # Fix issues in the working directory.
+  $ lintball -c foo/.lintballrc.json fix # Fix issues in the working directory
+                                         # using the specified config.
+  $ lintball fix foo                     # Fix issues in the foo directory.
+  $ lintball fix foo.py                  # Fix issues in the foo.py file.
+  $ lintball install-githooks -p foo     # Install githooks in directory foo.
+  $ lintball install-githooks --yes      # Install a githooks config, replacing
+                                         # any existing githooks config.
+  $ lintball install-lintballrc          # Install a default .lintballrc.json
+                                         # in the working directory.
+  $ lintball install-lintballrc -p foo   # Install default .lintballrc.json in
+                                         # directory foo.
+  $ lintball install-tools --yes         # Autodetect tools for working
+                                         # directory and install them, no
+                                         # prompt.
+  $ lintball install-tools -p foo        # Autodetect tools for directory foo
+                                         # and install them.
+  $ lintball install-tools --all         # Install all tools.
+  $ lintball install-tools py java yaml  # Install tools for checking Python,
+                                         # JavaScript, & YAML.
 ```
 
 ## Updating to latest lintball
