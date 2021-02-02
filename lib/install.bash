@@ -77,7 +77,7 @@ install_shell_tools() {
   packages=()
   if [ -n "$(which shellcheck)" ]; then
     # min version 0.6.0, for --severity=style
-    shellcheck_version="$(parse_version "$(shellcheck -V)")"
+    shellcheck_version="$(parse_version "text=$(shellcheck -V)")"
     if version_compare "$shellcheck_version" "0.6.0" "<"; then
       packages+=("shellcheck")
     fi
@@ -93,7 +93,7 @@ install_shell_tools() {
       brew install ${packages[*]}
     elif [ -n "$(which apt-get)" ]; then
       sudo apt-get update
-      if [ "$answer" = "$answer=yes" ]; then
+      if [ "$answer" = "yes" ]; then
         sudo apt-get install -y ${packages[*]}
       else
         sudo apt-get install ${packages[*]}
@@ -121,13 +121,13 @@ install_stylua() {
 
 install_uncrustify() {
   local answer
-  answer="$1"
+  answer="${1//answer=/}"
   if [ -n "$(which brew)" ]; then
     brew update
     brew install uncrustify
   elif [ -n "$(which apt-get)" ]; then
     sudo apt-get update
-    if [ "$answer" = "$answer=yes" ]; then
+    if [ "$answer" = "yes" ]; then
       sudo apt-get install -y uncrustify
     else
       sudo apt-get install uncrustify

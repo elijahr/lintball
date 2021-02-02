@@ -19,7 +19,7 @@ source "${LINTBALL_DIR}/lib/install.bash"
 source "${LINTBALL_DIR}/lib/tools.bash"
 
 cli_entrypoint() {
-  local config mode commit num_jobs paths fn path answer all
+  local config mode commit num_jobs paths fn path answer all status
   config=""
 
   # Parse base options
@@ -118,7 +118,7 @@ cli_entrypoint() {
             ;;
         esac
       done
-      subcommand_process_files "mode=$mode" "gitadd=no" "num_jobs=$num_jobs" "$paths"
+      subcommand_process_files "mode=$mode" "num_jobs=$num_jobs" "$paths"
       return $?
       ;;
     pre-commit)
@@ -132,8 +132,12 @@ cli_entrypoint() {
       if [ -z "$paths" ]; then
         return 0
       fi
-      subcommand_process_files "mode=write" "gitadd=yes" "num_jobs=$num_jobs" "$paths"
-      return $?
+      subcommand_process_files "mode=write" "num_jobs=$num_jobs" "$paths"
+      status=$?
+      echo "$paths" | while read -r path; do
+        git add "$path"
+      done
+      return $status
       ;;
     install-githooks | install-lintballrc | install-tools)
       fn="subcommand_${1//-/_}"
@@ -173,7 +177,7 @@ cli_entrypoint() {
       path="${path:-$PWD}"
       if [ "$fn" = "subcommand_install_tools" ]; then
         # Pass extensions to install_tools
-        "$fn" "$path" "$answer" "$all" "$@"
+        "$fn" "path=$path" "answer=$answer" "all=$all" "$@"
         return $?
       else
         if [ "$#" -gt 0 ]; then
@@ -181,7 +185,7 @@ cli_entrypoint() {
           echo >&2
           return 1
         fi
-        "$fn" "$path" "$answer"
+        "$fn" "path=$path" "path=$answer"
         return $?
       fi
       ;;
@@ -274,10 +278,10 @@ config_load() {
 
 confirm_copy() {
   local src dest answer symlink
-  src="$1"
-  dest="$2"
-  answer="$3"
-  symlink="$4"
+  src="${1//src=/}"
+  dest="${2//dest=/}"
+  answer="${3//answer=/}"
+  symlink="${4//symlink=/}"
   if [ -d "$src" ] || [ -d "$dest" ]; then
     echo >&2
     echo "Source and destination must be file paths, not directories." >&2
@@ -320,7 +324,7 @@ documentation_link() {
 find_git_dir() {
   local dir
   # Traverse up the directory tree looking for .git
-  dir="$1"
+  dir="${1//dir=/}"
   while [ "$dir" != "/" ]; do
     if [ -d "${dir}/.git" ]; then
       echo "${dir}/.git"
@@ -347,7 +351,7 @@ get_fully_staged_paths() {
 
 get_installer_for_tool() {
   local tool
-  tool="$1"
+  tool="${1//tool=/}"
   case "$tool" in
     autoflake | autopep8 | black | docformatter | isort | yamllint)
       echo "install_pip_requirements"
@@ -366,7 +370,7 @@ get_installer_for_tool() {
 
 get_lang_shellcheck() {
   local extension
-  extension="$1"
+  extension="${1//extension=/}"
   case "$extension" in
     mksh) echo "ksh" ;;
     *) echo "$extension" ;;
@@ -375,7 +379,7 @@ get_lang_shellcheck() {
 
 get_lang_shfmt() {
   local extension
-  extension="$1"
+  extension="${1//extension=/}"
   case "$extension" in
     ksh) echo "mksh" ;;
     sh | dash) echo "posix" ;;
@@ -385,7 +389,7 @@ get_lang_shfmt() {
 
 get_lang_uncrustify() {
   local extension
-  extension="$1"
+  extension="${1//extension=/}"
   case "$extension" in
     c | h) echo "c" ;;
     cs | cpp | d | hpp) echo "cpp" ;;
@@ -395,7 +399,7 @@ get_lang_uncrustify() {
 
 get_paths_changed_since_commit() {
   local commit
-  commit="$1"
+  commit="${1//commit=/}"
   (
     git diff --name-only "$commit"
     git ls-files . --exclude-standard --others
@@ -404,11 +408,11 @@ get_paths_changed_since_commit() {
 
 get_shebang() {
   local path
-  path="$1"
+  path="${1//path=/}"
   (
     LC_CTYPE="C"
     export LC_CTYPE
-    if [ "$(tr '\0' ' ' <"$path" | head -c2 2>/dev/null)" = "#!" ]; then
+    if [ "$(tr '\0' ' ' 2>/dev/null <"$path" | head -c2)" = "#!" ]; then
       head -n1 "$path"
     fi
   )
@@ -416,9 +420,8 @@ get_shebang() {
 
 get_tools_for_file() {
   local path extension
-  path="${1//path=/}"
 
-  path="$(normalize_path "path=$path")"
+  path="$(normalize_path "$1")"
   extension="$(normalize_extension "path=$path")"
 
   case "$extension" in
@@ -570,7 +573,7 @@ normalize_path() {
 # shellcheck disable=SC2120
 parse_version() {
   local text line
-  text="$1"
+  text="${1//text=/}"
   echo "$text" |
     grep '[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}' |
     head -n 1 |
@@ -578,10 +581,9 @@ parse_version() {
 }
 
 process_file() {
-  local path mode gitadd status extension tools tool
+  local path mode status extension tools tool
   path="${1//path=/}"
   mode="${2//mode=/}"
-  gitadd="${3//gitadd=/}"
 
   status=0
   path="$(normalize_path "path=$path")"
@@ -597,28 +599,24 @@ process_file() {
       case "$tool" in
         nimpretty) run_tool_nimpretty "mode=$mode" "path=$path" ;;
         prettier-eslint) run_tool_prettier_eslint "mode=$mode" "path=$path" ;;
-        shellcheck) run_tool_shellcheck "mode=$mode" "path=$path" "lang=$(get_lang_shellcheck "$extension")" ;;
-        shfmt) run_tool "shfmt" "mode=$mode" "path=$path" "lang=$(get_lang_shfmt "$extension")" ;;
-        uncrustify) run_tool_uncrustify "mode=$mode" "path=$path" "lang=$(get_lang_uncrustify "$extension")" ;;
+        shellcheck) run_tool_shellcheck "mode=$mode" "path=$path" "lang=$(get_lang_shellcheck "extension=$extension")" ;;
+        shfmt) run_tool "tool=shfmt" "mode=$mode" "path=$path" "lang=$(get_lang_shfmt "extension=$extension")" ;;
+        uncrustify) run_tool_uncrustify "mode=$mode" "path=$path" "lang=$(get_lang_uncrustify "extension=$extension")" ;;
         *) run_tool "tool=$tool" "mode=$mode" "path=$path" ;;
       esac
     } || status=$?
   done <<<"$tools"
   echo
 
-  if [ "$status" -eq 0 ] && [ "$gitadd" = "gitadd=yes" ]; then
-    git add "$path"
-  fi
-
   return $status
 }
 
 subcommand_install_githooks() {
   local path answer git_dir hooks_path hook dest status
-  path="$1"
-  answer="$2"
+  path="${1//path=/}"
+  answer="${2//answer=/}"
 
-  git_dir="$(find_git_dir "$path" || true)"
+  git_dir="$(find_git_dir "dir=$path" || true)"
   if [ -z "$git_dir" ]; then
     echo >&2
     echo "Could not find a .git directory at or above $path" >&2
@@ -628,12 +626,12 @@ subcommand_install_githooks() {
 
   hooks_path="$(git --git-dir="$git_dir" config --local core.hooksPath || true)"
   if [ -z "$hooks_path" ]; then
-    hooks_path="${1}/.githooks"
+    hooks_path="${path}/.githooks"
   fi
   for hook in "${LINTBALL_DIR}/githooks/"*; do
     status=0
     dest="${hooks_path}/$(basename "$hook")"
-    confirm_copy "$hook" "$dest" "$answer" "symlink=yes" || status=$?
+    confirm_copy "src=$hook" "dest=$dest" "answer=$answer" "symlink=yes" || status=$?
     if [ "$status" -gt 0 ]; then
       return $status
     fi
@@ -647,25 +645,25 @@ subcommand_install_githooks() {
 
 subcommand_install_lintballrc() {
   local path answer
-  path="$1"
-  answer="$2"
+  path="${1//path=/}"
+  answer="${2//answer=/}"
   confirm_copy \
-    "${LINTBALL_DIR}/configs/lintballrc-ignores.json" \
-    "${path}/.lintballrc.json" \
-    "$answer" \
+    "src=${LINTBALL_DIR}/configs/lintballrc-ignores.json" \
+    "dest=${path}/.lintballrc.json" \
+    "answer=$answer" \
     "symlink=no" || return $?
 }
 
 subcommand_install_tools() {
   local path answer all extension tools tool file installers installer
-  path="$1"
-  answer="$2"
-  all="$3"
+  path="${1//path=/}"
+  answer="${2//answer=/}"
+  all="${3//all=/}"
   shift
   shift
   shift
 
-  if [ "$all" = "all=yes" ]; then
+  if [ "$all" = "yes" ]; then
     # install everything
     tools="$(
       cat <<EOF
@@ -697,36 +695,35 @@ EOF
     # examine path to find tools to install
     tools="$(
       eval "$(cmd_find "$path")" | while read -r file; do
-        get_tools_for_file "$file"
+        get_tools_for_file "file=$file"
       done
     )"
   fi
 
   installers="$(
     echo "$tools" | while read -r tool; do
-      get_installer_for_tool "$tool"
+      get_installer_for_tool "tool=$tool"
     done
   )"
 
   echo "$installers" | sort | uniq | while read -r installer; do
     if [ -n "$installer" ]; then
-      "$installer" "$answer"
+      "$installer" "answer=$answer"
     fi
   done
 }
 
 consume() {
-  local tmp consumer mode gitadd path output
+  local tmp consumer mode path output
   tmp="${1//tmp=/}"
   consumer="${2//consumer=/}"
   mode="${3//mode=/}"
-  gitadd="${4//gitadd=/}"
   while true; do
     path="$(cat "${tmp}/queues/${consumer}")"
     if [ "$path" = "<empty>" ]; then
       break
     fi
-    output="$(process_file "$path" "mode=$mode" "gitadd=$gitadd" 2>&1 || touch "${tmp}/errfile")"
+    output="$(process_file "$path" "mode=$mode" 2>&1 || touch "${tmp}/errfile")"
     if [ -n "$output" ]; then
       echo "$output"$'\n<empty>' >"${tmp}/outputs/${consumer}"
     fi
@@ -765,11 +762,9 @@ produce() {
 }
 
 subcommand_process_files() {
-  local mode gitadd num_jobs consumer tmp num_done status
+  local mode num_jobs consumer tmp num_done status
   mode="${1//mode=/}"
-  gitadd="${2//gitadd=/}"
-  num_jobs="${3//num_jobs=/}"
-  shift
+  num_jobs="${2//num_jobs=/}"
   shift
   shift
 
@@ -795,7 +790,7 @@ subcommand_process_files() {
   for ((consumer = 1; consumer <= num_jobs; consumer++)); do
     mkfifo "${tmp}/queues/${consumer}"
     mkfifo "${tmp}/outputs/${consumer}"
-    consume "tmp=$tmp" "consumer=$consumer" "mode=$mode" "gitadd=$gitadd" &
+    consume "tmp=$tmp" "consumer=$consumer" "mode=$mode" &
     echo "$!" >"${tmp}/pids/${consumer}"
   done
 
