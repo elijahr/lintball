@@ -28,6 +28,9 @@ cmd_autopep8() {
     autopep8="${LINTBALL_DIR}/tools/python-env/bin/autopep8"
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/autopep8.exe" ]; then
     autopep8="${LINTBALL_DIR}/tools/python-env/Scripts/autopep8.exe"
+  else
+    echo "Could not find autopep8 executable" >&2
+    return 1
   fi 
   if [ "$mode" = "write" ]; then
     echo "${autopep8} \
