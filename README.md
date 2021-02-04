@@ -1,4 +1,5 @@
 ![Test](https://github.com/elijahr/lintball/workflows/Test/badge.svg)
+![Platforms](https://img.shields.io/badge/platform-macos%20%7C%20linux%20%7C%20windows%20-lightgrey)
 
 ```
 █   █ █▄ █ ▀█▀ ██▄ ▄▀▄ █   █

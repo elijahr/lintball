@@ -17,11 +17,16 @@ jobs:
       matrix:
         runs-on:
           # - ubuntu-latest
-          - macos-latest
+          # - macos-latest
+          - windows-latest
 
     runs-on: ${{ matrix.runs-on }}
 
     steps:
+      - name: Upgrade bash
+        if: runner.os == 'macOS'
+        run: brew install bash
+
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -65,10 +70,6 @@ jobs:
           [ -n "$(which bats)" ] || npm link bats --verbose
 
           ./bin/lintball install-tools --all --yes
-
-      - name: Upgrade bash
-        if: runner.os == 'macOS'
-        run: brew install bash
 
       - name: Run tests
         run: npm run test
