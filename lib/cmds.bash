@@ -88,6 +88,9 @@ cmd_docformatter() {
     docformatter="${LINTBALL_DIR}/tools/python-env/bin/docformatter"
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/docformatter.exe" ]; then
     docformatter="${LINTBALL_DIR}/tools/python-env/Scripts/docformatter.exe"
+  else
+    echo "Could not find docformatter executable" >&2
+    return 1
   fi  
   if [ "$mode" = "write" ]; then
     echo "${docformatter} \
