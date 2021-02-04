@@ -234,7 +234,7 @@ cmd_yamllint() {
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/yamllint.exe" ]; then
     yamllint="${LINTBALL_DIR}/tools/python-env/Scripts/yamllint.exe"
   else
-    echo "Could not find isort executable" >&2
+    echo "Could not find yamllint executable" >&2
     return 1
   fi
   if [ "$mode" = "write" ]; then
