@@ -61,14 +61,29 @@ install_pip_requirements() {
         return 1
       fi
     fi
-    if [ ! -f "python-env/bin/pip" ]; then
+    local activateexe
+    activateexe=""
+    if [ -f "python-env/bin/activate" ]; then
+      activateexe="python-env/bin/activate"
+    elif [ -f "python-env/Scripts/activate" ]; then
+      activateexe="python-env/Scripts/activate"
+    else
+      echo "Could not find venv activate script" >&2
+      return 1
+    fi
+    source "$activateexe"
+    local pipexe
+    pipexe="pip"
+    if [ -f "python-env/bin/pip" ]; then
+      pipexe="python-env/bin/pip"
+    elif [ -f "python-env/Scripts/pip.exe" ]; then
+      pipexe="python-env/Scripts/pip.exe"
+    else
       curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
       python-env/bin/python get-pip.py || sudo python-env/bin/python get-pip.py
       rm /tmp/get-pip.py
-    else
-      python-env/bin/pip install pip --force
     fi
-    python-env/bin/pip install -r requirements-pip.txt --force || sudo python-env/bin/pip install -r requirements-pip.txt --force
+    "$pipexe" install -r requirements-pip.txt --force || sudo "$pipexe" install -r requirements-pip.txt --force
   )
 }
 
