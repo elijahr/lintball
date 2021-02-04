@@ -3,7 +3,7 @@
     "*/.git/*",
     "*/tools/Gemfile",
     "*/node_modules/*",
-    "*/tools/package-lock.json",
+    "*/package-lock.json",
     "*/tools/python-env/*",
     "*/tools/vendor/*",
     "*/tools/target/*",
