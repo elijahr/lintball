@@ -67,6 +67,9 @@ install_pip_requirements() {
       activateexe="python-env/bin/activate"
     elif [ -f "python-env/Scripts/activate" ]; then
       activateexe="python-env/Scripts/activate"
+    else
+      echo "Could not find venv activate script" >&2
+      return 1
     fi
     source "$activateexe"
     local pipexe
