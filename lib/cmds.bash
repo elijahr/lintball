@@ -115,6 +115,9 @@ cmd_isort() {
     isort="${LINTBALL_DIR}/tools/python-env/bin/isort"
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/isort.exe" ]; then
     isort="${LINTBALL_DIR}/tools/python-env/Scripts/isort.exe"
+  else
+    echo "Could not find isort executable" >&2
+    return 1
   fi  
   if [ "$mode" = "write" ]; then
     echo "${isort} \
