@@ -6,6 +6,15 @@ load ./lib/test_utils
 
 setup() {
   setup_test
+  # optimization, only fix a few arbitrary files
+  find . \
+    -type f \
+    -not \( -path "*/.git/*" \) \
+    -not -name '.gitignore' \
+    -not -name 'a.md' \
+    -not -name 'a.txt' \
+    -not -name 'a.yml' \
+    -delete
   git add .gitignore
   git commit -m "Initial commit"
 }
@@ -20,52 +29,9 @@ teardown() {
   assert_success
   expected="$(
     cat <<EOF
-Cargo.lock
-Cargo.toml
-a.bash
-a.bats
-a.bats.expected
-a.c
-a.cpp
-a.cs
-a.css
-a.d
-a.dash
-a.h
-a.hpp
-a.html
-a.java
-a.js
-a.json
-a.jsx
-a.ksh
-a.lua
-a.m
 a.md
-a.mdx
-a.mksh
-a.nim
-a.pug
-a.py
-a.pyi
-a.pyx
-a.rb
-a.scss
-a.sh
-a.ts
-a.tsx
 a.txt
-a.xml
 a.yml
-a_bash
-a_js
-a_py
-a_rb
-a_sh
-b_bash
-b_js
-package.json
-src/main.rs
 EOF
   )"
   # Everything is staged in index
@@ -86,11 +52,11 @@ EOF
 
 @test 'pre-commit does not fix ignored files' {
   mkdir -p vendor
-  cp a.rb vendor/
-  git add -f vendor/a.rb
+  cp a.md vendor/
+  git add -f vendor/a.md
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
-  assert_equal "$(cat "vendor/a.rb")" "$(cat "a.rb")"
+  assert_equal "$(cat "vendor/a.md")" "$(cat "a.md")"
 }
 
 @test 'pre-commit fixes code' {
@@ -115,52 +81,9 @@ EOF
   assert_success
   expected="$(
     cat <<EOF
-Cargo.lock
-Cargo.toml
-a.bash
-a.bats
-a.bats.expected
-a.c
-a.cpp
-a.cs
-a.css
-a.d
-a.dash
-a.h
-a.hpp
-a.html
-a.java
-a.js
-a.json
-a.jsx
-a.ksh
-a.lua
-a.m
 a.md
-a.mdx
-a.mksh
-a.nim
-a.pug
-a.py
-a.pyi
-a.pyx
-a.rb
-a.scss
-a.sh
-a.ts
-a.tsx
 a.txt
-a.xml
-a_bash
-a_js
-a_py
-a_rb
-a_sh
 aaa aaa/bbb bbb/a b.yml
-b_bash
-b_js
-package.json
-src/main.rs
 EOF
   )"
   # Everything is staged in index
