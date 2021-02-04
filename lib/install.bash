@@ -80,8 +80,7 @@ install_pip_requirements() {
       python-env/bin/python get-pip.py || sudo python-env/bin/python get-pip.py
       rm /tmp/get-pip.py
     fi
-    "$pipexe" wheel || sudo "$pipexe" install wheel
-    "$pipexe" install -r requirements-pip.txt || sudo "$pipexe" install -r requirements-pip.txt
+    "$pipexe" install -r requirements-pip.txt || sudo "$pipexe" install -r requirements-pip.txt --force
   )
 }
 
