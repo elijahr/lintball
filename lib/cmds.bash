@@ -55,6 +55,9 @@ cmd_black() {
     blackexe="${LINTBALL_DIR}/tools/python-env/bin/black"
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/black.exe" ]; then
     blackexe="${LINTBALL_DIR}/tools/python-env/Scripts/black.exe"
+  else
+    echo "Could not find black executable" >&2
+    return 1
   fi  
   if [ "$mode" = "write" ]; then
     echo "${blackexe} \
