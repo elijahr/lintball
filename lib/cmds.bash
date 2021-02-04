@@ -4,7 +4,7 @@ cmd_autoflake() {
   path="${2//path=/}"
   autoflake=""
   if [ -f "${LINTBALL_DIR}/tools/python-env/bin/autoflake" ]; then
-    autoflake="${LINTBALL_DIR}/tools/python-env/bin/autoflake";
+    autoflake="${LINTBALL_DIR}/tools/python-env/bin/autoflake"
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/autoflake.exe" ]; then
     autoflake="${LINTBALL_DIR}/tools/python-env/Scripts/autoflake.exe"
   fi
@@ -25,7 +25,7 @@ cmd_autopep8() {
   path="${2//path=/}"
   autopep8=""
   if [ -f "${LINTBALL_DIR}/tools/python-env/bin/autopep8" ]; then
-    autopep8="${LINTBALL_DIR}/tools/python-env/bin/autopep8";
+    autopep8="${LINTBALL_DIR}/tools/python-env/bin/autopep8"
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/autopep8.exe" ]; then
     autopep8="${LINTBALL_DIR}/tools/python-env/Scripts/autopep8.exe"
   fi 
@@ -46,7 +46,7 @@ cmd_black() {
   path="${2//path=/}"
   blackexe=""
   if [ -f "${LINTBALL_DIR}/tools/python-env/bin/black" ]; then
-    blackexe="${LINTBALL_DIR}/tools/python-env/bin/black";
+    blackexe="${LINTBALL_DIR}/tools/python-env/bin/black"
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/black.exe" ]; then
     blackexe="${LINTBALL_DIR}/tools/python-env/Scripts/black.exe"
   fi  
@@ -82,7 +82,7 @@ cmd_docformatter() {
   path="${2//path=/}"
   docformatter=""
   if [ -f "${LINTBALL_DIR}/tools/python-env/bin/docformatter" ]; then
-    docformatter="${LINTBALL_DIR}/tools/python-env/bin/docformatter";
+    docformatter="${LINTBALL_DIR}/tools/python-env/bin/docformatter"
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/docformatter.exe" ]; then
     docformatter="${LINTBALL_DIR}/tools/python-env/Scripts/docformatter.exe"
   fi  
@@ -103,7 +103,7 @@ cmd_isort() {
   path="${2//path=/}"
   isort=""
   if [ -f "${LINTBALL_DIR}/tools/python-env/bin/isort" ]; then
-    isort="${LINTBALL_DIR}/tools/python-env/bin/isort";
+    isort="${LINTBALL_DIR}/tools/python-env/bin/isort"
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/isort.exe" ]; then
     isort="${LINTBALL_DIR}/tools/python-env/Scripts/isort.exe"
   fi  
