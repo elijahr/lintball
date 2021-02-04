@@ -7,6 +7,9 @@ cmd_autoflake() {
     autoflake="${LINTBALL_DIR}/tools/python-env/bin/autoflake"
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/autoflake.exe" ]; then
     autoflake="${LINTBALL_DIR}/tools/python-env/Scripts/autoflake.exe"
+  else
+    echo "Could not find autoflake executable" >&2
+    return 1
   fi
   if [ "$mode" = "write" ]; then
     echo "${autoflake} \
