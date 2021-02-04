@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         runs-on:
-          # - ubuntu-latest
+          - ubuntu-latest
           - macos-latest
           # - windows-latest
 
