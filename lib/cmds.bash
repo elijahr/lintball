@@ -1,53 +1,53 @@
 cmd_autoflake() {
-  local mode path
+  local mode path autoflakeexe
   mode="${1//mode=/}"
   path="${2//path=/}"
-  autoflake=""
+  autoflakeexe=""
   if [ -f "${LINTBALL_DIR}/tools/python-env/bin/autoflake" ]; then
-    autoflake="${LINTBALL_DIR}/tools/python-env/bin/autoflake"
+    autoflakeexe="${LINTBALL_DIR}/tools/python-env/bin/autoflake"
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/autoflake.exe" ]; then
-    autoflake="${LINTBALL_DIR}/tools/python-env/Scripts/autoflake.exe"
+    autoflakeexe="${LINTBALL_DIR}/tools/python-env/Scripts/autoflake.exe"
   else
     echo "Could not find autoflake executable" >&2
     return 1
   fi
   if [ "$mode" = "write" ]; then
-    echo "${autoflake} \
+    echo "${autoflakeexe} \
       $(eval echo "${LINTBALL__WRITE_ARGS__AUTOFLAKE}") \
       '$path'"
   else
-    echo "${autoflake} \
+    echo "${autoflakeexe} \
       $(eval echo "${LINTBALL__CHECK_ARGS__AUTOFLAKE}") \
       '$path'"
   fi
 }
 
 cmd_autopep8() {
-  local mode path
+  local mode path autopep8exe
   mode="${1//mode=/}"
   path="${2//path=/}"
-  autopep8=""
+  autopep8exe=""
   if [ -f "${LINTBALL_DIR}/tools/python-env/bin/autopep8" ]; then
-    autopep8="${LINTBALL_DIR}/tools/python-env/bin/autopep8"
+    autopep8exe="${LINTBALL_DIR}/tools/python-env/bin/autopep8"
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/autopep8.exe" ]; then
-    autopep8="${LINTBALL_DIR}/tools/python-env/Scripts/autopep8.exe"
+    autopep8exe="${LINTBALL_DIR}/tools/python-env/Scripts/autopep8.exe"
   else
     echo "Could not find autopep8 executable" >&2
     return 1
   fi
   if [ "$mode" = "write" ]; then
-    echo "${autopep8} \
+    echo "${autopep8exe} \
       $(eval echo "${LINTBALL__WRITE_ARGS__AUTOPEP8}") \
       '$path'"
   else
-    echo "${autopep8} \
+    echo "${autopep8exe} \
       $(eval echo "${LINTBALL__CHECK_ARGS__AUTOPEP8}") \
       '$path'"
   fi
 }
 
 cmd_black() {
-  local mode path
+  local mode path blackexe
   mode="${1//mode=/}"
   path="${2//path=/}"
   blackexe=""
@@ -86,48 +86,48 @@ cmd_clippy() {
 }
 
 cmd_docformatter() {
-  local mode path
+  local mode path docformatterexe
   mode="${1//mode=/}"
   path="${2//path=/}"
-  docformatter=""
+  docformatterexe=""
   if [ -f "${LINTBALL_DIR}/tools/python-env/bin/docformatter" ]; then
-    docformatter="${LINTBALL_DIR}/tools/python-env/bin/docformatter"
+    docformatterexe="${LINTBALL_DIR}/tools/python-env/bin/docformatter"
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/docformatter.exe" ]; then
-    docformatter="${LINTBALL_DIR}/tools/python-env/Scripts/docformatter.exe"
+    docformatterexe="${LINTBALL_DIR}/tools/python-env/Scripts/docformatter.exe"
   else
     echo "Could not find docformatter executable" >&2
     return 1
   fi
   if [ "$mode" = "write" ]; then
-    echo "${docformatter} \
+    echo "${docformatterexe} \
       $(eval echo "${LINTBALL__WRITE_ARGS__DOCFORMATTER}") \
       '$path'"
   else
-    echo "${docformatter} \
+    echo "${docformatterexe} \
       $(eval echo "${LINTBALL__CHECK_ARGS__DOCFORMATTER}") \
       '$path'"
   fi
 }
 
 cmd_isort() {
-  local mode path
+  local mode path isortexe
   mode="${1//mode=/}"
   path="${2//path=/}"
-  isort=""
+  isortexe=""
   if [ -f "${LINTBALL_DIR}/tools/python-env/bin/isort" ]; then
-    isort="${LINTBALL_DIR}/tools/python-env/bin/isort"
+    isortexe="${LINTBALL_DIR}/tools/python-env/bin/isort"
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/isort.exe" ]; then
-    isort="${LINTBALL_DIR}/tools/python-env/Scripts/isort.exe"
+    isortexe="${LINTBALL_DIR}/tools/python-env/Scripts/isort.exe"
   else
     echo "Could not find isort executable" >&2
     return 1
   fi
   if [ "$mode" = "write" ]; then
-    echo "${isort} \
+    echo "${isortexe} \
       $(eval echo "${LINTBALL__WRITE_ARGS__ISORT}") \
       '$path'"
   else
-    echo "${isort} \
+    echo "${isortexe} \
       $(eval echo "${LINTBALL__CHECK_ARGS__ISORT}") \
       '$path'"
   fi
@@ -219,7 +219,7 @@ cmd_stylua() {
 }
 
 cmd_yamllint() {
-  local mode path format
+  local mode path format yamllintexe
   mode="${1//mode=/}"
   path="${2//path=/}"
 
@@ -228,22 +228,22 @@ cmd_yamllint() {
   if [[ $- == *i* ]]; then
     format="colored"
   fi
-  yamllint=""
+  yamllintexe=""
   if [ -f "${LINTBALL_DIR}/tools/python-env/bin/yamllint" ]; then
-    yamllint="${LINTBALL_DIR}/tools/python-env/bin/yamllint"
+    yamllintexe="${LINTBALL_DIR}/tools/python-env/bin/yamllint"
   elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/yamllint.exe" ]; then
-    yamllint="${LINTBALL_DIR}/tools/python-env/Scripts/yamllint.exe"
+    yamllintexe="${LINTBALL_DIR}/tools/python-env/Scripts/yamllint.exe"
   else
     echo "Could not find yamllint executable" >&2
     return 1
   fi
   if [ "$mode" = "write" ]; then
-    echo "${yamllint} \
+    echo "${yamllintexe} \
       --format '$format' \
       $(eval echo "${LINTBALL__WRITE_ARGS__YAMLLINT}") \
       '$path'"
   else
-    echo "${yamllint} \
+    echo "${yamllintexe} \
       --format '$format' \
       $(eval echo "${LINTBALL__CHECK_ARGS__YAMLLINT}") \
       '$path'"
