@@ -228,13 +228,22 @@ cmd_yamllint() {
   if [[ $- == *i* ]]; then
     format="colored"
   fi
+  yamllint=""
+  if [ -f "${LINTBALL_DIR}/tools/python-env/bin/yamllint" ]; then
+    yamllint="${LINTBALL_DIR}/tools/python-env/bin/yamllint"
+  elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/yamllint.exe" ]; then
+    yamllint="${LINTBALL_DIR}/tools/python-env/Scripts/yamllint.exe"
+  else
+    echo "Could not find isort executable" >&2
+    return 1
+  fi
   if [ "$mode" = "write" ]; then
-    echo "${LINTBALL_DIR}/tools/python-env/bin/yamllint \
+    echo "${yamllint} \
       --format '$format' \
       $(eval echo "${LINTBALL__WRITE_ARGS__YAMLLINT}") \
       '$path'"
   else
-    echo "${LINTBALL_DIR}/tools/python-env/bin/yamllint \
+    echo "${yamllint} \
       --format '$format' \
       $(eval echo "${LINTBALL__CHECK_ARGS__YAMLLINT}") \
       '$path'"
