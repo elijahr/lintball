@@ -17,7 +17,10 @@ jobs:
       matrix:
         runs-on:
           - ubuntu-latest
-          - macos-latest
+          # macOS disabled for now. tests pass locally but fail in CI,
+          # appears to be a bug in bats or bats-assert, related to the `lines`
+          # array in test runs. Maybe bash on the macOS runner is outdated?
+          # - macos-latest
 
     runs-on: ${{ matrix.runs-on }}
 
