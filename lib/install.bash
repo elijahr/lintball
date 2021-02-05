@@ -114,7 +114,7 @@ install_shell_tools() {
         sudo apt-get install ${packages[*]}
       fi
     elif [ -n "$(which pacman)" ]; then
-      sudo pacman -Syu ${packages[*]}
+      pacman -Syu ${packages[*]} || sudo pacman -Syu ${packages[*]}
     elif [ -n "$(which apk)" ]; then
       apk --update add ${packages[*]}
     elif [ -n "$(which choco)" ]; then
@@ -150,21 +150,21 @@ install_uncrustify() {
     else
       sudo apt-get install uncrustify
     fi
-  elif [ -n "$(pacman)" ]; then
-    sudo pacman -Syu uncrustify
+  elif [ -n "$(which pacman)" ]; then
+    pacman -Syu uncrustify || sudo pacman -Syu uncrustify
   elif [ -n "$(which apk)" ]; then
     apk --update add uncrustify
-  elif [ -n "$(which choco)" ]; then
-    echo "uname!"
-    uname -a
-    curl "https://downloads.sourceforge.net/project/uncrustify/uncrustify/uncrustify-0.69.0/uncrustify-0.69.0-win64.zip?r=&ts=1612491869&use_mirror=phoenixnap" -o /tmp/uncrustify.zip
-    mkdir uncrustify
-    unzip -q /tmp/uncrustify.zip -d uncrustify
-    rm /tmp/uncrustify.zip
-    if [ -n "${GITHUB_PATH:-}" ]; then
-      # Add to PATH in GitHub Actions
-      echo "${LINTBALL_DIR}/tools/uncrustify" >>$GITHUB_PATH
-    fi
+  # elif [ -n "$(which choco)" ]; then
+  #   echo "uname!"
+  #   uname -a
+  #   curl "https://downloads.sourceforge.net/project/uncrustify/uncrustify/uncrustify-0.69.0/uncrustify-0.69.0-win64.zip?r=&ts=1612491869&use_mirror=phoenixnap" -o /tmp/uncrustify.zip
+  #   mkdir uncrustify
+  #   unzip -q /tmp/uncrustify.zip -d uncrustify
+  #   rm /tmp/uncrustify.zip
+  #   if [ -n "${GITHUB_PATH:-}" ]; then
+  #     # Add to PATH in GitHub Actions
+  #     echo "${LINTBALL_DIR}/tools/uncrustify" >>$GITHUB_PATH
+  #   fi
   else
     echo "Error: cannot install requirements: uncrustify" >&2
     echo "Try installing manually." >&2
