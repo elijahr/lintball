@@ -117,6 +117,9 @@ install_shell_tools() {
       sudo pacman -Syu ${packages[*]}
     elif [ -n "$(which apk)" ]; then
       apk --update add ${packages[*]}
+    elif [ -n "$(which choco)" ]; then
+      choco install shellcheck
+      GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
     else
       echo "Error: cannot install requirements: ${packages[*]}" >&2
       echo "Try installing manually." >&2
@@ -151,6 +154,17 @@ install_uncrustify() {
     sudo pacman -Syu uncrustify
   elif [ -n "$(which apk)" ]; then
     apk --update add uncrustify
+  elif [ -n "$(which choco)" ]; then
+    echo "uname!"
+    uname -a
+    curl "https://downloads.sourceforge.net/project/uncrustify/uncrustify/uncrustify-0.69.0/uncrustify-0.69.0-win64.zip?r=&ts=1612491869&use_mirror=phoenixnap" -o /tmp/uncrustify.zip
+    mkdir uncrustify
+    unzip -q /tmp/uncrustify.zip -d uncrustify
+    rm /tmp/uncrustify.zip
+    if [ -n "${GITHUB_PATH:-}" ]; then
+      # Add to PATH in GitHub Actions
+      echo "${LINTBALL_DIR}/tools/uncrustify" >>$GITHUB_PATH
+    fi
   else
     echo "Error: cannot install requirements: uncrustify" >&2
     echo "Try installing manually." >&2
