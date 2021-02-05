@@ -17,8 +17,6 @@ jobs:
       matrix:
         runs-on:
           - ubuntu-latest
-          - macos-latest
-          # - windows-latest
 
     runs-on: ${{ matrix.runs-on }}
 
