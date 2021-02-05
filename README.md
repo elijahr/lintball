@@ -7,15 +7,15 @@
 keep your entire project tidy with one command.
 ```
 
-lintball is a wrapper script around linters (static code analysis tools) and code formatters (prettier, black, etc).
+lintball is a wrapper script around linters (static code analysis tools) and code formatters (such as prettier, black, etc).
 
 ## Who is lintball for?
 
-In no particular order, lintball is for: Pythonistas, Rustaceans, JavaScriptologists, Rubulists, Javanauts, Bashabills, Luaticians, Nimcromancers, and any other group of programmers who go by a cute name I may or may not have just made up. Does your programming language of choice have an auto-formatter? Is it not in the list below? We'd love to assimilate your scripts, please and thank you 🤖. See [Contributing](#contributing).
+In no particular order, lintball is for: Pythonistas, Rustaceans, JavaScriptologists, Rubulists, Javanauts, Luaticians, Nimcromancers, and more… lintball is for everyone. Does your programming language of choice have an auto-formatter? Is it not in the list below? We'd love to 🤖 assimilate your scripts, please and thank you. See [Contributing](#contributing).
 
 ## Why use lintball?
 
-Most software projects consist of more than one programming language. Besides the source code, there will be docs, configs, scripts, and so on. Each language may have tools to find and fix issues - but configuring CI, git hooks, etc for each of these tools can be tedious - especially if you work on a lot of projects. The goal of lintball is to streamline the installation and running of these tools so that you have more time to play with your dog and work on your art.
+Most software projects consist of more than one programming language. There's source code, documentation, configuration files, build scripts, and so on. Each language may have tools to find and fix issues - but configuring CI, git hooks, etc for each of these tools can be tedious - especially if you work on a lot of projects. The goal of lintball is to streamline the installation and running of these tools so that you have more time for the more fun and important things.
 
 ## Supported languages
 
