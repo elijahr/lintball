@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "bats": "git+https://github.com/elijahr/bats-core.git#95796d381b54af1b31c80d86977567c43206b484",
+    "bats": "git+https://github.com/elijahr/bats-core.git#99a371cf9600be6366ad994b3d8e242e25f48091",
     "bats-assert": "git+https://github.com/bats-core/bats-assert.git#0a8dd57e2cc6d4cc064b1ed6b4e79b9f7fee096f",
     "bats-support": "^0.3.0"
   },
