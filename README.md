@@ -1,5 +1,5 @@
-![Test](https://github.com/elijahr/lintball/workflows/Test/badge.svg)
-![Platforms](https://img.shields.io/badge/platform-macos%20%7C%20linux%20%7C%20windows%20-lightgrey)
+![Test](https://github.com/elijahr/lintball/workflows/Test/badge.svg?branch=devel)
+![Platforms](https://img.shields.io/badge/platform-linux%20%7C%20macos%20-lightgrey)
 
 ```
 █   █ █▄ █ ▀█▀ ██▄ ▄▀▄ █   █
@@ -295,9 +295,9 @@ Many of the tools used by lintball can be configured to suit your needs. See:
 
 If you need to pass custom arguments to a tool (such as specifying a config file), create a `.lintballrc.json` file in your project with custom `write_args` and `check_args`. The default `write_args` and `check_args` are defined in [configs/lintballrc-defaults.json][21].
 
-### Known issues
+### Platform support
 
-#### ShellCheck & Apple Silicon
+#### Apple Silicon & ShellCheck
 
 ghc, the Haskell compiler, has not been ported to macOS arm64 yet as of this writing (2021-01-29). ShellCheck is written in Haskell and thus `brew install shellcheck` will fail. You can work around this by installing x86 Homebrew alongside the arm64 Homebrew, and installing the x86 ShellCheck bottle. This will run emulated via Rosetta 2.
 
@@ -306,6 +306,10 @@ curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | 
 arch -x86_64 /usr/local/Homebrew/bin/brew install shellcheck
 shellcheck --version
 ```
+
+#### Windows
+
+Windows support for linting and fixing Python code was added via https://github.com/elijahr/lintball/pull/2. Other languages have not been tested on Windows. Continuous integration also does not test on Windows. We would love to improve this! If you use Windows and want to use lintball please do submit a pull request with any necessary changes.
 
 ## Acknowledgements
 
