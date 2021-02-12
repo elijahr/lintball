@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2020-02-11
+
+### Changed
+
+- Fix sporadic hanging issue with parallel runs.
+
 ## [1.2.1] - 2020-02-03
 
 ### Added
