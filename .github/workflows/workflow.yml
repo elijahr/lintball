@@ -16,7 +16,8 @@ jobs:
       fail-fast: false
       matrix:
         runs-on:
-          - ubuntu-latest
+          # - ubuntu-latest
+          - macos-latest
 
     runs-on: ${{ matrix.runs-on }}
 
