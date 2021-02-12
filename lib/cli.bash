@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+shopt -s nullglob
+
 LINTBALL_DIR="${LINTBALL_DIR:-"${PWD}/lintball"}"
 export LINTBALL_DIR
 
@@ -606,7 +608,6 @@ process_file() {
       esac
     } || status=$?
   done <<<"$tools"
-  echo
 
   return $status
 }
@@ -715,20 +716,40 @@ EOF
 
 consume() {
   local tmp consumer mode path output
+
   tmp="${1//tmp=/}"
   consumer="${2//consumer=/}"
   mode="${3//mode=/}"
-  while true; do
-    path="$(cat "${tmp}/queues/${consumer}")"
-    if [ "$path" = "<empty>" ]; then
+  path=""
+
+  { while true; do
+    if ! read -t 0.5 -r path; then
+      continue
+    fi
+    if [ -z "$path" ]; then
       break
+    elif [ "$path" = "<done>" ]; then
+      break
+    else
+      output="$(process_file "$path" "mode=$mode" 2>&1 || touch "${tmp}/errfile")"
+
+      # spin lock to show output
+      set -o noclobber
+      while true; do
+        # shellcheck disable=SC2188
+        if { >"${tmp}/output.lock"; } 2>/dev/null; then
+          break
+        fi
+      done
+      set +o noclobber
+      if [ -n "$output" ]; then
+        echo "$output"
+        echo
+      fi
+      rm "${tmp}/output.lock"
     fi
-    output="$(process_file "$path" "mode=$mode" 2>&1 || touch "${tmp}/errfile")"
-    if [ -n "$output" ]; then
-      echo "$output"$'\n<empty>' >"${tmp}/outputs/${consumer}"
-    fi
-    sleep 0
-  done
+  done; } <"${tmp}/${consumer}.queue"
+  rm "${tmp}/${consumer}.pid"
 }
 
 produce() {
@@ -737,12 +758,13 @@ produce() {
   num_jobs="${2//num_jobs=/}"
   shift
   shift
+
   # Pipe paths to consumers
   consumer_counter="${tmp}/consumer_counter"
   echo 1 >"$consumer_counter"
   eval "$(cmd_find "$@")" | while read -r path; do
     consumer="$(cat "$consumer_counter")"
-    echo "$path" >"${tmp}/queues/${consumer}"
+    echo "$path" >"${tmp}/${consumer}.queue"
     if [ "$consumer" -eq "$num_jobs" ]; then
       # Reset
       consumer="1"
@@ -750,19 +772,33 @@ produce() {
       # Increment
       consumer="$((consumer + 1))"
     fi
+    rm "$consumer_counter"
     echo "$consumer" >"$consumer_counter"
-    sleep 0
   done
 
-  # Notify consumers that work is done
+  # Notify consumers that all paths have been enqueued
   for ((consumer = 1; consumer <= num_jobs; consumer++)); do
-    echo "<empty>" >"${tmp}/queues/${consumer}"
-    sleep 0
+    echo "<done>" >"${tmp}/${consumer}.queue"
   done
 }
 
+on_exit() {
+  local status="$?"
+  tmp="${1//tmp=/}"
+
+  # Kill consumers
+  for pidfile in "$tmp/"*.pid; do
+    kill -KILL "$(cat "$pidfile")" 1>/dev/null 2>/dev/null || true
+  done
+
+  # Cleanup
+  rm -rf "$tmp"
+
+  exit "$status"
+}
+
 subcommand_process_files() {
-  local mode num_jobs consumer tmp num_done status
+  local mode num_jobs consumer tmp status
   mode="${1//mode=/}"
   num_jobs="${2//num_jobs=/}"
   shift
@@ -782,63 +818,28 @@ subcommand_process_files() {
   fi
 
   tmp="$(mktemp -d)"
-  mkdir "${tmp}/queues"
-  mkdir "${tmp}/outputs"
-  mkdir "${tmp}/pids"
+
+  trap 'trap - HUP; kill -HUP $$' HUP
+  trap 'trap - INT; kill -INT $$' INT
+  trap 'trap - TERM; kill -TERM $$' TERM
+  # shellcheck disable=SC2064
+  trap "on_exit 'tmp=$tmp'" EXIT
 
   # Initialize consumer subprocesses
   for ((consumer = 1; consumer <= num_jobs; consumer++)); do
-    mkfifo "${tmp}/queues/${consumer}"
-    mkfifo "${tmp}/outputs/${consumer}"
+    mkfifo "${tmp}/${consumer}.queue"
     consume "tmp=$tmp" "consumer=$consumer" "mode=$mode" &
-    echo "$!" >"${tmp}/pids/${consumer}"
+    echo "$!" >"${tmp}/${consumer}.pid"
   done
+
+  sleep 2
 
   # Initialize producer subprocess
-  produce "tmp=$tmp" "num_jobs=$num_jobs" "$@" &
+  produce "tmp=$tmp" "num_jobs=$num_jobs" "$@"
 
-  # Stream output from consumers
-  while true; do
-    num_done="0"
-    for ((consumer = 1; consumer <= num_jobs; consumer++)); do
-      # shellcheck disable=SC2094
-      while read -t 0 && read -r line; do
-        if [ "$line" = "<empty>" ]; then
-          echo
-          break
-        elif [ -z "$line" ]; then
-          continue
-        fi
-        echo "$line"
-      done <<<"$(cat 0<>"${tmp}/outputs/${consumer}" <"${tmp}/outputs/${consumer}")"
-
-      if ! kill -0 "$(cat "${tmp}/pids/${consumer}")" 2>/dev/null; then
-        # consumer is done
-        num_done="$((num_done + 1))"
-      fi
-    done
-    if [ "$num_done" -eq "$num_jobs" ]; then
-      break
-    fi
-  done
-
-  for ((consumer = 1; consumer <= num_jobs; consumer++)); do
-    # shellcheck disable=SC2094
-    while read -t 0 && read -r line; do
-      if [ "$line" = "<empty>" ]; then
-        echo "<EMPTY>"
-
-        break
-      elif [ -z "$line" ]; then
-        continue
-      fi
-      echo "$line"
-    done <<<"$(cat 0<>"${tmp}/outputs/${consumer}" <"${tmp}/outputs/${consumer}")"
-  done
   wait
   status=0
   [ ! -f "${tmp}/errfile" ] || status=1
-  rm -rf "$tmp"
   return "$status"
 }
 
