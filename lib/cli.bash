@@ -508,11 +508,10 @@ normalize_extension() {
         extension="$lang"
       else
         filename="$(basename "$path")"
-        if [ "$filename" = "Gemfile" ]; then
-          extension="rb"
-        else
-          extension="${filename##*.}"
-        fi
+        case "$filename" in
+          Gemfile | Fastfile) extension="rb" ;;
+          *) extension="${filename##*.}" ;;
+        esac
       fi
       ;;
   esac
@@ -912,7 +911,7 @@ Detection methods:
   | package.json |                                        package.json |
   | pug          |                                               *.pug |
   | Python       |                  *.py, *.pyi, #!/usr/bin/env python |
-  | Ruby         |                  *.rb, Gemfile, #!/usr/bin/env ruby |
+  | Ruby         |        *.rb, Fastfile, Gemfile, #!/usr/bin/env ruby |
   | Rust         |                                          Cargo.toml |
   | SASS         |                                              *.scss |
   | sh           |                                     *.sh, #!/bin/sh |
