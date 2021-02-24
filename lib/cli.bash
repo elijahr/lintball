@@ -21,6 +21,17 @@ source "${LINTBALL_DIR}/lib/install.bash"
 source "${LINTBALL_DIR}/lib/tools.bash"
 
 cli_entrypoint() {
+  local bash_version
+  # shellcheck disable=SC2001
+  bash_version="$(echo "${BASH_VERSION}" | sed 's/\([0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}\).*/\1/')"
+  if version_compare "$bash_version" "4.0.0" "<"; then
+    echo "Unsupported bash version ${bash_version}: must be >=4"
+    if [ -n "$(which brew)" ]; then
+      echo "Try: brew install bash"
+    fi
+    exit 1
+  fi
+
   local config mode commit num_jobs paths fn path answer all status
   config=""
 
