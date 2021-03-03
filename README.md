@@ -245,6 +245,7 @@ If you have a large project with many files, you may want to limit the number of
       echo "To detect and auto-fix issues before pushing, install lintball's git hooks."
       echo "See https://github.com/elijahr/lintball"
       echo
+      exit $status
     fi
 ```
 
