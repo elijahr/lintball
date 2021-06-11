@@ -73,6 +73,9 @@ cli_entrypoint() {
   answer=""
   all="all=no"
 
+  # Clear the ignores array
+  IGNORE_GLOBS=()
+
   # Load default configs
   config_load "path=${LINTBALL_DIR}/configs/lintballrc-defaults.json"
   config_load "path=${LINTBALL_DIR}/configs/lintballrc-ignores.json"
@@ -262,9 +265,6 @@ config_load() {
     echo "No config file at ${path}" >&2
     return 1
   fi
-
-  # Clear the ignores array
-  IGNORE_GLOBS=()
 
   while read -r line; do
     case "$line" in
