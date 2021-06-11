@@ -160,6 +160,8 @@ EOF
 This module docstring should be dedented.
 """
 
+# pylint: disable=import-error,invalid-name
+
 import path
 import system
 
@@ -581,6 +583,8 @@ EOF
 
 This module docstring should be dedented.
 """
+
+# pylint: disable=import-error,invalid-name
 
 import path
 import system

@@ -4,6 +4,8 @@
                   This module docstring should be dedented.
 """
 
+# pylint: disable=import-error,invalid-name
+
 import system
 import path
 import os
