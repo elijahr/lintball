@@ -471,6 +471,7 @@ get_tools_for_file() {
       echo "docformatter"
       echo "autopep8"
       echo "autoflake"
+      echo "pylint"
       ;;
     pyx | pxd | pxi)
       echo "docformatter"

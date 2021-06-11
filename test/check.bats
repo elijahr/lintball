@@ -297,18 +297,18 @@ teardown() {
 }
 
 @test 'lintball check *.pyi' {
-  run lintball check "a.pyi"
+  run lintball check "c.pyi"
   assert_failure
-  run lintball fix "a.pyi"
-  run lintball check "a.pyi"
+  run lintball fix "c.pyi"
+  run lintball check "c.pyi"
   assert_success
 }
 
 @test 'lintball check *.pyx' {
-  run lintball check "a.pyx"
+  run lintball check "b.pyx"
   assert_failure
-  run lintball fix "a.pyx"
-  run lintball check "a.pyx"
+  run lintball fix "b.pyx"
+  run lintball check "b.pyx"
   assert_success
 }
 

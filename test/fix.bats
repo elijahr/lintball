@@ -597,25 +597,29 @@ EOF
 }
 
 @test 'lintball fix *.pyi' {
-  run lintball fix "a.pyi"
+  run lintball fix "c.pyi"
   assert_success
   expected="$(
     cat <<EOF
+"""This is a docstring."""
+
 from typing import Optional
+
+# pylint: disable=useless-object-inheritance,too-few-public-methods
 
 
 class Foo(object):
-    bar: str = ...
-    baz: str = ...
+    """This is a docstring."""
     spam: int = ...
     eggs: Optional[int] = ...
+    ham: str = ...
 EOF
   )"
-  assert_equal "$(cat "a.pyi")" "$expected"
+  assert_equal "$(cat "c.pyi")" "$expected"
 }
 
 @test 'lintball fix *.pyx' {
-  run lintball fix "a.pyx"
+  run lintball fix "b.pyx"
   assert_success
   expected="$(
     cat <<EOF
@@ -626,7 +630,7 @@ cdef void fun(char * a) nogil:
         char * dest = a
 EOF
   )"
-  assert_equal "$(cat "a.pyx")" "$expected"
+  assert_equal "$(cat "b.pyx")" "$expected"
 }
 
 @test 'lintball fix *.rb' {
