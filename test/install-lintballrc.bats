@@ -13,7 +13,7 @@ teardown() {
 }
 
 @test 'lintball install-lintballrc copies lintballrc-ignores.json → .lintballrc.json' {
-  rm .lintballrc.json
+  assert [ ! -f ".lintballrc.json" ]
   run lintball install-lintballrc --no
   assert_success
   assert [ -f ".lintballrc.json" ]
@@ -21,9 +21,9 @@ teardown() {
 }
 
 @test 'lintball install-lintballrc does not overwrite existing .lintballrc.json' {
-  cp .lintballrc.json .lintballrc-copy.json
+  echo "{}" >".lintballrc.json"
   run lintball install-lintballrc --no
   assert_failure
   assert [ -f ".lintballrc.json" ]
-  assert_equal "$(cat .lintballrc.json)" "$(cat .lintballrc-copy.json)"
+  assert_equal "$(cat .lintballrc.json)" "{}"
 }
