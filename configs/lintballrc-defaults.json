@@ -45,7 +45,7 @@
     "nimpretty": true,
     "prettier": true,
     "prettier-eslint": true,
-    "pylint": false,
+    "pylint": true,
     "rubocop": true,
     "shellcheck": true,
     "shfmt": true,

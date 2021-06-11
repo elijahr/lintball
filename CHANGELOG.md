@@ -5,19 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.3] - 2020-02-24
+## [1.3.0] - 2021-06-11
+
+### Added
+
+- Add pylint support.
+
+## [1.2.3] - 2021-02-24
 
 ### Added
 
 - Check for bash >= 4.
 
-## [1.2.2] - 2020-02-11
+## [1.2.2] - 2021-02-11
 
 ### Changed
 
 - Fix sporadic hanging issue with parallel runs.
 
-## [1.2.1] - 2020-02-03
+## [1.2.1] - 2021-02-03
 
 ### Added
 
@@ -30,13 +36,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix yamllint path issue.
 - Fix issue where black would not run due to "mach-o, wrong architecture" in dependencies.
 
-## [1.1.11] - 2020-01-27
+## [1.1.11] - 2021-01-27
 
 ### Changed
 
 - autoflake: don't remove "unused" imports in **init**.py
 
-## [1.1.10] - 2020-01-27
+## [1.1.10] - 2021-01-27
 
 ### Added
 
@@ -46,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed GitHub Actions example in README using `--since`.
 
-## [1.1.9] - 2020-01-27
+## [1.1.9] - 2021-01-27
 
 ### Added
 
@@ -56,33 +62,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Disable pre-commit hook during rebase.
 
-## [1.1.8] - 2020-01-27
+## [1.1.8] - 2021-01-27
 
 ### Changed
 
 - Configure `autopep8` and `isort` to play nicely with `black`.
 
-## [1.1.7] - 2020-01-27
+## [1.1.7] - 2021-01-27
 
 ### Changed
 
 - Proper handling of deleted files in pre-commit git hook.
 - Proper handling of deleted files in `fix`/`check` with `--since`.
 
-## [1.1.6] - 2020-01-26
+## [1.1.6] - 2021-01-26
 
 ### Changed
 
 - Fix `check` and `fix` issue when no path argument is provided (regression from
   1.1.4).
 
-## [1.1.5] - 2020-01-26
+## [1.1.5] - 2021-01-26
 
 ### Changed
 
 - Fix `--version`.
 
-## [1.1.4] - 2020-01-26
+## [1.1.4] - 2021-01-26
 
 ### Added
 
