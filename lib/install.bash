@@ -1,4 +1,4 @@
-# shellcheck disable=SC2086
+# shellcheck disable=SC2086,SC2230
 
 # shellcheck source=SCRIPTDIR/version_compare/version_compare
 source "${LINTBALL_DIR}/lib/version_compare/version_compare"
