@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2230
+
 set -ueo pipefail
 
 if [ -f "${LINTBALL_DIR:-.}/bin/lintball" ]; then

@@ -1,3 +1,5 @@
+# shellcheck disable=SC2230
+
 DOTS="..................................."
 
 run_tool() {

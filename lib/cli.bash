@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2230
+
 shopt -s nullglob
 
 LINTBALL_DIR="${LINTBALL_DIR:-"${PWD}/lintball"}"
