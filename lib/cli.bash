@@ -463,6 +463,7 @@ get_tools_for_file() {
       echo "autoflake"
       echo "isort"
       echo "black"
+      echo "pylint"
       ;;
     pyi)
       echo "docformatter"
@@ -688,6 +689,7 @@ isort
 nimpretty
 prettier
 prettier-eslint
+pylint
 rubocop
 shellcheck
 shfmt
@@ -857,42 +859,42 @@ subcommand_process_files() {
 support_table() {
   cat <<EOF
 Supported tools:
-  | Language     |                                      Tools used |
-  | :----------- | ----------------------------------------------: |
-  | bash         |                               shellcheck, shfmt |
-  | bats         |                               shellcheck, shfmt |
-  | C            |                                      uncrustify |
-  | C#           |                                      uncrustify |
-  | C++          |                                      uncrustify |
-  | CSS          |                                        prettier |
-  | Cython       |               autoflake, autopep8, docformatter |
-  | D            |                                      uncrustify |
-  | dash         |                               shellcheck, shfmt |
-  | GraphQL      |                                        prettier |
-  | HTML         |                                        prettier |
-  | Java         |                                   prettier-java |
-  | JavaScript   |                                 prettier-eslint |
-  | JSON         |                                        prettier |
-  | JSX          |                                 prettier-eslint |
-  | ksh          |                               shellcheck, shfmt |
-  | Lua          |                                          StyLua |
-  | Luau         |                                          StyLua |
-  | Markdown     |                                        prettier |
-  | MDX          |                                        prettier |
-  | mksh         |                               shellcheck, shfmt |
-  | Nim          |                                       nimpretty |
-  | Objective-C  |                                      uncrustify |
-  | package.json |                           prettier-package-json |
-  | pug          |                             prettier/plugin-pug |
-  | Python       | autoflake, autopep8, black, docformatter, isort |
-  | Ruby         |                  @prettier/plugin-ruby, rubocop |
-  | Rust         |                                          clippy |
-  | SASS         |                                        prettier |
-  | sh           |                               shellcheck, shfmt |
-  | TSX          |                                 prettier-eslint |
-  | TypeScript   |                                 prettier-eslint |
-  | XML          |                             prettier/plugin-xml |
-  | YAML         |                              prettier, yamllint |
+  | Language     |                                              Tools used |
+  | :----------- | ------------------------------------------------------: |
+  | bash         |                                       shellcheck, shfmt |
+  | bats         |                                       shellcheck, shfmt |
+  | C            |                                              uncrustify |
+  | C#           |                                              uncrustify |
+  | C++          |                                              uncrustify |
+  | CSS          |                                                prettier |
+  | Cython       |                       autoflake, autopep8, docformatter |
+  | D            |                                              uncrustify |
+  | dash         |                                       shellcheck, shfmt |
+  | GraphQL      |                                                prettier |
+  | HTML         |                                                prettier |
+  | Java         |                                           prettier-java |
+  | JavaScript   |                                         prettier-eslint |
+  | JSON         |                                                prettier |
+  | JSX          |                                         prettier-eslint |
+  | ksh          |                                       shellcheck, shfmt |
+  | Lua          |                                                  StyLua |
+  | Luau         |                                                  StyLua |
+  | Markdown     |                                                prettier |
+  | MDX          |                                                prettier |
+  | mksh         |                                       shellcheck, shfmt |
+  | Nim          |                                               nimpretty |
+  | Objective-C  |                                              uncrustify |
+  | package.json |                                   prettier-package-json |
+  | pug          |                                     prettier/plugin-pug |
+  | Python       | autoflake, autopep8, black, docformatter, isort, pylint |
+  | Ruby         |                          @prettier/plugin-ruby, rubocop |
+  | Rust         |                                                  clippy |
+  | SASS         |                                                prettier |
+  | sh           |                                       shellcheck, shfmt |
+  | TSX          |                                         prettier-eslint |
+  | TypeScript   |                                         prettier-eslint |
+  | XML          |                                     prettier/plugin-xml |
+  | YAML         |                                      prettier, yamllint |
 
 Detection methods:
   | Language     |                                           Detection |

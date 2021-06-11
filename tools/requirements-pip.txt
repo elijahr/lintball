@@ -3,4 +3,5 @@ autopep8==1.5.4
 black==20.8b1
 docformatter==1.4
 isort==5.7.0
+pylint==2.8.3
 yamllint==1.25.0

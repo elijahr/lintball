@@ -159,6 +159,38 @@ cmd_prettier() {
   fi
 }
 
+cmd_pylint() {
+  local mode path format pylintexe
+  mode="${1//mode=/}"
+  path="${2//path=/}"
+
+  # show colors in output only if interactive shell
+  format="text"
+  if [[ $- == *i* ]]; then
+    format="colorized"
+  fi
+  pylintexe=""
+  if [ -f "${LINTBALL_DIR}/tools/python-env/bin/pylint" ]; then
+    pylintexe="${LINTBALL_DIR}/tools/python-env/bin/pylint"
+  elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/pylint.exe" ]; then
+    pylintexe="${LINTBALL_DIR}/tools/python-env/Scripts/pylint.exe"
+  else
+    echo "Could not find pylint executable" >&2
+    return 1
+  fi
+  if [ "$mode" = "write" ]; then
+    echo "${pylintexe} \
+      -f '$format' \
+      $(eval echo "${LINTBALL__WRITE_ARGS__PYLINT}") \
+      '$path'"
+  else
+    echo "${pylintexe} \
+      -f '$format' \
+      $(eval echo "${LINTBALL__CHECK_ARGS__PYLINT}") \
+      '$path'"
+  fi
+}
+
 cmd_rubocop() {
   local mode path color
   mode="${1//mode=/}"

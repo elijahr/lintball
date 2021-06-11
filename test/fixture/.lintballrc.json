@@ -1,0 +1,8 @@
+{
+  "check_args": {
+    "pylint": "--disable='E0401,C0103'"
+  },
+  "write_args": {
+    "pylint": "--disable='E0401,C0103'"
+  }
+}
