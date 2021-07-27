@@ -5,6 +5,14 @@ set -ueo pipefail
 # resolve symlink, for instance, if lintball is linked to /usr/local/bin
 BIN="$(realpath "${BASH_SOURCE[0]}" 2>/dev/null || readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || readlink "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")"
 
+case "$BIN" in
+  ../*)
+    # Resolve relative paths
+    BIN="$(dirname "${BASH_SOURCE[0]}")/${BIN}"
+    BIN="$(cd "$(dirname "$BIN")"; pwd)/$(basename "$BIN")"
+    ;;
+esac
+
 if [ -z "$BIN" ]; then
   BIN="${BASH_SOURCE[0]}"
 fi
