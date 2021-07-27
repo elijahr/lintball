@@ -2,8 +2,15 @@
 
 set -ueo pipefail
 
+# resolve symlink, for instance, if lintball is linked to /usr/local/bin
+BIN="$(realpath "${BASH_SOURCE[0]}" 2>/dev/null || readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || readlink "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")"
+
+if [ -n "$BIN" ]; then
+  BIN="${BASH_SOURCE[0]}"
+fi
+
 # path to node_modules/.bin
-BIN_DIR="$(dirname "${BASH_SOURCE[0]}")"
+BIN_DIR="$(dirname "${BIN}")"
 
 if [ -f "${BIN_DIR}/../configs/lintballrc-defaults.json" ]; then
   # path to repo
@@ -24,7 +31,7 @@ elif [ -f "${BIN_DIR}/../lib/node_modules/lintball/configs/lintballrc-defaults.j
     pwd
   )"
 else
-  echo "Cannot find lintball installation from ${BASH_SOURCE[0]}" >&2
+  echo "Cannot find lintball installation from ${BIN}" >&2
   find "$BIN_DIR/.."
   exit 1
 fi
