@@ -9,7 +9,10 @@ case "$BIN" in
   ../*)
     # Resolve relative paths
     BIN="$(dirname "${BASH_SOURCE[0]}")/${BIN}"
-    BIN="$(cd "$(dirname "$BIN")"; pwd)/$(basename "$BIN")"
+    BIN="$(
+      cd "$(dirname "$BIN")"
+      pwd
+    )/$(basename "$BIN")"
     ;;
 esac
 
