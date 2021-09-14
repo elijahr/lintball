@@ -264,6 +264,7 @@ By default, lintball will not process files matching the following globs:
 */.next/*
 */.serverless_nextjs/*
 */.tmp/*
+*/.tox/*
 */__pycache__/*
 */build/*
 */dist/*

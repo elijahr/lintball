@@ -8,6 +8,7 @@
     "*/.next/*",
     "*/.serverless_nextjs/*",
     "*/.tmp/*",
+    "*/.tox/*",
     "*/__pycache__/*",
     "*/build/*",
     "*/Cargo.lock",
