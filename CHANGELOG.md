@@ -7,9 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.0] - 2021-12-07
 
-### Upgraded
+### Changed
 
-- Python requirements: `autoflake`, `autopep8`, `black`, `docformatter`, `isort`, `pylint`, & `yamllint`.
+- Upgrade Python requirements: `autoflake`, `autopep8`, `black`, `docformatter`, `isort`, `pylint`, & `yamllint`.
+- Remove README note about Apple Silicon / shellcheck (ghc works now).
 
 ## [1.3.0] - 2021-06-11
 
