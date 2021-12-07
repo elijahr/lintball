@@ -1,7 +1,6 @@
 .DS_Store
 **/target
 /.bundle
-/.tool-versions
 /.vscode
 /node_modules
 /python-env

@@ -45,9 +45,6 @@ jobs:
           rust-version: nightly
 
       - uses: asdf-vm/actions/install@v1
-        with:
-          tool_versions: |
-            nim 1.4.2
 
       - uses: hecrj/setup-rust-action@v1
         with:
