@@ -15,7 +15,7 @@ setup_test() {
   export TEST_PROJECT_DIR
   cp -r "${LINTBALL_DIR}/test/fixture/" "${TEST_PROJECT_DIR}/"
   cp "${LINTBALL_DIR}/.gitignore" "${TEST_PROJECT_DIR}/"
-  echo "nim 1.4.2" >"${TEST_PROJECT_DIR}/.tool-versions"
+  echo "nim 1.6.0" >"${TEST_PROJECT_DIR}/.tool-versions"
   rustup override set nightly --path "$TEST_PROJECT_DIR"
   cd "$TEST_PROJECT_DIR"
   git config --global init.defaultBranch devel
