@@ -71,7 +71,7 @@ install_pip_requirements() {
       echo "Could not find venv activate script" >&2
       return 1
     fi
-    set +eu
+    set +eu # workaround for https://github.com/pypa/virtualenv/issues/1029
     source "$activateexe"
     set -eu
     local pipexe
