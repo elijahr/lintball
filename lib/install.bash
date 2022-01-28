@@ -1,4 +1,4 @@
-# shellcheck disable=SC2086,SC2230
+# shellcheck disable=SC2086,SC2230,SC2048
 
 # shellcheck source=SCRIPTDIR/version_compare/version_compare
 source "${LINTBALL_DIR}/lib/version_compare/version_compare"
@@ -71,7 +71,9 @@ install_pip_requirements() {
       echo "Could not find venv activate script" >&2
       return 1
     fi
+    set +eu
     source "$activateexe"
+    set -eu
     local pipexe
     pipexe="pip"
     if [ -f "python-env/bin/pip" ]; then
