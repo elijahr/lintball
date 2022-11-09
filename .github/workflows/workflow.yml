@@ -36,6 +36,9 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Install shfmt
+        uses: mfinelli/setup-shfmt@v2
+
       - uses: actions/setup-node@v2
         with:
           node-version: '15.x'
