@@ -271,7 +271,7 @@ run_tool_shellcheck() {
 }
 
 run_tool_uncrustify() {
-  local mode path lang tool offset args patch stdout stderr status
+  local mode path lang tool offset args patch stdout stderr status uncrustify_major_version uncrustify_minor_version
   mode="${1//mode=/}"
   path="${2//path=/}"
   lang="${3//lang=/}"
@@ -292,6 +292,14 @@ run_tool_uncrustify() {
 
   if [ -z "$(which uncrustify)" ]; then
     printf "%s%s%s\n" "↳ ${tool}" "${DOTS:offset}" "😵 not installed"
+    return 1
+  fi
+
+  uncrustify_major_version=$(uncrustify -v | sed 's/[^0-9\.]//g' | sed 's/\.[0-9]\{1,\}\.[0-9]\{1,\}$//')
+  uncrustify_minor_version=$(uncrustify -v | sed 's/[^0-9\.]//g' | sed 's/\.[0-9]\{1,\}$//' | sed 's/^[0-9]\{1,\}\.//')
+
+  if [ "$uncrustify_major_version" -eq 0 ] && [ "$uncrustify_minor_version" -lt 75 ]; then
+    printf "%s%s%s\n" "↳ ${tool}" "${DOTS:offset}" "😵 version 0.75.0 or higher required (installed: $(uncrustify -v))"
     return 1
   fi
 
