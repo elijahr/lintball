@@ -4,6 +4,14 @@ load ../node_modules/bats-support/load
 load ../node_modules/bats-assert/load
 load ./lib/test_utils
 
+setup_file() {
+  clear_lock git
+}
+
+teardown_file() {
+  clear_lock git
+}
+
 setup() {
   setup_test
   # optimization, only fix a few arbitrary files
@@ -15,8 +23,10 @@ setup() {
     -not -name 'a.txt' \
     -not -name 'a.yml' \
     -delete
+  get_lock git
   git add .gitignore
   git commit -m "Initial commit"
+  clear_lock git
 }
 
 teardown() {
@@ -24,6 +34,7 @@ teardown() {
 }
 
 @test 'pre-commit adds fixed code to git index' {
+  get_lock git
   git add .
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
@@ -38,13 +49,16 @@ EOF
   assert_equal "$(git diff --name-only --cached | sort)" "$expected"
   # Nothing is partially staged
   assert_equal "$(git diff --name-only)" ""
+  clear_lock git
 }
 
 @test 'pre-commit does not interfere with delete-only commits' {
+  get_lock git
   git add .
   git commit -m "commit 1"
   git rm a.md
   run "${LINTBALL_DIR}/githooks/pre-commit"
+  clear_lock git
   assert_success
   assert_output ""
   assert [ ! -f "a.md" ]
@@ -53,15 +67,19 @@ EOF
 @test 'pre-commit does not fix ignored files' {
   mkdir -p vendor
   cp a.md vendor/
+  get_lock git
   git add -f vendor/a.md
   run "${LINTBALL_DIR}/githooks/pre-commit"
+  clear_lock git
   assert_success
   assert_equal "$(cat "vendor/a.md")" "$(cat "a.md")"
 }
 
 @test 'pre-commit fixes code' {
+  get_lock git
   git add a.md
   run "${LINTBALL_DIR}/githooks/pre-commit"
+  clear_lock git
   assert_success
   expected="$(
     cat <<EOF
@@ -76,6 +94,7 @@ EOF
 @test 'pre-commit handles paths with spaces' {
   mkdir -p "aaa aaa/bbb bbb"
   mv "a.yml" "aaa aaa/bbb bbb/a b.yml"
+  get_lock git
   git add .
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
@@ -97,6 +116,7 @@ key: value
 hello: world
 EOF
   )"
+  clear_lock git
   assert_equal "$(cat "aaa aaa/bbb bbb/a b.yml")" "$expected"
 }
 

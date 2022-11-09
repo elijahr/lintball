@@ -74,7 +74,8 @@ jobs:
           ./bin/lintball install-tools --all --yes
 
       - name: Run tests
-        run: npm run test
+        run: |
+          npm run test -- --jobs $(nproc)
 
   lint:
     name: lint

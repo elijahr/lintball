@@ -7,6 +7,27 @@ export PROJECT_DIR
 ORIGINAL_PATH="$PATH"
 export ORIGINAL_PATH
 
+get_lock() {
+  local lock_path
+  mkdir -p "${PROJECT_DIR}/.tmp"
+  lock_path="${PROJECT_DIR}/.tmp/${1}.lock"
+  # shellcheck disable=SC2188
+  while ! {
+    set -C
+    2>/dev/null >"$lock_path"
+  }; do
+    sleep 1
+    echo "waiting for lock $lock_path"
+  done
+}
+
+clear_lock() {
+  local lock_path
+  mkdir -p "${PROJECT_DIR}/.tmp"
+  lock_path="${PROJECT_DIR}/.tmp/${1}.lock"
+  rm -f "$lock_path"
+}
+
 setup_test() {
   LINTBALL_DIR="$PROJECT_DIR"
   export LINTBALL_DIR
@@ -20,10 +41,12 @@ setup_test() {
   rustup override set nightly --path "$TEST_PROJECT_DIR"
   cd "$TEST_PROJECT_DIR"
   asdf local nim ref:version-1-6
+  get_lock git
   git config --global init.defaultBranch devel
   git init .
   git config --local user.name "Bats Test"
   git config --local user.email "test@example.org"
+  clear_lock git
 }
 
 teardown_test() {

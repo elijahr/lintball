@@ -4,6 +4,14 @@ load ../node_modules/bats-support/load
 load ../node_modules/bats-assert/load
 load ./lib/test_utils
 
+setup_file() {
+  clear_lock git
+}
+
+teardown_file() {
+  clear_lock git
+}
+
 setup() {
   setup_test
 }
@@ -23,6 +31,7 @@ teardown() {
 }
 
 @test 'lintball check --since HEAD~1' {
+  get_lock git
   git add .
   git reset a.html a.xml a.yml
   git commit -m "commit 1"
@@ -32,6 +41,7 @@ teardown() {
   git commit -m "commit 3"
   git add a.yml
   run lintball check --since HEAD~2
+  clear_lock git
   assert_failure
   # previously committed
   assert_line "[warn] a.html"
