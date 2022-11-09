@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- bug where failed initial python-env creation would block install-tools running again
+- python-env creation issue
+- pre-commit path issue
 
 ## [1.6.0] - 2022-11-09
 

@@ -99,3 +99,52 @@ EOF
   )"
   assert_equal "$(cat "aaa aaa/bbb bbb/a b.yml")" "$expected"
 }
+
+# shellcheck disable=SC2016
+@test 'pre-commit uses \${LINTBALL_DIR}/bin/lintball if it exists' {
+  mkdir -p ./lintball-dir/bin
+  echo '#!/bin/sh' >./lintball-dir/bin/lintball
+  echo 'echo in ./lintball-dir/bin/lintball' >>./lintball-dir/bin/lintball
+  chmod +x ./lintball-dir/bin/lintball
+  LINTBALL_DIR="${PWD}/lintball-dir"
+  export LINTBALL_DIR
+  run "${PROJECT_DIR}/githooks/pre-commit"
+  assert_success
+  assert_output "in ./lintball-dir/bin/lintball"
+}
+
+@test 'pre-commit uses ./bin/lintball if it exists' {
+  unset LINTBALL_DIR
+  mkdir -p ./bin
+  echo '#!/bin/sh' >./bin/lintball
+  echo 'echo in ./bin/lintball' >>./bin/lintball
+  chmod +x ./bin/lintball
+  run "${PROJECT_DIR}/githooks/pre-commit"
+  assert_success
+  assert_output "in ./bin/lintball"
+}
+
+@test 'pre-commit uses ./node_modules/lintball/bin/lintball if it exists' {
+  unset LINTBALL_DIR
+  mkdir -p ./node_modules/lintball/bin
+  echo '#!/bin/sh' >./node_modules/lintball/bin/lintball
+  echo 'echo in ./node_modules/lintball/bin/lintball' >>./node_modules/lintball/bin/lintball
+  chmod +x ./node_modules/lintball/bin/lintball
+  run "${PROJECT_DIR}/githooks/pre-commit"
+  assert_success
+  assert_output "in ./node_modules/lintball/bin/lintball"
+}
+
+@test 'pre-commit uses global lintball if it exists' {
+  unset LINTBALL_DIR
+  mkdir -p ./other
+  echo '#!/bin/sh' >./other/lintball
+  echo 'echo in ./other/lintball' >>./other/lintball
+  chmod +x ./other/lintball
+  PATH="${PWD}/other:${ORIGINAL_PATH}"
+  export PATH
+  assert_equal "$(command -v lintball)" "${PWD}/other/lintball"
+  run "${PROJECT_DIR}/githooks/pre-commit"
+  assert_success
+  assert_output "in ./other/lintball"
+}

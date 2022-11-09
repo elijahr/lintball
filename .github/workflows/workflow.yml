@@ -17,6 +17,7 @@ jobs:
       matrix:
         runs-on:
           - ubuntu-latest
+          - macos-latest
 
     runs-on: ${{ matrix.runs-on }}
 
@@ -41,13 +42,16 @@ jobs:
 
       - uses: actions/setup-node@v2
         with:
-          node-version: '15.x'
+          node-version: '16.x'
 
       - uses: hecrj/setup-rust-action@v1
         with:
           rust-version: nightly
 
       - uses: asdf-vm/actions/install@v1
+        with:
+          tool_versions: |
+            nim latest:1.6
 
       - uses: hecrj/setup-rust-action@v1
         with:
