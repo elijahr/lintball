@@ -58,7 +58,7 @@ install_pip_requirements() {
     cd "${LINTBALL_DIR}/tools"
     local pyexe
     pyexe=""
-    if [ ! -d "python-env" ]; then
+    if [ ! -f "python-env/bin/activate" ] && [ ! -f "python-env/Scripts/activate" ]; then
       if [ -n "$(which python3)" ]; then
         pyexe="python3"
       elif [ -n "$(which python)" ]; then
@@ -67,7 +67,8 @@ install_pip_requirements() {
         fi
       fi
       if [ -n "$pyexe" ]; then
-        "$pyexe" -m venv "python-env" || sudo "$pyexe" -m venv "python-env"
+        rm -rf "python-env"
+        "$pyexe" -m venv "python-env"
       else
         echo "Error: cannot install pip requirements." >&2
         echo "could not find a suitable Python version (>=3.3.0)." >&2
@@ -81,7 +82,7 @@ install_pip_requirements() {
     elif [ -f "python-env/Scripts/activate" ]; then
       activateexe="python-env/Scripts/activate"
     else
-      echo "Could not find venv activate script" >&2
+      echo "Could not find venv activate script in ${PWD}/python-env/bin or ${PWD}/python-env/Scripts" >&2
       return 1
     fi
     set +eu # workaround for https://github.com/pypa/virtualenv/issues/1029
