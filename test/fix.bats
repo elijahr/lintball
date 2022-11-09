@@ -394,7 +394,7 @@ EOF
   expected="$(
     cat <<EOF
 modules.exports = {
-  foo() {},
+  foo: function() {},
   bar: () => ({}),
 };
 EOF
