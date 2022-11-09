@@ -395,7 +395,7 @@ EOF
     cat <<EOF
 modules.exports = {
   foo: function() {},
-  bar: () => ({}),
+  bar: () => ({})
 };
 EOF
   )"
