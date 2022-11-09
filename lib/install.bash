@@ -156,12 +156,18 @@ install_uncrustify() {
     brew update
     brew install uncrustify
   elif [ -n "$(which apt-get)" ]; then
-    sudo apt-get update
-    if [ "$answer" = "yes" ]; then
-      sudo apt-get install -y uncrustify
-    else
-      sudo apt-get install uncrustify
-    fi
+    (
+      cd "${LINTBALL_DIR}/tools"
+      tar xzf uncrustify-0.75.1.tar.gz
+      cd uncrustify-0.75.1
+      mkdir build
+      cd build
+      cmake ..
+      cmake --build .
+      mkdir -p "${LINTBALL_DIR}/tools/bin"
+      mv uncrustify "${LINTBALL_DIR}/tools/bin"
+    )
+    rm -rf "${LINTBALL_DIR}/tools/uncrustify-0.75.1"
   elif [ -n "$(pacman)" ]; then
     sudo pacman -Syu uncrustify
   elif [ -n "$(which apk)" ]; then

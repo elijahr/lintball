@@ -741,6 +741,12 @@ consume() {
   mode="${3//mode=/}"
   path=""
 
+  # If any tools have been installed in tools/bin, add to path
+  if [ -d "${LINTBALL_DIR}/tools/bin" ]; then
+    export PATH
+    PATH="${LINTBALL_DIR}/tools/bin:${PATH}"
+  fi
+
   { while true; do
     if ! read -t 0.5 -r path; then
       continue
