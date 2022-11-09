@@ -40,6 +40,15 @@ install_clippy() {
   fi
 }
 
+install_nimfmt() {
+  if [ -n "$(which nimble)" ]; then
+    nimble install https://github.com/elijahr/nimfmt.git@0.3.0
+  else
+    echo "Error: cannot install nimfmt - could not find a nimble executable." >&2
+    return 1
+  fi
+}
+
 install_pip_requirements() {
   (
     cd "${LINTBALL_DIR}/tools"

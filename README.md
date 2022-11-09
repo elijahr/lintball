@@ -42,7 +42,7 @@ Most software projects consist of more than one programming language. There's so
 | Markdown     | `*.md`                                   |                                      [prettier][4]                                       |
 | MDX          | `*.mdx`                                  |                                      [prettier][4]                                       |
 | mksh         | `*.mksh`, `#!/usr/bin/env mksh`          |                               [shellcheck][1], [shfmt][2]                                |
-| Nim          | `*.nim`                                  |                                     [nimpretty][11]                                      |
+| Nim          | `*.nim`                                  |                               [nimfmt][23][nimpretty][11]                                |
 | Objective-C  | `*.m`, `*.mm`, `*.M`                     |                                     [uncrustify][3]                                      |
 | package.json | `package.json`                           |                               [prettier-package-json][12]                                |
 | pug          | `*.pug`                                  |                                [prettier/plugin-pug][13]                                 |
@@ -339,3 +339,4 @@ Pull requests are welcome! lintball has a suite of unit tests, located in the `t
 [20]: https://yamllint.readthedocs.io/en/stable/
 [21]: https://github.com/elijahr/lintball/tree/devel/configs/lintballrc-defaults.json
 [22]: http://pylint.pycqa.org/
+[23]: https://github.com/FedericoCeratto/nimfmt

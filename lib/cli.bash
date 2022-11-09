@@ -372,6 +372,7 @@ get_installer_for_tool() {
       echo "install_pip_requirements"
       ;;
     clippy) echo "install_clippy" ;;
+    nimfmt) echo "install_nimfmt" ;;
     nimpretty) echo "validate_nimpretty" ;;
     prettier | prettier-eslint)
       return
@@ -457,6 +458,7 @@ get_tools_for_file() {
       echo "stylua"
       ;;
     nim)
+      echo "nimfmt"
       echo "nimpretty"
       ;;
     py)
@@ -689,6 +691,7 @@ black
 clippy
 docformatter
 isort
+nimfmt
 nimpretty
 prettier
 prettier-eslint

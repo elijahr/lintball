@@ -1,7 +1,7 @@
 {
   "devDependencies": {
-    "bats": "^1.2.1",
-    "bats-assert": "git+https://github.com/bats-core/bats-assert.git#0a8dd57e2cc6d4cc064b1ed6b4e79b9f7fee096f",
+    "bats": "^1.8.2",
+    "bats-assert": "git+https://github.com/bats-core/bats-assert.git#78fa631",
     "bats-support": "^0.3.0"
   },
   "dependencies": {
@@ -33,7 +33,7 @@
   },
   "name": "lintball",
   "description": "A wrapper script around linters (static code analysis tools) and code formatters (prettier, black, etc).",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "directories": {
     "lib": "lib",
     "test": "test"

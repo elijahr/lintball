@@ -133,6 +133,25 @@ cmd_isort() {
   fi
 }
 
+cmd_nimfmt() {
+  local mode path lang
+  mode="${1//mode=/}"
+  path="${2//path=/}"
+
+  # shellcheck disable=SC2034
+  lang="$3"
+
+  if [ "$mode" = "write" ]; then
+    echo "nimfmt \
+      $(eval echo "${LINTBALL__WRITE_ARGS__NIMFMT}") \
+      '$path'"
+  else
+    echo "nimfmt \
+      $(eval echo "${LINTBALL__CHECK_ARGS__NIMFMT}") \
+      '$path'"
+  fi
+}
+
 cmd_prettier() {
   local mode path
   mode="${1//mode=/}"
