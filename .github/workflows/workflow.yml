@@ -77,6 +77,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install shfmt
+        uses: mfinelli/setup-shfmt@v2
+
       - name: Install lintball
         shell: bash
         run: sudo npm install -g "https://github.com/${GITHUB_REPOSITORY}.git#${GITHUB_SHA}"
