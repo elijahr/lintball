@@ -229,10 +229,9 @@ EOF
     cat <<EOF
 #include <stdio.h>
 
-int main()
-{
-  printf("Hello World!");
-  return(0);
+int main() {
+    printf("Hello World!");
+    return 0;
 }
 EOF
   )"
@@ -245,11 +244,18 @@ EOF
   expected="$(
     cat <<EOF
 #include <iostream>
+using namespace std;
 
-int main()
-{
-  std::cout << "Hello World!";
-  return(0);
+namespace HelloWorld {
+class Hello {
+    void func() {
+        cout << "Inside func" << endl;
+    }
+}
+}
+int main() {
+    std::cout << "Hello World!";
+    return 0;
 }
 EOF
   )"
@@ -261,13 +267,11 @@ EOF
   assert_success
   expected="$(
     cat <<EOF
-namespace HelloWorld
-{
+namespace HelloWorld {
 class Hello {
-  static void Main(string[] args)
-  {
-    System.Console.WriteLine("Hello World!");
-  }
+    static void Main(string[] args) {
+        System.Console.WriteLine("Hello World!");
+    }
 }
 }
 EOF
@@ -296,9 +300,8 @@ EOF
 
 import std.stdio;
 
-void main()   {
-  writeln(
-    "Hello, World!");
+void main() {
+    writeln("Hello, World!");
 }
 EOF
   )"
@@ -468,12 +471,12 @@ EOF
     cat <<EOF
 #import <Foundation/Foundation.h>
 
-int main(int argc, const char *argv[])
-{
-  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-  NSLog(@"Hello, World!");
-  [pool drain];
-  return(0);
+int main(int argc, const char *argv[]) {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc]init];
+
+    NSLog(@"Hello, World!");
+    [pool drain];
+    return 0;
 }
 EOF
   )"
