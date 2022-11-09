@@ -19,7 +19,7 @@ setup_test() {
   cp "${LINTBALL_DIR}/.gitignore" "${TEST_PROJECT_DIR}/"
   rustup override set nightly --path "$TEST_PROJECT_DIR"
   cd "$TEST_PROJECT_DIR"
-  asdf local nim latest:1.6
+  asdf local nim ref:version-1-6
   git config --global init.defaultBranch devel
   git init .
   git config --local user.name "Bats Test"

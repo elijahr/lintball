@@ -51,7 +51,7 @@ jobs:
       - uses: asdf-vm/actions/install@v1
         with:
           tool_versions: |
-            nim latest:1.6
+            nim ref:version-1-6
 
       - uses: hecrj/setup-rust-action@v1
         with:
