@@ -42,7 +42,7 @@ install_clippy() {
 
 install_nimfmt() {
   if [ -n "$(which nimble)" ]; then
-    nimble install https://github.com/elijahr/nimfmt.git@0.3.0
+    nimble install -y https://github.com/elijahr/nimfmt.git@0.3.0
   else
     echo "Error: cannot install nimfmt - could not find a nimble executable." >&2
     return 1
