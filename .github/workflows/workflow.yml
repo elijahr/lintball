@@ -22,9 +22,9 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
 
     steps:
-      - name: Upgrade bash
+      - name: Install macOS dependencies
         if: runner.os == 'macOS'
-        run: brew install bash parallel
+        run: brew install bash parallel uncrustify
 
       - name: Checkout code
         uses: actions/checkout@v2

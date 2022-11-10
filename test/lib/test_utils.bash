@@ -16,8 +16,7 @@ get_lock() {
     set -C
     2>/dev/null >"$lock_path"
   }; do
-    sleep 1
-    echo "waiting for lock $lock_path"
+    sleep 0.01
   done
 }
 
