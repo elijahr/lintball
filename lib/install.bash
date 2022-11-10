@@ -7,12 +7,13 @@ install_bundler_requirements() {
   (
     cd "${LINTBALL_DIR}/tools"
     if [ -z "$(which bundle)" ] && [ -n "$(which gem)" ]; then
-      gem install bundler || sudo gem install bundler
+      gem install bundler
     fi
     if [ -n "$(which bundle)" ]; then
       (
-        bundle config set --local deployment 'true' || sudo bundle config set --local deployment 'true'
-        bundle install || sudo bundle install
+        bundle config set --local deployment 'false'
+        bundle install
+        rm -f Gemfile.lock
       )
     else
       echo "Error: cannot install bundler requirements - could not find a bundle executable." >&2
