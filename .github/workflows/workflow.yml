@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Upgrade bash
         if: runner.os == 'macOS'
-        run: brew install bash
+        run: brew install bash parallel
 
       - name: Checkout code
         uses: actions/checkout@v2
