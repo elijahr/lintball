@@ -23,31 +23,79 @@ fi
 # path to node_modules/.bin
 BIN_DIR="$(dirname "${BIN}")"
 
-if [ -f "${BIN_DIR}/../configs/lintballrc-defaults.json" ]; then
-  # path to repo
-  LINTBALL_DIR="$(
-    cd "${BIN_DIR}/.."
-    pwd
-  )"
-elif [ -f "${BIN_DIR}/../lintball/configs/lintballrc-defaults.json" ]; then
-  # path to installation via npm, local
-  LINTBALL_DIR="$(
-    cd "${BIN_DIR}/../lintball"
-    pwd
-  )"
-elif [ -f "${BIN_DIR}/../lib/node_modules/lintball/configs/lintballrc-defaults.json" ]; then
-  # path to installation via npm, global
-  LINTBALL_DIR="$(
-    cd "${BIN_DIR}/../lib/node_modules/lintball"
-    pwd
-  )"
-else
+# Find lintball dir
+if [ -z "${LINTBALL_DIR:-}" ] || [ ! -d "$LINTBALL_DIR" ]; then
+  if [ -f "${BIN_DIR}/../configs/lintballrc-defaults.json" ]; then
+    # path to repo
+    LINTBALL_DIR="$(
+      cd "${BIN_DIR}/.."
+      pwd
+    )"
+  elif [ -f "${BIN_DIR}/../lintball/configs/lintballrc-defaults.json" ]; then
+    # path to installation via npm, local
+    LINTBALL_DIR="$(
+      cd "${BIN_DIR}/../lintball"
+      pwd
+    )"
+  elif [ -f "${BIN_DIR}/../lib/node_modules/lintball/configs/lintballrc-defaults.json" ]; then
+    # path to installation via npm, global
+    LINTBALL_DIR="$(
+      cd "${BIN_DIR}/../lib/node_modules/lintball"
+      pwd
+    )"
+  fi
+fi
+
+if [ -z "${LINTBALL_DIR:-}" ] || [ ! -d "$LINTBALL_DIR" ]; then
   echo "Cannot find lintball installation from ${BIN}" >&2
   find "$BIN_DIR/.."
   exit 1
 fi
+export LINTBALL_DIR
+
+ASDF_NIM_VERSION=1.6.10
+export ASDF_NIM_VERSION
+ASDF_PYTHON_VERSION=3.11.0
+export ASDF_PYTHON_VERSION
+ASDF_NODEJS_VERSION=18.12.1
+export ASDF_NODEJS_VERSION
+ASDF_RUBY_VERSION=3.0.0
+export ASDF_RUBY_VERSION
+ASDF_RUST_VERSION=1.65.0
+export ASDF_RUST_VERSION
+ASDF_SHELLCHECK_VERSION=0.8.0
+export ASDF_SHELLCHECK_VERSION
+ASDF_SHFMT_VERSION=3.5.1
+export ASDF_SHFMT_VERSION
+
+ASDF_CONFIG_FILE="${LINTBALL_DIR}/configs/asdfrc"
+export ASDF_CONFIG_FILE
+ASDF_DEFAULT_TOOL_VERSIONS_FILENAME="no-tool-versions"
+export ASDF_DEFAULT_TOOL_VERSIONS_FILENAME
+ASDF_DIR="${LINTBALL_DIR}/tools/asdf"
+export ASDF_DIR
+ASDF_DATA_DIR="${LINTBALL_DIR}/tools/asdf"
+export ASDF_DATA_DIR
+PATH="${LINTBALL_DIR}/tools/asdf/bin:${LINTBALL_DIR}/tools/asdf/shims:${LINTBALL_DIR}/tools/node_modules/.bin:${LINTBALL_DIR}/tools/bin:${PATH}"
+export PATH
+
+# Allow rustup installation
+RUSTUP_INIT_SKIP_PATH_CHECK=yes
+export RUSTUP_INIT_SKIP_PATH_CHECK
 
 # shellcheck source=SCRIPTDIR/../lib/cli.bash
 source "${LINTBALL_DIR}/lib/cli.bash"
 
-cli_entrypoint "$@" || exit $?
+if [ "${1:-}" = "exec" ]; then
+  # allow running functions / commands within lintball's environment
+  shift
+  "$@" || exit $?
+  exit 0
+fi
+
+status=0
+start=$(date +%s)
+cli_entrypoint "$@" || status=$?
+end=$(date +%s)
+echo "# lintball: completed in $((end - start)) seconds"
+exit $status

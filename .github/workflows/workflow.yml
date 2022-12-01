@@ -10,7 +10,7 @@ on:
     tags: ['*']
 
 jobs:
-  tests:
+  bats:
     name: bats unit tests (${{ matrix.runs-on }})
     strategy:
       fail-fast: false
@@ -24,42 +24,16 @@ jobs:
     steps:
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
-        run: brew install bash parallel uncrustify
+        run: brew install bash parallel
 
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2.0'
-
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
-
-      - name: Install shfmt
-        uses: mfinelli/setup-shfmt@v2
+          submodules: true
 
       - uses: actions/setup-node@v2
         with:
           node-version: '16.x'
-
-      - uses: hecrj/setup-rust-action@v1
-        with:
-          rust-version: nightly
-
-      - uses: asdf-vm/actions/install@v1
-        with:
-          tool_versions: |
-            nim ref:version-1-6
-
-      - uses: hecrj/setup-rust-action@v1
-        with:
-          rust-version: nightly
-
-      - uses: hecrj/setup-rust-action@v1
-        with:
-          rust-version: stable
 
       - name: Install tools
         shell: bash
@@ -71,10 +45,10 @@ jobs:
           # seems to be necessary for node >= 15
           [ -n "$(which bats)" ] || npm link bats --verbose
 
-          ./bin/lintball install-tools --all --yes
+          ./bin/lintball install-tools --all
 
       - name: Run tests
-        run: npm run test -- --jobs 4
+        run: npm run test -- --tap --jobs 4
 
   lint:
     name: lint
@@ -84,16 +58,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install shfmt
-        uses: mfinelli/setup-shfmt@v2
-
       - name: Install lintball
         shell: bash
         run: sudo npm install -g "https://github.com/${GITHUB_REPOSITORY}.git#${GITHUB_SHA}"
 
       - name: Install tools
         shell: bash
-        run: lintball install-tools --yes
+        run: lintball install-tools
 
       - name: Run lintball
         shell: bash

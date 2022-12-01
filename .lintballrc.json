@@ -4,11 +4,8 @@
     "*/tools/Gemfile",
     "*/node_modules/*",
     "*/package-lock.json",
-    "*/tools/python-env/*",
-    "*/tools/vendor/*",
-    "*/tools/target/*",
+    "*/tools/asdf/*",
     "*/lib/jwalk/*",
-    "*/lib/version_compare/*",
     "*/test/fixture/*",
     "*/test/fixture/target/*"
   ]

@@ -4,11 +4,14 @@ DOTS="..................................."
 
 run_tool() {
   local tool mode path lang use status original cmd stdout stderr
-  tool="${1//tool=/}"
-  mode="${2//mode=/}"
-  path="${3//path=/}"
-  lang="${4:-}"
-  lang="${lang//lang=/}"
+  tool="${1#tool=}"
+  mode="${2#mode=}"
+  path="${3#path=}"
+  if [ "$#" -gt 3 ]; then
+    lang="${4#lang=}"
+  else
+    lang=""
+  fi
 
   offset="${#tool}"
   use="LINTBALL__USE__$(echo "${tool//-/_}" | tr '[:lower:]' '[:upper:]')"
@@ -50,8 +53,8 @@ run_tool() {
 
 run_tool_nimpretty() {
   local mode path tool offset use args tmp patch stdout stderr status
-  mode="${1//mode=/}"
-  path="${2//path=/}"
+  mode="${1#mode=}"
+  path="${2#path=}"
 
   tool="nimpretty"
   offset="${#tool}"
@@ -67,7 +70,7 @@ run_tool_nimpretty() {
     args="${LINTBALL__CHECK_ARGS__NIMPRETTY}"
   fi
 
-  if [ -z "$(which nimpretty)" ]; then
+  if ! command -v nimpretty; then
     printf "%s%s%s\n" "↳ ${tool}" "${DOTS:offset}" "😵 not installed"
     return 1
   fi
@@ -118,8 +121,8 @@ run_tool_nimpretty() {
 
 run_tool_prettier_eslint() {
   local mode path tool offset cmd stdout stderr status
-  mode="${1//mode=/}"
-  path="${2//path=/}"
+  mode="${1#mode=}"
+  path="${2#path=}"
 
   tool="prettier-eslint"
   offset="${#tool}"
@@ -130,21 +133,11 @@ run_tool_prettier_eslint() {
   fi
 
   if [ "$mode" = "write" ]; then
-    cmd="npm \
-      --prefix='$LINTBALL_DIR' \
-      run \
-      prettier-eslint \
-      --path='$(pwd)' \
-      -- \
+    cmd="prettier-eslint \
       $(eval echo "${LINTBALL__WRITE_ARGS__PRETTIER_ESLINT}") \
       '${PWD}/${path}'"
   else
-    cmd="npm \
-      --prefix='$LINTBALL_DIR' \
-      run \
-      prettier-eslint \
-      --path='$(pwd)' \
-      -- \
+    cmd="prettier-eslint \
       $(eval echo "${LINTBALL__CHECK_ARGS__PRETTIER_ESLINT}") \
       '${PWD}/${path}'"
   fi
@@ -183,9 +176,9 @@ run_tool_prettier_eslint() {
 
 run_tool_shellcheck() {
   local mode path args lang tool offset stdout stderr status color
-  mode="${1//mode=/}"
-  path="${2//path=/}"
-  lang="${3//lang=/}"
+  mode="${1#mode=}"
+  path="${2#path=}"
+  lang="${3#lang=}"
 
   tool="shellcheck"
   offset="${#tool}"
@@ -271,10 +264,10 @@ run_tool_shellcheck() {
 }
 
 run_tool_uncrustify() {
-  local mode path lang tool offset args patch stdout stderr status uncrustify_major_version uncrustify_minor_version
-  mode="${1//mode=/}"
-  path="${2//path=/}"
-  lang="${3//lang=/}"
+  local mode path lang tool offset args patch stdout stderr status
+  mode="${1#mode=}"
+  path="${2#path=}"
+  lang="${3#lang=}"
 
   tool="uncrustify"
   offset="${#tool}"
@@ -290,16 +283,8 @@ run_tool_uncrustify() {
     args="${LINTBALL__CHECK_ARGS__UNCRUSTIFY}"
   fi
 
-  if [ -z "$(which uncrustify)" ]; then
+  if ! command -v uncrustify; then
     printf "%s%s%s\n" "↳ ${tool}" "${DOTS:offset}" "😵 not installed"
-    return 1
-  fi
-
-  uncrustify_major_version=$(uncrustify -v | sed 's/[^0-9\.]//g' | sed 's/\.[0-9]\{1,\}\.[0-9]\{1,\}$//')
-  uncrustify_minor_version=$(uncrustify -v | sed 's/[^0-9\.]//g' | sed 's/\.[0-9]\{1,\}$//' | sed 's/^[0-9]\{1,\}\.//')
-
-  if [ "$uncrustify_major_version" -eq 0 ] && [ "$uncrustify_minor_version" -lt 75 ]; then
-    printf "%s%s%s\n" "↳ ${tool}" "${DOTS:offset}" "😵 version 0.75.0 or higher required (installed: $(uncrustify -v))"
     return 1
   fi
 

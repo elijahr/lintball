@@ -1,3 +1,5 @@
+# shellcheck disable=2164
+
 PROJECT_DIR="$(
   cd "$(dirname "$BATS_TEST_DIRNAME")"
   pwd
@@ -28,18 +30,12 @@ clear_lock() {
 }
 
 setup_test() {
-  LINTBALL_DIR="$PROJECT_DIR"
-  export LINTBALL_DIR
-  PATH="${LINTBALL_DIR}/bin:$PATH"
-  export PATH
-
   TEST_PROJECT_DIR="$(mktemp -d)/fixture"
   export TEST_PROJECT_DIR
   cp -r "${LINTBALL_DIR}/test/fixture/" "${TEST_PROJECT_DIR}/"
   cp "${LINTBALL_DIR}/.gitignore" "${TEST_PROJECT_DIR}/"
-  rustup override set nightly --path "$TEST_PROJECT_DIR"
+  # rustup override set nightly --path "$TEST_PROJECT_DIR"
   cd "$TEST_PROJECT_DIR"
-  asdf local nim ref:version-1-6
   get_lock git
   git config --global init.defaultBranch devel
   git init .

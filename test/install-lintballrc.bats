@@ -4,6 +4,13 @@ load ../node_modules/bats-support/load
 load ../node_modules/bats-assert/load
 load ./lib/test_utils
 
+setup_file() {
+  LINTBALL_DIR="$PROJECT_DIR"
+  export LINTBALL_DIR
+  PATH="${LINTBALL_DIR}/bin:$PATH"
+  export PATH
+}
+
 setup() {
   setup_test
 }

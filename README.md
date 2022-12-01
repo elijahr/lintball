@@ -42,7 +42,7 @@ Most software projects consist of more than one programming language. There's so
 | Markdown     | `*.md`                                   |                                      [prettier][4]                                       |
 | MDX          | `*.mdx`                                  |                                      [prettier][4]                                       |
 | mksh         | `*.mksh`, `#!/usr/bin/env mksh`          |                               [shellcheck][1], [shfmt][2]                                |
-| Nim          | `*.nim`                                  |                               [nimfmt][23][nimpretty][11]                                |
+| Nim          | `*.nim`                                  |                                     [nimpretty][11]                                      |
 | Objective-C  | `*.m`, `*.mm`, `*.M`                     |                                     [uncrustify][3]                                      |
 | package.json | `package.json`                           |                               [prettier-package-json][12]                                |
 | pug          | `*.pug`                                  |                                [prettier/plugin-pug][13]                                 |
@@ -147,9 +147,8 @@ Examples:
                                          # in the working directory.
   $ lintball install-lintballrc -p foo   # Install default .lintballrc.json in
                                          # directory foo.
-  $ lintball install-tools --yes         # Autodetect tools for working
-                                         # directory and install them, no
-                                         # prompt.
+  $ lintball install-tools               # Autodetect tools for working
+                                         # directory and install them.
   $ lintball install-tools -p foo        # Autodetect tools for directory foo
                                          # and install them.
   $ lintball install-tools --all         # Install all tools.
@@ -201,7 +200,7 @@ jobs:
       - name: Install lintball
         run: |
           npm install -g lintball
-          lintball install-tools --yes
+          lintball install-tools
 
       - name: Check for linter issues
         run: lintball check
@@ -213,7 +212,7 @@ If you have a large project with many files, you may want to limit the number of
 - name: Install lintball
   run: |
     npm install -g lintball
-    lintball install-tools --yes py js yml # Put extensions here for languages in your project
+    lintball install-tools py js yml # Put extensions here for languages in your project
 
 - name: Check for linter issues
   shell: bash
@@ -305,10 +304,6 @@ arch -x86_64 /usr/local/Homebrew/bin/brew install shellcheck
 shellcheck --version
 ```
 
-#### Windows
-
-Windows support for linting and fixing Python code was added via https://github.com/elijahr/lintball/pull/2. Other languages have not been tested on Windows. Continuous integration also does not test on Windows. We would love to improve this! If you use Windows and want to use lintball please do submit a pull request with any necessary changes.
-
 ## Acknowledgements
 
 lintball is a wrapper around existing tools. Many thanks to the authors of the tools used by lintball! This project (and your tidy code) stand on the shoulders of giants.
@@ -339,4 +334,3 @@ Pull requests are welcome! lintball has a suite of unit tests, located in the `t
 [20]: https://yamllint.readthedocs.io/en/stable/
 [21]: https://github.com/elijahr/lintball/tree/devel/configs/lintballrc-defaults.json
 [22]: http://pylint.pycqa.org/
-[23]: https://github.com/FedericoCeratto/nimfmt
