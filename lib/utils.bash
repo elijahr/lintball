@@ -397,6 +397,13 @@ normalize_path() {
   fi
 }
 
+prettify_path() {
+  local path
+  path="${1#path=}"
+  # strip leading ./ from path
+  echo "${path#./}"
+}
+
 # shellcheck disable=SC2120
 parse_version() {
   local text

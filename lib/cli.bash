@@ -306,7 +306,7 @@ process_file() {
   fi
 
   extension="$(normalize_extension "path=$path")"
-  echo "# $path"
+  echo "# $(prettify_path "$path")"
   while read -r tool; do
     {
       case "$tool" in
