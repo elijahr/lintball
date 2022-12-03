@@ -16,7 +16,6 @@ install_ruby() {
     gem install bundler
     bundle config set --local deployment 'false'
     bundle install
-    rm -f Gemfile.lock
     gem sources --clear-all
     asdf reshim
   ) || return $?

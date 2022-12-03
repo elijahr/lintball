@@ -7,4 +7,3 @@
 /tools/uncrustify*
 /tools/bin
 /.tmp
-/tools/Gemfile.lock

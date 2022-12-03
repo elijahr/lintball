@@ -2,7 +2,7 @@
 
 set -uexo pipefail
 
-debian_version=bullseye-slim
+debian_version=bullseye
 lintball_version=$(jq -r .version ./package.json)
 lintball_major_version=$(echo "$lintball_version" | awk -F '.' '{print $1}')
 lintball_minor_version=$(echo "$lintball_version" | awk -F '.' '{print $2}')

@@ -1,8 +1,8 @@
 {
   "devDependencies": {
-    "bats": "^1.8.2",
-    "bats-assert": "git+https://github.com/bats-core/bats-assert.git#78fa631",
-    "bats-support": "^0.3.0"
+    "bats": "latest",
+    "bats-assert": "git+https://github.com/bats-core/bats-assert.git#master",
+    "bats-support": "latest"
   },
   "scripts": {
     "test": "bats test"

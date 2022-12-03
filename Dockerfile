@@ -4,7 +4,8 @@
 # down to the smallest possible output image.
 
 ARG DEBIAN_VERSION
-FROM --platform=$TARGETPLATFORM debian:${DEBIAN_VERSION} AS lintball-builder
+FROM --platform=$TARGETPLATFORM debian:${DEBIAN_VERSION}-slim AS lintball-builder
+ARG DEBIAN_VERSION
 ENV LINTBALL_DIR=/lintball
 
 # Install deps
@@ -15,11 +16,12 @@ RUN apt update && apt install -y gnupg && \
     echo debconf apt-fast/maxdownloads string 16 | debconf-set-selections && \
     echo debconf apt-fast/dlflag boolean true | debconf-set-selections && \
     echo debconf apt-fast/aptmanager string apt-get | debconf-set-selections && \
+    echo "deb-src http://deb.debian.org/debian ${DEBIAN_VERSION} main" >> /etc/apt/sources.list && \
     apt update && apt install -y apt-fast && apt-fast install -y \
-      build-essential bzip2 ca-certificates cmake coreutils curl gcc git \
-      libbz2-1.0 libbz2-dev libc-dev libffi-dev libreadline-dev libssl1.1 \
-      libssl-dev lzma make ncurses-dev openssh-client openssl perl uuid \
-      xz-utils zlib1g zlib1g-dev && \
+      build-essential bzip2 ca-certificates cmake coreutils \
+      curl gcc git libbz2-1.0 libbz2-dev libc-dev libffi-dev libreadline-dev \
+      libssl1.1 libssl-dev lzma make ncurses-dev openssh-client openssl perl \
+      uuid xz-utils zlib1g zlib1g-dev && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/* && \
     rm -rf /var/tmp/*
@@ -39,6 +41,7 @@ RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source
 FROM --platform=$TARGETPLATFORM lintball-builder as lintball-ruby
 COPY lib/installers/ruby.bash "${LINTBALL_DIR}/lib/installers/ruby.bash"
 COPY tools/Gemfile "${LINTBALL_DIR}/tools/Gemfile"
+COPY tools/Gemfile.lock "${LINTBALL_DIR}/tools/Gemfile.lock"
 RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source ${LINTBALL_DIR}/lib/install.bash && install_ruby"
 
 FROM --platform=$TARGETPLATFORM lintball-builder as lintball-nimpretty
@@ -67,18 +70,21 @@ FROM --platform=$TARGETPLATFORM lintball-python as lintball-uncrustify
 COPY lib/installers/uncrustify.bash "${LINTBALL_DIR}/lib/installers/uncrustify.bash"
 RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source ${LINTBALL_DIR}/lib/install.bash && install_uncrustify"
 
-# prettier build depends on python
-FROM --platform=$TARGETPLATFORM lintball-python as lintball-nodejs
+# prettier build depends on python and ruby
+FROM --platform=$TARGETPLATFORM lintball-ruby as lintball-nodejs
+COPY --from=lintball-python "${LINTBALL_DIR}/tools/asdf/installs/python" "${LINTBALL_DIR}/tools/asdf/installs/python"
+COPY --from=lintball-python "${LINTBALL_DIR}/tools/asdf/plugins/python" "${LINTBALL_DIR}/tools/asdf/plugins/python"
 COPY lib/installers/nodejs.bash "${LINTBALL_DIR}/lib/installers/nodejs.bash"
 COPY tools/package.json "${LINTBALL_DIR}/tools/package.json"
+COPY tools/package-lock.json "${LINTBALL_DIR}/tools/package-lock.json"
 RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source ${LINTBALL_DIR}/lib/install.bash && install_nodejs"
 
-FROM --platform=$TARGETPLATFORM debian:${DEBIAN_VERSION} as lintball-composite
+FROM --platform=$TARGETPLATFORM debian:${DEBIAN_VERSION}-slim as lintball-composite
 ENV LINTBALL_DIR=/lintball
 COPY --from=lintball-builder "${LINTBALL_DIR}/tools/asdf" "${LINTBALL_DIR}/tools/asdf"
-COPY --from=lintball-ruby "${LINTBALL_DIR}/tools/asdf/installs/ruby" "${LINTBALL_DIR}/tools/asdf/installs/ruby"
-COPY --from=lintball-ruby "${LINTBALL_DIR}/tools/asdf/plugins/ruby" "${LINTBALL_DIR}/tools/asdf/plugins/ruby"
 COPY --from=lintball-nimpretty "${LINTBALL_DIR}/tools/bin/nimpretty" "${LINTBALL_DIR}/tools/bin/nimpretty"
+COPY --from=lintball-nodejs "${LINTBALL_DIR}/tools/asdf/installs/ruby" "${LINTBALL_DIR}/tools/asdf/installs/ruby"
+COPY --from=lintball-nodejs "${LINTBALL_DIR}/tools/asdf/plugins/ruby" "${LINTBALL_DIR}/tools/asdf/plugins/ruby"
 COPY --from=lintball-nodejs "${LINTBALL_DIR}/tools/asdf/installs/nodejs" "${LINTBALL_DIR}/tools/asdf/installs/nodejs"
 COPY --from=lintball-nodejs "${LINTBALL_DIR}/tools/asdf/plugins/nodejs" "${LINTBALL_DIR}/tools/asdf/plugins/nodejs"
 COPY --from=lintball-nodejs "${LINTBALL_DIR}/tools/node_modules" "${LINTBALL_DIR}/tools/node_modules"
@@ -97,16 +103,17 @@ COPY lib "${LINTBALL_DIR}/lib"
 COPY .lintballrc.json "${LINTBALL_DIR}/.lintballrc.json"
 COPY LICENSE "${LINTBALL_DIR}/LICENSE"
 COPY package.json "${LINTBALL_DIR}/package.json"
+COPY package-lock.json "${LINTBALL_DIR}/package-lock.json"
 COPY README.md "${LINTBALL_DIR}/README.md"
+COPY tools/Gemfile "${LINTBALL_DIR}/Gemfile"
+COPY tools/Gemfile.lock "${LINTBALL_DIR}/Gemfile.lock"
+COPY tools/package.json "${LINTBALL_DIR}/tools/package.json"
+COPY tools/package-lock.json "${LINTBALL_DIR}/tools/package-lock.json"
 RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source ${LINTBALL_DIR}/lib/install.bash && configure_asdf && asdf reshim"
-
-# may not be needed after build?
-#COPY tools/Gemfile "${LINTBALL_DIR}/"
-#COPY tools/package.json "${LINTBALL_DIR}/"
 
 # Output image does not inherit from lintball-builder because we don't need all
 # of the installed debian packages.
-FROM --platform=$TARGETPLATFORM debian:${DEBIAN_VERSION} as lintball
+FROM --platform=$TARGETPLATFORM debian:${DEBIAN_VERSION}-slim as lintball
 ENV LINTBALL_DIR=/lintball
 COPY --from=lintball-composite "${LINTBALL_DIR}" "${LINTBALL_DIR}"
 # VOLUME ["${LINTBALL_DIR}/tools"]
