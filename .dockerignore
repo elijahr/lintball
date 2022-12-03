@@ -1,0 +1,13 @@
+*
+!.lintballrc.json
+!bin/
+!configs/
+!githooks/
+!lib/
+!LICENSE
+!package.json
+!README.md
+!test/
+!tools/Gemfile
+!tools/package.json
+!tools/pip-requirements.txt

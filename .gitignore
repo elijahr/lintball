@@ -4,7 +4,7 @@
 /tools/asdf
 /tools/.bundle
 /tools/node_modules
-/tools/uncrustify-0.75.1
+/tools/uncrustify*
 /tools/bin
 /.tmp
 /tools/Gemfile.lock

@@ -1,12 +1,11 @@
 {
   "ignores": [
     "*/.git/*",
-    "*/tools/Gemfile",
     "*/node_modules/*",
     "*/package-lock.json",
-    "*/tools/asdf/*",
     "*/lib/jwalk/*",
     "*/test/fixture/*",
-    "*/test/fixture/target/*"
+    "*/test/fixture/target/*",
+    "*/tools/*"
   ]
 }

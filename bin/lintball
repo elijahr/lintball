@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -ueo pipefail
+shopt -s nullglob
 
 # resolve symlink, for instance, if lintball is linked to /usr/local/bin
 BIN="$(realpath "${BASH_SOURCE[0]}" 2>/dev/null || readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || readlink "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")"
@@ -53,36 +54,18 @@ if [ -z "${LINTBALL_DIR:-}" ] || [ ! -d "$LINTBALL_DIR" ]; then
 fi
 export LINTBALL_DIR
 
-ASDF_NIM_VERSION=1.6.10
-export ASDF_NIM_VERSION
-ASDF_PYTHON_VERSION=3.11.0
-export ASDF_PYTHON_VERSION
-ASDF_NODEJS_VERSION=18.12.1
-export ASDF_NODEJS_VERSION
-ASDF_RUBY_VERSION=3.0.0
-export ASDF_RUBY_VERSION
-ASDF_RUST_VERSION=1.65.0
-export ASDF_RUST_VERSION
-ASDF_SHELLCHECK_VERSION=0.8.0
-export ASDF_SHELLCHECK_VERSION
-ASDF_SHFMT_VERSION=3.5.1
-export ASDF_SHFMT_VERSION
+declare -a IGNORE_GLOBS=()
 
-ASDF_CONFIG_FILE="${LINTBALL_DIR}/configs/asdfrc"
-export ASDF_CONFIG_FILE
-ASDF_DEFAULT_TOOL_VERSIONS_FILENAME="no-tool-versions"
-export ASDF_DEFAULT_TOOL_VERSIONS_FILENAME
-ASDF_DIR="${LINTBALL_DIR}/tools/asdf"
-export ASDF_DIR
-ASDF_DATA_DIR="${LINTBALL_DIR}/tools/asdf"
-export ASDF_DATA_DIR
-PATH="${LINTBALL_DIR}/tools/asdf/bin:${LINTBALL_DIR}/tools/asdf/shims:${LINTBALL_DIR}/tools/node_modules/.bin:${LINTBALL_DIR}/tools/bin:${PATH}"
-export PATH
-
-# Allow rustup installation
-RUSTUP_INIT_SKIP_PATH_CHECK=yes
-export RUSTUP_INIT_SKIP_PATH_CHECK
-
+# shellcheck source=SCRIPTDIR/../lib/env.bash
+source "${LINTBALL_DIR}/lib/env.bash"
+# shellcheck source=SCRIPTDIR/../lib/install.bash
+source "${LINTBALL_DIR}/lib/install.bash"
+# shellcheck source=SCRIPTDIR/../lib/cmds.bash
+source "${LINTBALL_DIR}/lib/cmds.bash"
+# shellcheck source=SCRIPTDIR/../lib/tools.bash
+source "${LINTBALL_DIR}/lib/tools.bash"
+# shellcheck source=SCRIPTDIR/../lib/utils.bash
+source "${LINTBALL_DIR}/lib/utils.bash"
 # shellcheck source=SCRIPTDIR/../lib/cli.bash
 source "${LINTBALL_DIR}/lib/cli.bash"
 
@@ -93,9 +76,4 @@ if [ "${1:-}" = "exec" ]; then
   exit 0
 fi
 
-status=0
-start=$(date +%s)
-cli_entrypoint "$@" || status=$?
-end=$(date +%s)
-echo "# lintball: completed in $((end - start)) seconds"
-exit $status
+cli_entrypoint "$@" || exit $?

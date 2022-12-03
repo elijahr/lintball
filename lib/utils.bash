@@ -180,12 +180,11 @@ get_installer_for_tool() {
   tool="${1#tool=}"
   case "$tool" in
     autoflake | autopep8 | black | docformatter | isort | yamllint)
-      echo "install_pip_requirements"
+      echo "install_python"
       ;;
-    clippy) echo "install_clippy" ;;
     nimpretty) echo "install_nimpretty" ;;
-    prettier | prettier-eslint) echo "install_prettier" ;;
-    rubocop) echo "install_bundler_requirements" ;;
+    prettier | prettier-eslint) echo "install_nodejs" ;;
+    rubocop) echo "install_ruby" ;;
     shellcheck) echo "install_shellcheck" ;;
     shfmt) echo "install_shfmt" ;;
     stylua) echo "install_stylua" ;;

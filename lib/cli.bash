@@ -2,31 +2,6 @@
 
 # shellcheck disable=SC2230
 
-shopt -s nullglob
-
-if [ -z "${LINTBALL_DIR:-}" ]; then
-  echo "LINTBALL_DIR is not set" >&2
-  exit 1
-fi
-
-IGNORE_GLOBS=()
-
-# For rubocop
-BUNDLE_GEMFILE="${LINTBALL_DIR}/tools/Gemfile"
-export BUNDLE_GEMFILE
-
-# shellcheck source=SCRIPTDIR/cmds.bash
-source "${LINTBALL_DIR}/lib/cmds.bash"
-
-# shellcheck source=SCRIPTDIR/install.bash
-source "${LINTBALL_DIR}/lib/install.bash"
-
-# shellcheck source=SCRIPTDIR/tools.bash
-source "${LINTBALL_DIR}/lib/tools.bash"
-
-# shellcheck source=SCRIPTDIR/utils.bash
-source "${LINTBALL_DIR}/lib/utils.bash"
-
 cli_entrypoint() {
   local status bash_major_version
   # shellcheck disable=SC2001
@@ -78,9 +53,6 @@ cli_entrypoint() {
   fi
   answer=""
   all="all=no"
-
-  # Clear the ignores array
-  IGNORE_GLOBS=()
 
   # Load default configs
   config_load "path=${LINTBALL_DIR}/configs/lintballrc-defaults.json"
@@ -237,12 +209,13 @@ on_exit() {
 }
 
 subcommand_process_files() {
-  local mode num_jobs consumer tmp status ready
+  local mode num_jobs start consumer tmp status ready end
   mode="${1#mode=}"
   num_jobs="${2#num_jobs=}"
   shift
   shift
 
+  start=$(date +%s)
   if [ "$num_jobs" = "auto" ]; then
     if command -v nproc >/dev/null; then
       # coreutils
@@ -288,6 +261,8 @@ subcommand_process_files() {
   produce "tmp=$tmp" "num_jobs=$num_jobs" "$@"
 
   wait
+  end=$(date +%s)
+  echo "# lintball ${mode}: completed in $((end - start)) seconds"
   status=0
   [ ! -f "${tmp}/errfile" ] || status=1
   return "$status"
@@ -438,6 +413,8 @@ locked_echo() {
 }
 
 consume() {
+  source "${LINTBALL_DIR}/lib/env.bash"
+
   local tmp consumer mode path output
 
   tmp="${1#tmp=}"
