@@ -1,7 +1,7 @@
 ASDF_NODEJS_VERSION=18.12.1
 export ASDF_NODEJS_VERSION
 
-if [ "$LIBC" = "musl" ]; then
+if [ "$LIBC_TYPE" = "musl" ]; then
   # binary nodejs doesn't run on alpine / musl
   # see https://github.com/asdf-vm/asdf-nodejs/issues/190
   ASDF_NODEJS_FORCE_COMPILE=1
