@@ -135,7 +135,7 @@ RUN if [ "${TESTING}" = "yes" ]; then \
       rm -rf /tmp/* && \
       rm -rf /var/tmp/* && \
       cd test && \
-      lintball exec npm install \
+      lintball exec npm install; \
     fi
 
 CMD ["/bin/bash"]
