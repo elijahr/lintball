@@ -24,6 +24,7 @@ install_nimpretty() {
         mv nimpretty/nimpretty bin/nimpretty || status=$?
       cd "${old}" || return $?
     fi
+    mkdir -p "${LINTBALL_DIR}/tools/bin"
     mv "${nimpretty}" "${LINTBALL_DIR}/tools/bin/nimpretty"
     rm -rf "${cache_dir}"
     asdf plugin-remove nim

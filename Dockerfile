@@ -123,7 +123,7 @@ RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source
 # of the installed debian packages.
 FROM --platform=$TARGETPLATFORM debian:${DEBIAN_VERSION}-slim as lintball
 ENV LINTBALL_DIR=/lintball
-RUN echo 'PATH=${LINTBALL_DIR}/bin:$PATH' >> ~/.bashrc && \
+RUN echo 'PATH=${LINTBALL_DIR}/bin:$PATH' >> ~/.bashrc
 COPY --from=lintball-composite "${LINTBALL_DIR}" "${LINTBALL_DIR}"
 WORKDIR "${LINTBALL_DIR}"
 
