@@ -7,7 +7,7 @@ cli_entrypoint() {
   # shellcheck disable=SC2001
   bash_major_version="$(parse_major_version "text=${BASH_VERSION}")"
 
-  if [ "$bash_major_version" -lt "4" ]; then
+  if [[ ${bash_major_version} -lt "4" ]]; then
     echo "Unsupported bash version ${bash_major_version}: must be >=4"
     if command -v brew; then
       echo "Try: brew install bash"
@@ -19,8 +19,8 @@ cli_entrypoint() {
   config=""
 
   # Parse base options
-  while true; do
-    case "${1:-}" in
+  while [[ $# -gt 1 ]]; do
+    case "$1" in
       -h | --help)
         usage
         support_table
@@ -28,11 +28,15 @@ cli_entrypoint() {
         return 0
         ;;
       -v | --version)
-        bash "${LINTBALL_DIR}/lib/jwalk/lib/jwalk.sh" <"${LINTBALL_DIR}/package.json" | grep "^version" | awk '{ print $3 }'
+        jq --raw-output ".version" <"${LINTBALL_DIR}/package.json"
         return 0
         ;;
       -c | --config)
         shift
+        if [[ -z ${1:-} ]]; then
+          echo "No config passed for --config" >&2
+          return 1
+        fi
         config="$1"
         shift
         ;;
@@ -48,8 +52,8 @@ cli_entrypoint() {
         ;;
     esac
   done
-  if [ -z "$config" ]; then
-    config=$(config_find "$PWD")
+  if [[ -z ${config} ]]; then
+    config=$(config_find "${PWD}" || true)
   fi
   answer=""
   all="all=no"
@@ -58,16 +62,16 @@ cli_entrypoint() {
   config_load "path=${LINTBALL_DIR}/configs/lintballrc-defaults.json"
   config_load "path=${LINTBALL_DIR}/configs/lintballrc-ignores.json"
 
-  if [ -n "$config" ]; then
+  if [[ -n ${config} ]]; then
     echo
-    echo "# lintball: using config file ${config}"
+    echo "lintball: using config file ${config}"
     echo
-    config_load "path=$config" || return 1
+    config_load "path=${config}"
   fi
 
   declare -a paths=()
 
-  num_jobs="${LINTBALL__NUM_JOBS}"
+  num_jobs="${LINTBALL_NUM_JOBS}"
   # Parse subcommand
   case "${1:-}" in
     check | fix)
@@ -82,7 +86,7 @@ cli_entrypoint() {
             shift
             commit="$1"
             shift
-            readarray -t -O"${#paths[@]}" paths < <(get_paths_changed_since_commit "$commit")
+            readarray -t -O"${#paths[@]}" paths < <(get_paths_changed_since_commit "${commit}")
             ;;
           -j | --jobs)
             shift
@@ -90,7 +94,7 @@ cli_entrypoint() {
             shift
             ;;
           -*)
-            if [ -f "$1" ] || [ -d "$1" ]; then
+            if [[ -f $1 ]] || [[ -d $1 ]]; then
               continue
             fi
             echo >&2
@@ -101,15 +105,16 @@ cli_entrypoint() {
             return 1
             ;;
           *)
-            if [ -n "${1:-}" ]; then
-              paths+=("$@")
+            if [[ -n ${1:-} ]]; then
+              # shellcheck disable=SC2206
+              paths+=($@)
             fi
             break
             ;;
         esac
       done
       status=0
-      subcommand_process_files "mode=$mode" "num_jobs=$num_jobs" "${paths[@]}"
+      subcommand_process_files "mode=${mode}" "num_jobs=${num_jobs}" "${paths[@]}"
       return $?
       ;;
     pre-commit)
@@ -120,21 +125,21 @@ cli_entrypoint() {
       fi
       shift
       readarray -t -O"${#paths[@]}" paths < <(get_fully_staged_paths)
-      if [ "${#paths[@]}" -eq 0 ]; then
+      if [[ ${#paths[@]} -eq 0 ]]; then
         return 0
       fi
-      subcommand_process_files "mode=write" "num_jobs=$num_jobs" "${paths[@]}"
+      subcommand_process_files "mode=write" "num_jobs=${num_jobs}" "${paths[@]}"
       status=$?
       for path in "${paths[@]}"; do
-        git add "$path"
+        git add "${path}"
       done
-      return $status
+      return "${status}"
       ;;
-    install-githooks | install-lintballrc | install-tools)
+    install-githooks | install-lintballrc | install-tools | clean-tools)
       fn="subcommand_${1//-/_}"
       shift
-      while true; do
-        case "${1:-}" in
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
           -y | --yes)
             answer="yes"
             shift
@@ -165,23 +170,26 @@ cli_entrypoint() {
             ;;
         esac
       done
-      path="${path:-$PWD}"
-      if [ "$fn" = "subcommand_install_tools" ]; then
+      path="${path:-${PWD}}"
+      if [[ ${fn} == "subcommand_install_tools" ]]; then
         # Pass extensions to install_tools
-        "$fn" "path=$path" "all=$all" "$@"
+        "${fn}" "path=${path}" "all=${all}" "$@"
+        return $?
+      elif [[ ${fn} == "subcommand_clean_tools" ]]; then
+        "${fn}" "path=${path}" "answer=${answer}"
         return $?
       else
-        if [ "$#" -gt 0 ]; then
-          echo "$fn: unexpected argument '$1'" >&2
+        if [[ $# -gt 0 ]]; then
+          echo "${fn}: unexpected argument '$1'" >&2
           echo >&2
           return 1
         fi
-        "$fn" "path=$path" "answer=$answer"
+        "${fn}" "path=${path}" "answer=${answer}"
         return $?
       fi
       ;;
     *)
-      if [ -z "${1:-}" ]; then
+      if [[ -z ${1:-} ]]; then
         echo "missing subcommand" >&2
       else
         echo "unknown subcommand '$1'" >&2
@@ -194,29 +202,29 @@ cli_entrypoint() {
 }
 
 on_exit() {
-  local status="$?"
+  local status=$? tmp
   tmp="${1#tmp=}"
 
   # Kill consumers
-  for pidfile in "$tmp/"*.pid; do
-    kill -KILL "$(cat "$pidfile")" 1>/dev/null 2>/dev/null || true
+  set +f
+  for pidfile in "${tmp}/"*.pid; do
+    kill -KILL "$(cat "${pidfile}")" 1>/dev/null 2>/dev/null || true
   done
+  set -f
 
   # Cleanup
-  rm -rf "$tmp"
-
-  exit "$status"
+  rm -rf "${tmp}"
+  exit "${status}"
 }
 
 subcommand_process_files() {
-  local mode num_jobs start consumer tmp status ready end
+  local mode num_jobs consumer tmp status ready pid pids
   mode="${1#mode=}"
   num_jobs="${2#num_jobs=}"
   shift
   shift
 
-  start=$(date +%s)
-  if [ "$num_jobs" = "auto" ]; then
+  if [[ ${num_jobs} == "auto" ]]; then
     if command -v nproc >/dev/null; then
       # coreutils
       num_jobs="$(nproc)"
@@ -228,6 +236,7 @@ subcommand_process_files() {
       num_jobs="4"
     fi
   fi
+  num_jobs=1
 
   tmp="$(mktemp -d)"
 
@@ -235,66 +244,68 @@ subcommand_process_files() {
   trap 'trap - INT; kill -INT $$' INT
   trap 'trap - TERM; kill -TERM $$' TERM
   # shellcheck disable=SC2064
-  trap "on_exit 'tmp=$tmp'" EXIT
+  trap "on_exit 'tmp=${tmp}'" EXIT
 
   # Initialize consumer subprocesses
+  declare -a pids=()
   for ((consumer = 1; consumer <= num_jobs; consumer++)); do
     mkfifo "${tmp}/${consumer}.queue"
-    consume "tmp=$tmp" "consumer=$consumer" "mode=$mode" &
-    echo "$!" >"${tmp}/${consumer}.pid"
+    consume "tmp=${tmp}" "consumer=${consumer}" "mode=${mode}" &
+    pid="$!"
+    echo "$pid" >"${tmp}/${consumer}.pid"
+    pids+=("$pid")
   done
 
   while true; do
     ready="yes"
     for ((consumer = 1; consumer <= num_jobs; consumer++)); do
-      if [ ! -f "${tmp}/${consumer}.ready" ]; then
+      if [[ ! -f "${tmp}/${consumer}.ready" ]]; then
         ready="no"
         break
       fi
     done
-    if [ "$ready" = "yes" ]; then
+    if [[ ${ready} == "yes" ]]; then
       break
     fi
   done
 
   # Send paths to consumers
-  produce "tmp=$tmp" "num_jobs=$num_jobs" "$@"
+  produce "tmp=${tmp}" "num_jobs=${num_jobs}" "$@"
 
-  wait
-  end=$(date +%s)
-  echo "# lintball ${mode}: completed in $((end - start)) seconds"
   status=0
-  [ ! -f "${tmp}/errfile" ] || status=1
-  return "$status"
+  for pid in "${pids[@]}"; do
+    wait "$pid" || status=$?
+  done
+
+  return "${status}"
 }
 
 process_file() {
-  local path mode status extension tools tool
+  local path mode extension tools tool status
   path="${1#path=}"
   mode="${2#mode=}"
 
-  status=0
-  path="$(normalize_path "path=$path")"
-  tools="$(get_tools_for_file "path=$path")"
-  if [ -z "$tools" ]; then
+  path="$(normalize_path "path=${path}")"
+  readarray -t tools < <(get_tools_for_file "path=${path}")
+  if [[ ${#tools[@]} -eq 0 ]]; then
     return 0
   fi
 
-  extension="$(normalize_extension "path=$path")"
-  echo "# $(prettify_path "$path")"
-  while read -r tool; do
-    {
-      case "$tool" in
-        nimpretty) run_tool_nimpretty "mode=$mode" "path=$path" ;;
-        prettier-eslint) run_tool_prettier_eslint "mode=$mode" "path=$path" ;;
-        shellcheck) run_tool_shellcheck "mode=$mode" "path=$path" "lang=$(get_lang_shellcheck "extension=$extension")" ;;
-        shfmt) run_tool "tool=shfmt" "mode=$mode" "path=$path" "lang=$(get_lang_shfmt "extension=$extension")" ;;
-        uncrustify) run_tool_uncrustify "mode=$mode" "path=$path" "lang=$(get_lang_uncrustify "extension=$extension")" ;;
-        *) run_tool "tool=$tool" "mode=$mode" "path=$path" ;;
-      esac
-    } || status=$?
-  done <<<"$tools"
-
+  extension="$(normalize_extension "path=${path}")"
+  prettify_path "${path}"
+  status=0
+  for tool in "${tools[@]}"; do
+    case "${tool}" in
+      clippy) run_tool_clippy "mode=${mode}" "path=${path}" || status=$? ;;
+      nimpretty) run_tool_nimpretty "mode=${mode}" "path=${path}" || status=$? ;;
+      prettier) run_tool_prettier "mode=${mode}" "path=${path}" || status=$? ;;
+      prettier-eslint) run_tool_prettier_eslint "mode=${mode}" "path=${path}" || status=$? ;;
+      shellcheck) run_tool_shellcheck "mode=${mode}" "path=${path}" "lang=$(get_lang_shellcheck "extension=${extension}")" || status=$? ;;
+      shfmt) run_tool_shfmt "mode=${mode}" "path=${path}" "lang=$(get_lang_shfmt "extension=${extension}")" || status=$? ;;
+      uncrustify) run_tool_uncrustify "mode=${mode}" "path=${path}" "lang=$(get_lang_uncrustify "extension=${extension}")" || status=$? ;;
+      *) run_tool "tool=${tool}" "mode=${mode}" "path=${path}" || status=$? ;;
+    esac
+  done
   return $status
 }
 
@@ -303,29 +314,25 @@ subcommand_install_githooks() {
   path="${1#path=}"
   answer="${2#answer=}"
 
-  git_dir="$(find_git_dir "dir=$path" || true)"
-  if [ -z "$git_dir" ]; then
+  git_dir="$(find_git_dir "dir=${path}" || true)"
+  if [[ -z ${git_dir} ]]; then
     echo >&2
-    echo "Could not find a .git directory at or above $path" >&2
+    echo "Could not find a .git directory at or above ${path}" >&2
     echo >&2
     return 1
   fi
 
-  hooks_path="$(git --git-dir="$git_dir" config --local core.hooksPath || true)"
-  if [ -z "$hooks_path" ]; then
+  hooks_path="$(git --git-dir="${git_dir}" config --local core.hooksPath || true)"
+  if [[ -z ${hooks_path} ]]; then
     hooks_path="${path}/.githooks"
   fi
   for hook in "${LINTBALL_DIR}/githooks/"*; do
-    status=0
-    dest="${hooks_path}/$(basename "$hook")"
-    confirm_copy "src=$hook" "dest=$dest" "answer=$answer" "symlink=yes" || status=$?
-    if [ "$status" -gt 0 ]; then
-      return $status
-    fi
+    dest="${hooks_path}/$(basename "${hook}")"
+    confirm_copy "src=${hook}" "dest=${dest}" "answer=${answer}" "symlink=yes"
   done
-  git --git-dir="$git_dir" config --local core.hooksPath "$hooks_path"
+  git --git-dir="${git_dir}" config --local core.hooksPath "${hooks_path}"
   echo
-  echo "Set git hooks path → $hooks_path"
+  echo "Set git hooks path → ${hooks_path}"
   echo
   return 0
 }
@@ -337,109 +344,165 @@ subcommand_install_lintballrc() {
   confirm_copy \
     "src=${LINTBALL_DIR}/configs/lintballrc-ignores.json" \
     "dest=${path}/.lintballrc.json" \
-    "answer=$answer" \
-    "symlink=no" || return $?
+    "answer=${answer}" \
+    "symlink=no"
 }
 
 subcommand_install_tools() {
-  local path paths all extension tools tool file installed is_installed installer status
+  local path paths all extension tools tool file installed is_installed installer
   path="${1#path=}"
   all="${2#all=}"
   shift
   shift
-  shift
   declare -a tools=()
   declare -a installed=()
-
-  if [ "$all" = "yes" ]; then
+  if [[ ${all} == "yes" ]]; then
     # install everything
-    tools+=(autoflake autopep8 black clippy docformatter isort nimpretty
-      prettier prettier-eslint pylint rubocop shellcheck shfmt stylua
-      uncrustify yamllint)
-  elif [ "$#" -gt 0 ]; then
+    tools+=("${LINTBALL_ALL_TOOLS[@]}")
+  elif [[ $# -gt 0 ]]; then
     # extensions provided by user on command line
     for extension in "${@}"; do
-      # shellcheck disable=SC2207
-      tools+=($(get_tools_for_file "file=_.${extension}"))
+      readarray -t -O"${#tools[@]}" tools < <(get_tools_for_file "path=_.${extension}")
     done
   else
     # examine path to find tools to install
     while read -r file; do
-      # shellcheck disable=SC2207
-      tools+=($(get_tools_for_file "file=${file}"))
-    done < <(eval "$(generate_find_cmd "$path")")
+      readarray -t -O"${#tools[@]}" tools < <(get_tools_for_file "path=${file}")
+    done < <(eval "$(generate_find_cmd "${path}")")
   fi
 
-  status=0
   for tool in "${tools[@]}"; do
     installer="$(get_installer_for_tool "tool=${tool}")"
-    if [ -z "$installer" ]; then
+    if [[ -z ${installer} ]]; then
       continue
     fi
     is_installed=no
     for i in "${!installed[@]}"; do
-      if [[ ${installed[$i]} == "$installer" ]]; then
+      if [[ ${installed[${i}]} == "${installer}" ]]; then
         is_installed=yes
         break
       fi
     done
-    if [ "$is_installed" = "no" ]; then
-      eval "$installer" || status=$?
-      if [ "$status" -gt 0 ]; then
-        break
-      fi
-      installed+=("$installer")
+    if [[ ${is_installed} == "no" ]]; then
+      "${installer}"
+      installed+=("${installer}")
     fi
   done
-  return "$status"
+}
+
+subcommand_clean_tools() {
+  local path answer paths existing_paths
+  path="${1#path=}"
+  answer="${2#answer=}"
+
+  declare -a paths=(
+    "${LINTBALL_DIR}/tools/.bundle"
+    "${LINTBALL_DIR}/tools/asdf"
+    "${LINTBALL_DIR}/tools/bin"
+    "${LINTBALL_DIR}/tools/node_modules"
+    "${LINTBALL_DIR}/tools/uncrustify"*
+  )
+  declare -a existing_paths=()
+
+  for path in "${paths[@]}"; do
+    if [[ -e ${path} ]]; then
+      existing_paths+=("${path}")
+    fi
+  done
+
+  if [[ ${#existing_paths[@]} -eq 0 ]]; then
+    echo "No paths to delete" >&2
+    return 0
+  fi
+
+  if [[ -n ${answer} ]] && [[ ${answer} != "yes" ]]; then
+    echo "--no passed, but would delete:" >&2
+    for path in "${existing_paths[@]}"; do
+      echo "- ${path}" >&2
+    done
+    return 0
+  fi
+
+  echo "Will delete the following paths:" >&2
+  echo >&2
+  for path in "${existing_paths[@]}"; do
+    echo "- ${path}" >&2
+  done
+  echo >&2
+
+  if [[ ${answer} != "yes" ]]; then
+    while true; do
+      printf '%s' "Proceed? [y/n] " >&2
+      read -r answer
+      case "${answer}" in
+        y | Y | yes) break ;;
+        n | N | no) return 1 ;;
+        *) echo "${answer@Q} is not a valid answer." >&2 ;;
+      esac
+    done
+  fi
+  for path in "${existing_paths[@]}"; do
+    rm -rf "${path}"
+    echo "Deleted ${path}" >&2
+  done
 }
 
 locked_echo() {
-  local output lockfile
-  output="${1#output=}"
-  lockfile="${2#lockfile=}"
+  local stdout stderr lockfile
+  stdout="${1#stdout=}"
+  stderr="${2#stderr=}"
+  lockfile="${3#lockfile=}"
   # spin lock to show output
-  set -o noclobber
-  while true; do
+  (
+    set -o noclobber
     # shellcheck disable=SC2188
-    if { >"$lockfile"; } 2>/dev/null; then
-      break
+    while ! { >"${lockfile}"; }; do
+      sleep 0.001
+    done
+    if [ -n "${stdout}" ]; then
+      echo "${stdout}"
     fi
-  done
-  echo "$output"
-  echo
-  rm "$lockfile"
-  set +o noclobber
+    if [ -n "${stderr}" ]; then
+      echo "${stderr}" >&2
+    fi
+    rm "${lockfile}"
+    set +o noclobber
+  )
 }
 
 consume() {
-  source "${LINTBALL_DIR}/lib/env.bash"
-
-  local tmp consumer mode path output
+  local tmp consumer mode path stdout stderr status
 
   tmp="${1#tmp=}"
   consumer="${2#consumer=}"
   mode="${3#mode=}"
-  path=""
 
-  echo >"${tmp}/${consumer}.ready"
+  touch "${tmp}/${consumer}.ready"
+
+  status=0
   { while true; do
     path=""
-    if ! read -t 0.01 -r path; then
+    rm -f "${tmp}/${consumer}.stdout" 2>/dev/null
+    rm -f "${tmp}/${consumer}.stderr" 2>/dev/null
+    if ! read -r -t 0.1 path; then
       continue
     fi
-    if [ -z "$path" ]; then
+    if [[ -z ${path} ]]; then
       continue
-    elif [ "$path" = "<done>" ]; then
+    elif [[ ${path} == "<done>" ]]; then
       break
     else
-      output="$(process_file "path=$path" "mode=$mode" 2>&1 || touch "${tmp}/errfile")"
-      if [ -n "$output" ]; then
-        locked_echo "output=$output" "lockfile=${tmp}/output.lock"
+      process_file "path=${path}" "mode=${mode}" \
+        1>"${tmp}/${consumer}.stdout" \
+        2>"${tmp}/${consumer}.stderr" || status=$?
+      stdout=$(cat "${tmp}/${consumer}.stdout" 2>/dev/null || true)
+      stderr=$(cat "${tmp}/${consumer}.stderr" 2>/dev/null || true)
+      if [ -n "${stdout}" ] || [ -n "${stderr}" ]; then
+        locked_echo "stdout=${stdout}" "stderr=${stderr}" "lockfile=${tmp}/output.lock"
       fi
     fi
   done; } <"${tmp}/${consumer}.queue"
-  rm "${tmp}/${consumer}.pid"
+  return $status
 }
 
 produce() {
@@ -453,8 +516,8 @@ produce() {
   # in a round-robin fashion.
   consumer=1
   while read -r path; do
-    echo "$path" >"${tmp}/${consumer}.queue"
-    if [ "$consumer" -eq "$num_jobs" ]; then
+    echo "${path}" >"${tmp}/${consumer}.queue"
+    if [[ ${consumer} -eq ${num_jobs} ]]; then
       # Reset
       consumer="1"
     else
@@ -564,6 +627,7 @@ Usage:
   lintball [-c <path>] install-githooks [-y | -n] [-p <path>]
   lintball [-c <path>] install-lintballrc [-y | -n] [-p <path>]
   lintball [-c <path>] install-tools [-a] [-p <path>] [ext …]
+  lintball [-c <path>] clean-tools [-y]
   lintball [-c <path>] pre-commit
 
 Options:
@@ -601,11 +665,14 @@ Subcommands:
   install-tools [ext …]     Install tools for fixing files having extensions
                             [ext]. If no [ext] are provided, lintball will
                             autodetect which tools to install based on files in
-                            <path>.
+                            <path>. The tools will be installed in:
+                            ${LINTBALL_DIR}/tools
     -p, --path <path>       The path to search for file types.
                               Default: working directory
-    -y, --yes               Skip prompt & install missing dependencies.
     -a, --all               Install *all* tools.
+  clean-tools               Remove all tools installed in:
+                            ${LINTBALL_DIR}/tools
+    -y, --yes               Skip prompt & remove all tools.
   pre-commit                Recursively fix issues on files that are fully
                             staged for commit. Recursively check for issues on
                             files that are partially staged for commit.
@@ -636,6 +703,9 @@ Examples:
   \$ lintball install-tools -p foo        # Autodetect tools for directory foo
                                          # and install them.
   \$ lintball install-tools --all         # Install all tools.
+  \$ lintball clean-tools                 # Remove all installed tools.
+  \$ lintball clean-tools --yes           # Remove all installed tools, skipping
+                                        # prompt.
   \$ lintball install-tools py js yaml    # Install tools for checking Python,
                                          # JavaScript, & YAML.
 

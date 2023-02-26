@@ -1,24 +1,30 @@
+absolutize_path() {
+  local path
+  path=${1#path=}
+  echo "$(cd "$(dirname "${path}")" && pwd)/$(basename "${path}")"
+}
+
 generate_find_cmd() {
   local parts normalized_path
 
   declare -a parts=("find")
 
   for path in "$@"; do
-    normalized_path="$(normalize_path "path=$path")"
-    if [ -n "$normalized_path" ]; then
+    normalized_path="$(normalize_path "path=${path}")"
+    if [[ -n ${normalized_path} ]]; then
       parts+=("${normalized_path}")
     fi
   done
 
-  if [ "${#parts[@]}" -eq 1 ]; then
+  if [[ ${#parts[@]} -eq 1 ]]; then
     # all args were whitespace only, so default to current dir
     parts+=(".")
   fi
 
   parts+=("-type" "f")
 
-  for ignore in "${IGNORE_GLOBS[@]}"; do
-    if [ -n "$ignore" ]; then
+  for ignore in "${LINTBALL_IGNORE_GLOBS[@]}"; do
+    if [[ -n ${ignore} ]]; then
       parts+=("-a" "(" "-not" "-path" "${ignore}" ")")
     fi
   done
@@ -32,74 +38,104 @@ config_find() {
   local path
   path="${1:-}"
   path=${path#path=}
-  if [ -n "$path" ]; then
-    path="$(normalize_path "path=$path")"
-    if [ -d "$path" ] || [ -s "$path" ]; then
-      path="$(cd "$path" && pwd)"
+  if [[ -n ${path} ]]; then
+    path="$(normalize_path "path=${path}")"
+    if [[ -d ${path} ]] || [[ -s ${path} ]]; then
+      path="$(cd "${path}" && pwd)"
     else
-      echo "Not a valid path arg: $path" >&2
+      echo "Not a valid path arg: ${path}" >&2
       return 1
     fi
   else
     path="$(pwd)"
   fi
 
-  if ! [ -d "$path" ] && ! [ -s "$path" ]; then
+  if ! [[ -d ${path} ]] && ! [[ -s ${path} ]]; then
     echo "Not a valid path arg: ${path}" >&2
     return 1
   fi
 
   # Traverse up the directory tree looking for .lintballrc.json
   while true; do
-    if [ -f "${path}/.lintballrc.json" ] || [ -s "${path}/.lintballrc" ]; then
+    if [[ -f "${path}/.lintballrc.json" ]] || [[ -s "${path}/.lintballrc" ]]; then
       echo "${path}/.lintballrc.json"
       return 0
     else
-      path="$(dirname "$path")"
+      path="$(dirname "${path}")"
     fi
-    [ "$path" != "/" ] || break
+    [[ ${path} != "/" ]] || break
   done
 
   return 1
 }
 
 config_load() {
-  local path name value line
-  if [ -z "${1:-}" ]; then
+  local path name value line lintballrc_version tool_upper write_args check_args use ignores num_jobs
+  if [[ -z ${1:-} ]]; then
     echo "config_load: missing path arg" >&2
     return 1
   fi
   path="${1#path=}"
-  path="$(normalize_path "path=$path")"
+  path="$(normalize_path "path=${path}")"
 
-  if [ ! -f "$path" ]; then
+  if [[ ! -f ${path} ]]; then
     echo "config_load: No config file at ${path}" >&2
     return 1
   fi
 
-  while read -r line; do
-    case "$line" in
-      num_jobs*)
-        name="LINTBALL__$(echo "$line" | awk '{ print $1 }' | sed 's/[^a-z0-9]/_/g' | tr '[:lower:]' '[:upper:]')"
-        value="$(echo "$line" | awk -F $'\t' 'BEGIN {OFS = FS}{print $3}')"
-        export "${name}=${value}"
-        ;;
-      write_args* | check_args* | use*)
-        if [ "$(echo "$line" | cut -f2)" = "object" ]; then
-          continue
-        fi
-        name="LINTBALL__$(echo "$line" | awk '{ print $1 "__" $2 }' | sed 's/[^a-z0-9]/_/g' | tr '[:lower:]' '[:upper:]')"
-        value="$(echo "$line" | awk -F $'\t' 'BEGIN {OFS = FS}{print $4}')"
-        export "${name}=${value}"
-        ;;
-      ignores*)
-        if [ "$(echo "$line" | cut -f2)" = "array" ]; then
-          continue
-        fi
-        IGNORE_GLOBS+=("$(echo "$line" | awk '{ print $4 }')")
-        ;;
-    esac
-  done <<<"$(bash "${LINTBALL_DIR}/lib/jwalk/lib/jwalk.sh" <"$path")"
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "jq is required to parse config files; install jq" >&2
+    return 1
+  fi
+
+  # Verify that the config file matches LINTBALLRC_VERSION
+  lintballrc_version=$(jq --raw-output ".lintballrc_version" 2>/dev/null <"${path}" || true)
+  # shellcheck disable=SC2153
+  if [[ ${lintballrc_version} != "${LINTBALLRC_VERSION}" ]]; then
+    echo "Cannot use config file ${path@Q}: expected lintballrc_version ${LINTBALLRC_VERSION} but found ${lintballrc_version}" >&2
+    return 1
+  fi
+
+  for tool in "${LINTBALL_ALL_TOOLS[@]}"; do
+    tool_upper=$(echo "${tool}" | sed 's/[^a-z0-9]/_/g' | tr '[:lower:]' '[:upper:]')
+    write_args=$(jq --raw-output ".write_args.\"${tool}\"[]" 2>/dev/null <"${path}" || true)
+    if [[ -n ${write_args} ]]; then
+      # overwrite the write args array for this tool
+      readarray -t "LINTBALL_WRITE_ARGS_${tool_upper}" <<<"${write_args}"
+    fi
+    check_args=$(jq --raw-output ".check_args.\"${tool}\"[]" 2>/dev/null <"${path}" || true)
+    if [[ -n ${check_args} ]]; then
+      # overwrite the write args array for this tool
+      readarray -t "LINTBALL_CHECK_ARGS_${tool_upper}" <<<"${check_args}"
+    fi
+    use=$(jq --raw-output ".use.\"${tool}\"" 2>/dev/null <"${path}" || true)
+    if [[ ${use} != "null" ]]; then
+      # overwrite the use value for this tool
+      name="LINTBALL_USE_${tool_upper}"
+      # shellcheck disable=SC2229
+      read -r "${name}" <<<"${use}"
+      # shellcheck disable=SC2163
+      export "${name}"
+    fi
+  done
+
+  ignores=$(jq --raw-output ".ignores[]" 2>/dev/null <"${path}" || true)
+  if [ -n "${ignores}" ]; then
+    # overwrite the global LINTBALL_IGNORE_GLOBS array
+    readarray -t LINTBALL_IGNORE_GLOBS <<<"${ignores}"
+  fi
+
+  ignores=$(jq --raw-output '."ignores+="[]' 2>/dev/null <"${path}" || true)
+  if [ -n "${ignores}" ]; then
+    # append to the global LINTBALL_IGNORE_GLOBS array
+    readarray -t -O"${#LINTBALL_IGNORE_GLOBS[@]}" LINTBALL_IGNORE_GLOBS <<<"${ignores}"
+  fi
+
+  num_jobs=$(jq --raw-output ".num_jobs" 2>/dev/null <"${path}" || true)
+  if [ "${num_jobs}" != "null" ]; then
+    LINTBALL_NUM_JOBS="${num_jobs}"
+    export LINTBALL_NUM_JOBS
+  fi
 }
 
 confirm_copy() {
@@ -108,28 +144,28 @@ confirm_copy() {
   dest="${2#dest=}"
   answer="${3#answer=}"
   symlink="${4#symlink=}"
-  if [ -d "$src" ] || [ -d "$dest" ]; then
+  if [ -d "${src}" ] || [ -d "${dest}" ]; then
     echo >&2
     echo "Source and destination must be file paths, not directories." >&2
     echo >&2
     return 1
   fi
-  if [ -f "$dest" ]; then
-    if [ -z "$answer" ]; then
+  if [ -f "${dest}" ]; then
+    if [ -z "${answer}" ]; then
       read -rp "${dest//${HOME}/"~"} exists. Replace? [y/N] " answer
     fi
     case "$answer" in
       [yY]*) ;;
       *)
         echo >&2
-        echo "File exists, cancelled: $dest" >&2
+        echo "File exists, cancelled: ${dest}" >&2
         echo >&2
         return 1
         ;;
     esac
   fi
-  if [ ! -d "$(dirname "$dest")" ]; then
-    mkdir -p "$(dirname "$dest")"
+  if [ ! -d "$(dirname "${dest}")" ]; then
+    mkdir -p "$(dirname "${dest}")"
   fi
   if [ "$symlink" = "yes" ]; then
     rm -rf "$dest"
@@ -156,7 +192,7 @@ find_git_dir() {
       echo "${dir}/.git"
       break
     else
-      dir="$(dirname "$dir")"
+      dir="$(dirname "${dir}")"
     fi
   done
 }
@@ -166,10 +202,10 @@ get_fully_staged_paths() {
   staged="$(git diff --name-only --cached | sort)"
   while read -r line; do
     # shellcheck disable=SC2143
-    if [ -z "$(git diff --name-only | grep -F "$line")" ]; then
-      if [ -f "$line" ]; then
+    if [[ -z "$(git diff --name-only | grep -F "${line}")" ]]; then
+      if [[ -f ${line} ]]; then
         # path exists, is staged and has no unstaged changes
-        echo "$line"
+        echo "${line}"
       fi
     fi
   done <<<"$staged"
@@ -236,7 +272,7 @@ get_shebang() {
   (
     LC_CTYPE="C"
     export LC_CTYPE
-    if [ "$(tr '\0' ' ' 2>/dev/null <"$path" | head -c2)" = "#!" ]; then
+    if [[ "$(tr '\0' ' ' 2>/dev/null <"${path}" | head -c2)" == "#!" ]]; then
       head -n1 "$path"
     fi
   )
@@ -245,8 +281,9 @@ get_shebang() {
 get_tools_for_file() {
   local path extension
 
-  path="$(normalize_path "path=$1")"
-  extension="$(normalize_extension "path=$path")"
+  path="${1#path=}"
+  path="$(normalize_path "path=${path}")"
+  extension="$(normalize_extension "path=${path}")"
 
   case "$extension" in
     css | graphql | html | jade | java | json | md | mdx | pug | scss | xml)
@@ -295,7 +332,7 @@ get_tools_for_file() {
       echo "clippy"
       ;;
     toml)
-      if [ "$(basename "$path")" = "Cargo.toml" ]; then
+      if [[ "$(basename "${path}")" == "Cargo.toml" ]]; then
         # Special case for Rust package; clippy analyzes an entire crate, not a
         # single path, so when a Cargo.toml is encountered, use clippy.
         echo "clippy"
@@ -308,13 +345,45 @@ get_tools_for_file() {
   esac
 }
 
+interpolate() {
+  local vars key value arg
+  declare -A vars=()
+  while [ "$#" -ge 1 ]; do
+    key=$1
+    shift
+    if [[ ${key} == "--" ]]; then
+      # begin processing arguments
+      break
+    fi
+    value="$1"
+    shift
+    vars[$key]="$value"
+  done
+  for arg in "$@"; do
+    for key in "${!vars[@]}"; do
+      value="${vars[${key}]}"
+      arg="${arg//'{{ '${key}' }}'/${value}}"
+      arg="${arg//'{{'${key}'}}'/${value}}"
+    done
+    if [[ $arg =~ (\{\{[ ]*[a-zA-Z0-9_-]+[ ]*\}\}) ]]; then
+      echo "Unknown variable in arg ${arg@Q}" >&2
+      echo "Valid variables:" >&2
+      for key in "${!vars[@]}"; do
+        echo "- {{ ${key} }}" >&2
+      done
+      return 1
+    fi
+    echo "$arg"
+  done
+}
+
 normalize_extension() {
   local path lang filename extension
   path="${1#path=}"
 
   # Check for `# lintball lang=foo` directives
-  if [ -f "$path" ]; then
-    lang="$(grep '^# lintball lang=' "$path" | sed 's/^# lintball lang=//' | tr '[:upper:]' '[:lower:]')"
+  if [ -e "$path" ]; then
+    lang="$(grep '^# lintball lang=' "${path}" | sed 's/^# lintball lang=//' | tr '[:upper:]' '[:lower:]')"
   else
     lang=""
   fi
@@ -328,11 +397,11 @@ normalize_extension() {
     typescript) extension="ts" ;;
     yaml) extension="yml" ;;
     *)
-      if [ -n "$lang" ]; then
-        extension="$lang"
+      if [ -n "${lang}" ]; then
+        extension="${lang}"
       else
-        filename="$(basename "$path")"
-        if [ "$filename" = "Gemfile" ]; then
+        filename="$(basename "${path}")"
+        if [[ ${filename} == "Gemfile" ]]; then
           extension="rb"
         else
           extension="${filename##*.}"
@@ -350,7 +419,7 @@ normalize_extension() {
       ;;
     sh)
       # Inspect shebang to get actual shell interpreter
-      case "$(get_shebang "$path")" in
+      case "$(get_shebang "path=${path}")" in
         *bash) echo "bash" ;;
         *dash) echo "dash" ;;
         *mksh) echo "mksh" ;;
@@ -361,7 +430,7 @@ normalize_extension() {
     yaml) echo "yml" ;;
     *)
       # File has no extension, inspect shebang to get interpreter
-      case "$(get_shebang "$path")" in
+      case "$(get_shebang "path=${path}")" in
         */bin/sh) echo "sh" ;;
         *bash) echo "bash" ;;
         *bats) echo "bats" ;;
@@ -385,7 +454,7 @@ normalize_path() {
   done
 
   # Strip trailing slash, leading/trailing whitespace
-  path="$(echo "$path" | sed 's/\/$//' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+  path="$(echo "${path}" | sed 's/\/$//' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
 
   if [[ $path =~ ^[^/\.] ]]; then
     # ensure relative paths (foo/bar) are prepended with ./ (./foo/bar) to

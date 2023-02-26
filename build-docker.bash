@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-set -uexo pipefail
+set -euxo pipefail
 
 debian_version=bullseye
 lintball_version=$(jq -r .version ./package.json)
-lintball_major_version=$(echo "$lintball_version" | awk -F '.' '{print $1}')
-lintball_minor_version=$(echo "$lintball_version" | awk -F '.' '{print $2}')
+lintball_major_version=$(echo "${lintball_version}" | awk -F '.' '{print $1}')
+lintball_minor_version=$(echo "${lintball_version}" | awk -F '.' '{print $2}')
 do_push=no
 answer_yes=no
 
@@ -29,13 +29,15 @@ declare -a manifests=(
 build() {
   # Build with legacy Docker build
   for arch in "${archs[@]}"; do
+    # shellcheck disable=SC2068
     docker build \
       --platform "linux/${arch}" \
       --build-arg "DEBIAN_VERSION=${debian_version}" \
       --build-arg "LINTBALL_VERSION=${lintball_version}" \
       --file Dockerfile \
       --tag "docker.io/elijahru/lintball:latest-${arch}" \
-      . || return $?
+      $@ \
+      .
   done
 }
 
@@ -53,10 +55,10 @@ create_tags() {
 create_manifests() {
   local manifest arch
   for manifest in "${manifests[@]}"; do
-    docker manifest create "${manifest}" || return $?
+    docker manifest create "${manifest}"
     for arch in "${archs[@]}"; do
       docker manifest create --amend "${manifest}" "${manifest}-${arch}"
-      docker manifest annotate "${manifest}" --os linux "${docker_manifest_args[$arch]}"
+      docker manifest annotate "${manifest}" --os linux "${docker_manifest_args[${arch}]}"
     done
   done
 }
@@ -64,27 +66,27 @@ create_manifests() {
 push_tags() {
   local manifest arch answer
   set +x
-  echo
-  echo "Will push the following tags:"
-  echo
+  echo >&2
+  echo "Will push the following tags:" >&2
+  echo >&2
   for manifest in "${manifests[@]}"; do
     for arch in "${archs[@]}"; do
-      echo "- ${manifest}-${arch}"
+      echo "- ${manifest}-${arch}" >&2
     done
   done
-  echo
+  echo >&2
 
-  if [ "$answer_yes" != "yes" ]; then
+  if [[ ${answer_yes} != "yes" ]]; then
     while true; do
-      printf '%s' "Is this correct? [y/n] "
+      printf '%s' "Is this correct? [y/n] " >&2
       read -r answer
-      case "$answer" in
+      case "${answer}" in
         y | Y | yes) break ;;
         n | N | no)
           set -x
           return 1
           ;;
-        *) echo "${answer@Q} is not a valid answer." ;;
+        *) echo "${answer@Q} is not a valid answer." >&2 ;;
       esac
     done
   fi
@@ -92,7 +94,7 @@ push_tags() {
 
   for manifest in "${manifests[@]}"; do
     for arch in "${archs[@]}"; do
-      docker push "${manifest}-${arch}" || return $?
+      docker push "${manifest}-${arch}"
     done
   done
 }
@@ -106,15 +108,15 @@ push_manifests() {
   for manifest in "${manifests[@]}"; do
     echo
     echo "- ${manifest}"
-    docker manifest inspect "${manifest}" || return $?
+    docker manifest inspect "${manifest}"
     echo
   done
 
-  if [ "$answer_yes" != "yes" ]; then
+  if [[ ${answer_yes} != "yes" ]]; then
     while true; do
       printf '%s' "Is this correct? [y/n] "
       read -r answer
-      case "$answer" in
+      case "${answer}" in
         y | Y | yes) break ;;
         n | N | no)
           set -x
@@ -127,12 +129,12 @@ push_manifests() {
   set -x
 
   for manifest in "${manifests[@]}"; do
-    docker manifest push "${manifest}" || return $?
+    docker manifest push "${manifest}"
   done
 }
 
-if [ "${#@}" -gt 0 ]; then
-  while [ "${1:-}" != "" ]; do
+if [[ ${#@} -gt 0 ]]; then
+  while [[ ${1:-} != "" ]]; do
     case "$1" in
       --push)
         shift
@@ -142,6 +144,17 @@ if [ "${#@}" -gt 0 ]; then
         shift
         answer_yes=yes
         ;;
+      --single-arch)
+        shift
+        # only build for the specified architecture
+        archs=("$1")
+        shift
+        ;;
+      --)
+        # remaining args get passed to docker build
+        shift
+        break
+        ;;
       *)
         echo "Unhandled argument: $1" >&2
         exit 1
@@ -150,10 +163,10 @@ if [ "${#@}" -gt 0 ]; then
   done
 fi
 
-build || exit $?
-create_tags || exit $?
-if [ "$do_push" = "yes" ]; then
-  push_tags || exit $?
-  create_manifests || exit $?
-  push_manifests || exit $?
+build "$@"
+create_tags
+if [[ ${do_push} == "yes" ]]; then
+  push_tags
+  create_manifests
+  push_manifests
 fi

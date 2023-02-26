@@ -217,7 +217,7 @@ If you have a large project with many files, you may want to limit the number of
 - name: Check for linter issues
   shell: bash
   run: |
-    set -uexo pipefail
+    set -euxo pipefail
 
     default_branch=master
     if [ "$GITHUB_REF" = "refs/heads/$default_branch" ]; then
@@ -236,9 +236,8 @@ If you have a large project with many files, you may want to limit the number of
       commitish="$(git merge-base -a refs/remotes/origin/${default_branch} $GITHUB_SHA)"
     fi
 
-    status=0
-    lintball check --since "$commitish" || status=$?
-    if [ "$status" -gt 0 ]; then
+    if ! lintball check --since "$commitish"; then
+      status=$?
       echo
       echo "The above issues were found by lintball."
       echo "To detect and auto-fix issues before pushing, install lintball's git hooks."

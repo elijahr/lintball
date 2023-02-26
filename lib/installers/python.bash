@@ -1,16 +1,21 @@
+# shellcheck disable=SC2154
+
 ASDF_PYTHON_VERSION=3.10.8
 export ASDF_PYTHON_VERSION
 
 install_python() {
-  configure_asdf || return $?
-  if [ ! -d "${ASDF_DATA_DIR}/installs/python/${ASDF_PYTHON_VERSION}" ]; then
+  local old status
+  configure_asdf
+  if [[ ! -d "${ASDF_DATA_DIR}/installs/python/${ASDF_PYTHON_VERSION}" ]]; then
     asdf plugin-add python || true
-    asdf install python || return $?
+    asdf install python
     asdf reshim
   fi
-  (
-    cd "${LINTBALL_DIR}/tools"
-    pip install -r pip-requirements.txt --no-cache-dir
-    asdf reshim
-  ) || return $?
+  status=0
+  old="${PWD}"
+  cd "${LINTBALL_DIR}/tools" || return $?
+  pip install -r pip-requirements.txt --no-cache-dir || status=$?
+  asdf reshim
+  cd "${old}" || return $?
+  return "${status}"
 }

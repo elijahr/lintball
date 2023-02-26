@@ -1,12 +1,4 @@
 {
-  "devDependencies": {
-    "bats": "latest",
-    "bats-assert": "git+https://github.com/bats-core/bats-assert.git#master",
-    "bats-support": "latest"
-  },
-  "scripts": {
-    "test": "bats test"
-  },
   "bin": {
     "lintball": "./bin/lintball"
   },

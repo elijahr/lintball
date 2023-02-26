@@ -26,6 +26,9 @@ RUN apt update && apt install -y gnupg && \
     rm -rf /tmp/* && \
     rm -rf /var/tmp/*
 
+# apt update && apt install -y apt-fast && apt-fast install -y \
+# apt-fast build-dep -y nodejs nim python3 ruby rustc && \
+
 RUN mkdir -p "${LINTBALL_DIR}/configs" && \
     mkdir -p "${LINTBALL_DIR}/lib/installers" && \
     mkdir -p "${LINTBALL_DIR}/tools/bin"
@@ -85,6 +88,7 @@ COPY --from=lintball-builder "${LINTBALL_DIR}/tools/asdf" "${LINTBALL_DIR}/tools
 COPY --from=lintball-nimpretty "${LINTBALL_DIR}/tools/bin/nimpretty" "${LINTBALL_DIR}/tools/bin/nimpretty"
 COPY --from=lintball-nodejs "${LINTBALL_DIR}/tools/asdf/installs/ruby" "${LINTBALL_DIR}/tools/asdf/installs/ruby"
 COPY --from=lintball-nodejs "${LINTBALL_DIR}/tools/asdf/plugins/ruby" "${LINTBALL_DIR}/tools/asdf/plugins/ruby"
+COPY --from=lintball-nodejs "${LINTBALL_DIR}/tools/.bundle" "${LINTBALL_DIR}/tools/asdf/.bundle"
 COPY --from=lintball-nodejs "${LINTBALL_DIR}/tools/asdf/installs/nodejs" "${LINTBALL_DIR}/tools/asdf/installs/nodejs"
 COPY --from=lintball-nodejs "${LINTBALL_DIR}/tools/asdf/plugins/nodejs" "${LINTBALL_DIR}/tools/asdf/plugins/nodejs"
 COPY --from=lintball-nodejs "${LINTBALL_DIR}/tools/node_modules" "${LINTBALL_DIR}/tools/node_modules"
@@ -96,26 +100,43 @@ COPY --from=lintball-shfmt "${LINTBALL_DIR}/tools/asdf/installs/shfmt" "${LINTBA
 COPY --from=lintball-shfmt "${LINTBALL_DIR}/tools/asdf/plugins/shfmt" "${LINTBALL_DIR}/tools/asdf/plugins/shfmt"
 COPY --from=lintball-stylua "${LINTBALL_DIR}/tools/bin/stylua" "${LINTBALL_DIR}/tools/bin/stylua"
 COPY --from=lintball-uncrustify "${LINTBALL_DIR}/tools/bin/uncrustify" "${LINTBALL_DIR}/tools/bin/uncrustify"
+COPY .gitignore "${LINTBALL_DIR}/.gitignore"
+COPY .lintballrc.json "${LINTBALL_DIR}/.lintballrc.json"
 COPY bin "${LINTBALL_DIR}/bin"
 COPY configs "${LINTBALL_DIR}/configs"
 COPY githooks "${LINTBALL_DIR}/githooks"
 COPY lib "${LINTBALL_DIR}/lib"
-COPY .lintballrc.json "${LINTBALL_DIR}/.lintballrc.json"
 COPY LICENSE "${LINTBALL_DIR}/LICENSE"
-COPY package.json "${LINTBALL_DIR}/package.json"
 COPY package-lock.json "${LINTBALL_DIR}/package-lock.json"
+COPY package.json "${LINTBALL_DIR}/package.json"
 COPY README.md "${LINTBALL_DIR}/README.md"
-COPY tools/Gemfile "${LINTBALL_DIR}/Gemfile"
-COPY tools/Gemfile.lock "${LINTBALL_DIR}/Gemfile.lock"
-COPY tools/package.json "${LINTBALL_DIR}/tools/package.json"
+COPY test "${LINTBALL_DIR}/test"
+COPY tools/.eslintrc.cjs "${LINTBALL_DIR}/tools/.eslintrc.cjs"
+COPY tools/.prettierrc.json "${LINTBALL_DIR}/tools/.prettier.json"
+COPY tools/Gemfile "${LINTBALL_DIR}/tools/Gemfile"
+COPY tools/Gemfile.lock "${LINTBALL_DIR}/tools/Gemfile.lock"
 COPY tools/package-lock.json "${LINTBALL_DIR}/tools/package-lock.json"
+COPY tools/package.json "${LINTBALL_DIR}/tools/package.json"
 RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source ${LINTBALL_DIR}/lib/install.bash && configure_asdf && asdf reshim"
 
 # Output image does not inherit from lintball-builder because we don't need all
 # of the installed debian packages.
 FROM --platform=$TARGETPLATFORM debian:${DEBIAN_VERSION}-slim as lintball
 ENV LINTBALL_DIR=/lintball
+RUN echo 'PATH=${LINTBALL_DIR}/bin:$PATH' >> ~/.bashrc && \
 COPY --from=lintball-composite "${LINTBALL_DIR}" "${LINTBALL_DIR}"
-# VOLUME ["${LINTBALL_DIR}/tools"]
+WORKDIR "${LINTBALL_DIR}"
+
+# Install git, bats, etc, for running tests
+ENV TESTING=no
+RUN if [ "${TESTING}" = "yes" ]; then \
+      apt update && apt install -y git && \
+      rm -rf /var/lib/apt/lists/* && \
+      rm -rf /tmp/* && \
+      rm -rf /var/tmp/* && \
+      cd test && \
+      lintball exec npm install \
+    fi
+
 CMD ["/bin/bash"]
 

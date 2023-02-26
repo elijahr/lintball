@@ -1,111 +1,142 @@
 cmd_autoflake() {
-  local mode path
+  local mode path args
   mode="${1#mode=}"
   path="${2#path=}"
-  if [ "$mode" = "write" ]; then
-    echo "autoflake \
-      $(eval echo "${LINTBALL__WRITE_ARGS__AUTOFLAKE}") \
-      '$path'"
+  declare -a args=()
+  if [[ ${mode} == "write" ]]; then
+    args+=("${LINTBALL_WRITE_ARGS_AUTOFLAKE[@]}")
   else
-    echo "autoflake \
-      $(eval echo "${LINTBALL__CHECK_ARGS__AUTOFLAKE}") \
-      '$path'"
+    args+=("${LINTBALL_CHECK_ARGS_AUTOFLAKE[@]}")
   fi
+  interpolate \
+    "tool" "autoflake" \
+    "lintball_dir" "${LINTBALL_DIR}" \
+    "path" "${path}" \
+    -- "${args[@]}"
 }
 
 cmd_autopep8() {
-  local mode path
+  local mode path args
   mode="${1#mode=}"
   path="${2#path=}"
-  if [ "$mode" = "write" ]; then
-    echo "autopep8 \
-      $(eval echo "${LINTBALL__WRITE_ARGS__AUTOPEP8}") \
-      '$path'"
+  declare -a args=()
+  if [[ ${mode} == "write" ]]; then
+    args+=("${LINTBALL_WRITE_ARGS_AUTOPEP8[@]}")
   else
-    echo "autopep8 \
-      $(eval echo "${LINTBALL__CHECK_ARGS__AUTOPEP8}") \
-      '$path'"
+    args+=("${LINTBALL_CHECK_ARGS_AUTOPEP8[@]}")
   fi
+  interpolate \
+    "tool" "autopep8" \
+    "lintball_dir" "${LINTBALL_DIR}" \
+    "path" "${path}" \
+    -- "${args[@]}"
 }
 
 cmd_black() {
-  local mode path
+  local mode path args
   mode="${1#mode=}"
   path="${2#path=}"
-  if [ "$mode" = "write" ]; then
-    echo "black \
-      $(eval echo "${LINTBALL__WRITE_ARGS__BLACK}") \
-      '$path'"
+  declare -a args=()
+  if [[ ${mode} == "write" ]]; then
+    args+=("${LINTBALL_WRITE_ARGS_BLACK[@]}")
   else
-    echo "black \
-      $(eval echo "${LINTBALL__CHECK_ARGS__BLACK}") \
-      '$path'"
+    args+=("${LINTBALL_CHECK_ARGS_BLACK[@]}")
   fi
+  interpolate \
+    "tool" "black" \
+    "lintball_dir" "${LINTBALL_DIR}" \
+    "path" "${path}" \
+    -- "${args[@]}"
 }
 
 cmd_clippy() {
-  local mode path dir
+  local mode args
   mode="${1#mode=}"
-  path="${2#path=}"
-  # path is Cargo.toml, so cd to containing directory to run clippy
-  dir="$(dirname "$path")"
-  if [ "$mode" = "write" ]; then
-    echo "(cd '$dir'; cargo +nightly clippy \
-      $(eval echo "${LINTBALL__WRITE_ARGS__CLIPPY}"))"
+
+  declare -a args=()
+  if [[ ${mode} == "write" ]]; then
+    args+=("${LINTBALL_WRITE_ARGS_CLIPPY[@]}")
   else
-    echo "(cd '$dir'; cargo +nightly clippy \
-      $(eval echo "${LINTBALL__CHECK_ARGS__CLIPPY}"))"
+    args+=("${LINTBALL_CHECK_ARGS_CLIPPY[@]}")
   fi
+  interpolate \
+    "tool" "clippy" \
+    "lintball_dir" "${LINTBALL_DIR}" \
+    -- "${args[@]}"
 }
 
 cmd_docformatter() {
-  local mode path
+  local mode path args
   mode="${1#mode=}"
   path="${2#path=}"
-  if [ "$mode" = "write" ]; then
-    echo "docformatter \
-      $(eval echo "${LINTBALL__WRITE_ARGS__DOCFORMATTER}") \
-      '$path'"
+
+  declare -a args=()
+  if [[ ${mode} == "write" ]]; then
+    args+=("${LINTBALL_WRITE_ARGS_DOCFORMATTER[@]}")
   else
-    echo "docformatter \
-      $(eval echo "${LINTBALL__CHECK_ARGS__DOCFORMATTER}") \
-      '$path'"
+    args+=("${LINTBALL_CHECK_ARGS_DOCFORMATTER[@]}")
   fi
+  interpolate \
+    "tool" "docformatter" \
+    "lintball_dir" "${LINTBALL_DIR}" \
+    "path" "${path}" \
+    -- "${args[@]}"
 }
 
 cmd_isort() {
-  local mode path
+  local mode path args
   mode="${1#mode=}"
   path="${2#path=}"
-  if [ "$mode" = "write" ]; then
-    echo "isort \
-      $(eval echo "${LINTBALL__WRITE_ARGS__ISORT}") \
-      '$path'"
+
+  declare -a args=()
+  if [[ ${mode} == "write" ]]; then
+    args+=("${LINTBALL_WRITE_ARGS_ISORT[@]}")
   else
-    echo "isort \
-      $(eval echo "${LINTBALL__CHECK_ARGS__ISORT}") \
-      '$path'"
+    args+=("${LINTBALL_CHECK_ARGS_ISORT[@]}")
   fi
+  interpolate \
+    "tool" "isort" \
+    "lintball_dir" "${LINTBALL_DIR}" \
+    "path" "${path}" \
+    -- "${args[@]}"
 }
 
 cmd_prettier() {
-  local mode path
+  local mode path args
   mode="${1#mode=}"
   path="${2#path=}"
-  if [ "$mode" = "write" ]; then
-    echo "prettier \
-      $(eval echo "${LINTBALL__WRITE_ARGS__PRETTIER}") \
-      '$path'"
+  declare -a args=()
+  if [[ ${mode} == "write" ]]; then
+    args+=("${LINTBALL_WRITE_ARGS_PRETTIER[@]}")
   else
-    echo "prettier \
-      --check \
-      $(eval echo "${LINTBALL__CHECK_ARGS__PRETTIER}") \
-      '$path'"
+    args+=("${LINTBALL_CHECK_ARGS_PRETTIER[@]}")
   fi
+  interpolate \
+    "tool" "prettier" \
+    "lintball_dir" "${LINTBALL_DIR}" \
+    "path" "$(absolutize_path "path=${path}")" \
+    -- "${args[@]}"
+}
+
+cmd_prettier_eslint() {
+  local mode path args
+  mode="${1#mode=}"
+  path="${2#path=}"
+  declare -a args=()
+  if [[ ${mode} == "write" ]]; then
+    args+=("${LINTBALL_WRITE_ARGS_PRETTIER[@]}")
+  else
+    args+=("${LINTBALL_CHECK_ARGS_PRETTIER[@]}")
+  fi
+  interpolate \
+    "tool" "prettier-eslint" \
+    "lintball_dir" "${LINTBALL_DIR}" \
+    "path" "$(absolutize_path "path=${path}")" \
+    -- "${args[@]}"
 }
 
 cmd_pylint() {
-  local mode path format
+  local mode path format args
   mode="${1#mode=}"
   path="${2#path=}"
 
@@ -114,21 +145,23 @@ cmd_pylint() {
   if [[ $- == *i* ]]; then
     format="colorized"
   fi
-  if [ "$mode" = "write" ]; then
-    echo "pylint \
-      -f '$format' \
-      $(eval echo "${LINTBALL__WRITE_ARGS__PYLINT}") \
-      '$path'"
+
+  declare -a args=()
+  if [[ ${mode} == "write" ]]; then
+    args+=("${LINTBALL_WRITE_ARGS_PYLINT[@]}")
   else
-    echo "pylint \
-      -f '$format' \
-      $(eval echo "${LINTBALL__CHECK_ARGS__PYLINT}") \
-      '$path'"
+    args+=("${LINTBALL_CHECK_ARGS_PYLINT[@]}")
   fi
+  interpolate \
+    "tool" "pylint" \
+    "lintball_dir" "${LINTBALL_DIR}" \
+    "format" "${format}" \
+    "path" "${path}" \
+    -- "${args[@]}"
 }
 
 cmd_rubocop() {
-  local mode path color
+  local mode path color args
   mode="${1#mode=}"
   path="${2#path=}"
 
@@ -138,56 +171,60 @@ cmd_rubocop() {
     color="--color"
   fi
 
-  if [ "$mode" = "write" ]; then
-    echo "bundle exec rubocop \
-      $color \
-      $(eval echo "${LINTBALL__WRITE_ARGS__RUBOCOP}") \
-      '$path'"
+  declare -a args=()
+  if [[ ${mode} == "write" ]]; then
+    args+=("${LINTBALL_WRITE_ARGS_RUBOCOP[@]}")
   else
-    echo "bundle exec rubocop \
-      $color \
-      $(eval echo "${LINTBALL__CHECK_ARGS__RUBOCOP}") \
-      '$path'"
+    args+=("${LINTBALL_CHECK_ARGS_RUBOCOP[@]}")
   fi
+  interpolate \
+    "tool" "bundle exec rubocop" \
+    "lintball_dir" "${LINTBALL_DIR}" \
+    "color" "${color}" \
+    "path" "${path}" \
+    -- "${args[@]}"
 }
 
 cmd_shfmt() {
-  local mode path lang
+  local mode path lang args
   mode="${1#mode=}"
   path="${2#path=}"
-
-  # shellcheck disable=SC2034
   lang="${3#lang=}"
 
-  if [ "$mode" = "write" ]; then
-    echo "shfmt \
-      $(eval echo "${LINTBALL__WRITE_ARGS__SHFMT}") \
-      '$path'"
+  declare -a args=()
+  if [[ ${mode} == "write" ]]; then
+    args+=("${LINTBALL_WRITE_ARGS_SHFMT[@]}")
   else
-    echo "shfmt \
-      $(eval echo "${LINTBALL__CHECK_ARGS__SHFMT}") \
-      '$path'"
+    args+=("${LINTBALL_CHECK_ARGS_SHFMT[@]}")
   fi
+  interpolate \
+    "tool" "shfmt" \
+    "lintball_dir" "${LINTBALL_DIR}" \
+    "lang" "${lang}" \
+    "path" "${path}" \
+    -- "${args[@]}"
 }
 
 cmd_stylua() {
-  local mode path
+  local mode path args
   mode="${1#mode=}"
   path="${2#path=}"
 
-  if [ "$mode" = "write" ]; then
-    echo "stylua \
-      $(eval echo "${LINTBALL__WRITE_ARGS__STYLUA}") \
-      '$path'"
+  declare -a args=()
+  if [[ ${mode} == "write" ]]; then
+    args+=("${LINTBALL_WRITE_ARGS_STYLUA[@]}")
   else
-    echo "stylua \
-      $(eval echo "${LINTBALL__CHECK_ARGS__STYLUA}") \
-      '$path'"
+    args+=("${LINTBALL_CHECK_ARGS_STYLUA[@]}")
   fi
+  interpolate \
+    "tool" "stylua" \
+    "lintball_dir" "${LINTBALL_DIR}" \
+    "path" "${path}" \
+    -- "${args[@]}"
 }
 
 cmd_yamllint() {
-  local mode path format
+  local mode path format args
   mode="${1#mode=}"
   path="${2#path=}"
 
@@ -196,15 +233,16 @@ cmd_yamllint() {
   if [[ $- == *i* ]]; then
     format="colored"
   fi
-  if [ "$mode" = "write" ]; then
-    echo "yamllint \
-      --format '$format' \
-      $(eval echo "${LINTBALL__WRITE_ARGS__YAMLLINT}") \
-      '$path'"
+  declare -a args=()
+  if [[ ${mode} == "write" ]]; then
+    args+=("${LINTBALL_WRITE_ARGS_YAMLLINT[@]}")
   else
-    echo "yamllint \
-      --format '$format' \
-      $(eval echo "${LINTBALL__CHECK_ARGS__YAMLLINT}") \
-      '$path'"
+    args+=("${LINTBALL_CHECK_ARGS_YAMLLINT[@]}")
   fi
+  interpolate \
+    "tool" "yamllint" \
+    "lintball_dir" "${LINTBALL_DIR}" \
+    "format" "${format}" \
+    "path" "${path}" \
+    -- "${args[@]}"
 }

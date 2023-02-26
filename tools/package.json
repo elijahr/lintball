@@ -1,9 +1,9 @@
 {
   "dependencies": {
+    "@babel/eslint-parser": "latest",
     "@prettier/plugin-pug": "latest",
     "@prettier/plugin-ruby": "latest",
     "@prettier/plugin-xml": "latest",
-    "@babel/eslint-parser": "latest",
     "eslint": "latest",
     "eslint-config-airbnb": "latest",
     "eslint-config-prettier": "latest",
@@ -16,6 +16,13 @@
     "prettier-eslint-cli": "latest",
     "prettier-package-json": "latest",
     "prettier-plugin-java": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "typescript-eslint": "latest",
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest"
+  },
+  "scripts": {
+    "prettier": "cd \"$npm_config_path\" && prettier",
+    "prettier-eslint": "cd \"$npm_config_path\" && prettier-eslint"
   }
 }

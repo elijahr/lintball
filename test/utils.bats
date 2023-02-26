@@ -1,47 +1,57 @@
-load ../node_modules/bats-support/load
-load ../node_modules/bats-assert/load
+load ./node_modules/bats-support/load
+load ./node_modules/bats-assert/load
 load ../lib/utils.bash
-
-setup_file() {
-  LINTBALL_DIR="$PROJECT_DIR"
-  export LINTBALL_DIR
-  PATH="${LINTBALL_DIR}/bin:$PATH"
-  export PATH
-}
+load ./lib/test_utils.bash
 
 setup() {
+  PROJECT_DIR="$(
+    cd "$(dirname "${BATS_TEST_DIRNAME}")/.." || exit
+    pwd
+  )"
+  export PROJECT_DIR
+
+  LINTBALL_DIR="${PROJECT_DIR}"
+  export LINTBALL_DIR
+
+  ORIGINAL_PATH="${ORIGINAL_PATH:-${PATH}}"
+  export ORIGINAL_PATH
+
+  PATH="${LINTBALL_DIR}/bin:${PATH}"
+  export PATH
   DIR="$(mktemp -d)"
   export DIR
-  cd "$DIR"
+  cd "${DIR}" || return $?
 }
 
 teardown() {
-  rm -rf "$DIR"
+  rm -rf "${DIR}"
+  PATH="${ORIGINAL_PATH}"
+  export PATH
 }
 
 @test "generate_find_cmd" {
   run generate_find_cmd
   assert_success
-  assert_output 'find "." "-type" "f" "-print" '
+  assert_output "'find' '.' '-type' 'f' '-print'"
 
   run generate_find_cmd " "
   assert_success
-  assert_output 'find "." "-type" "f" "-print" '
+  assert_output "'find' '.' '-type' 'f' '-print'"
 
   run generate_find_cmd " " " " " "
   assert_success
-  assert_output 'find "." "-type" "f" "-print" '
+  assert_output "'find' '.' '-type' 'f' '-print'"
 
-  IGNORE_GLOBS=('*.py' '*.rb')
+  LINTBALL_IGNORE_GLOBS=('*.py' '*.rb')
   run generate_find_cmd "dir1" "dir2"
   assert_success
-  assert_output 'find "./dir1" "./dir2" "-type" "f" "-a" "(" "-not" "-path" "*.py" ")" "-a" "(" "-not" "-path" "*.rb" ")" "-print" '
+  assert_output "'find' './dir1' './dir2' '-type' 'f' '-a' '(' '-not' '-path' '*.py' ')' '-a' '(' '-not' '-path' '*.rb' ')' '-print'"
   # shellcheck disable=SC2034
-  IGNORE_GLOBS=()
+  LINTBALL_IGNORE_GLOBS=()
 
   run generate_find_cmd " dir1" "dir2 "
   assert_success
-  assert_output 'find "./dir1" "./dir2" "-type" "f" "-print" '
+  assert_output "'find' './dir1' './dir2' '-type' 'f' '-print'"
 }
 
 @test "config_find" {
@@ -90,7 +100,7 @@ teardown() {
   assert_success
   assert_output "${DIR}/.lintballrc.json"
 
-  cd "$DIR"
+  cd "${DIR}" || return $?
   rm .lintballrc.json
   run config_find
   assert_failure
@@ -124,6 +134,6 @@ teardown() {
 
 @test "parse_major_version" {
   version="1.2.3"
-  major_version=$(parse_major_version "$version")
-  assert_equal "$major_version" "1"
+  major_version=$(parse_major_version "${version}")
+  assert_equal "${major_version}" "1"
 }

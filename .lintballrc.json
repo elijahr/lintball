@@ -1,11 +1,14 @@
 {
+  "lintballrc_version": "2",
   "ignores": [
     "*/.git/*",
     "*/node_modules/*",
     "*/package-lock.json",
-    "*/lib/jwalk/*",
     "*/test/fixture/*",
+    "*/test/target/*",
     "*/test/fixture/target/*",
-    "*/tools/*"
+    "*/tools/.bundle/*",
+    "*/tools/asdf/*",
+    "*/tools/uncrustify*"
   ]
 }

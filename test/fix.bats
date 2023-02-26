@@ -1,21 +1,8 @@
 #!/usr/bin/env bats
 
-load ../node_modules/bats-support/load
-load ../node_modules/bats-assert/load
+load ./node_modules/bats-support/load
+load ./node_modules/bats-assert/load
 load ./lib/test_utils
-
-setup_file() {
-  LINTBALL_DIR="$PROJECT_DIR"
-  export LINTBALL_DIR
-  PATH="${LINTBALL_DIR}/bin:$PATH"
-  export PATH
-
-  clear_lock git
-}
-
-teardown_file() {
-  clear_lock git
-}
 
 setup() {
   setup_test
@@ -32,12 +19,11 @@ teardown() {
   assert_success
   assert_line "# ./a.json"
   assert_line "# ./a.yml"
-  assert [ "$(echo "$output" | grep -cF "↳ prettier...........................wrote" -c)" -eq 2 ]
-  assert [ "$(echo "$output" | grep -cF "↳ yamllint...........................ok" -c)" -eq 1 ]
+  assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................wrote" -c)" -eq 2 ]
+  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................ok" -c)" -eq 1 ]
 }
 
 @test 'lintball fix --since HEAD~1' {
-  get_lock git
   git add .
   git reset a.html a.xml a.yml
   git commit -m "commit 1"
@@ -47,13 +33,12 @@ teardown() {
   git commit -m "commit 3"
   git add a.yml
   run lintball fix --since HEAD~2
-  clear_lock git
   assert_success
   assert_line "# ./a.html"
   assert_line "# ./a.xml"
   assert_line "# ./a.yml"
-  assert [ "$(echo "$output" | grep -cF "↳ prettier...........................wrote")" -eq 3 ]
-  assert [ "$(echo "$output" | grep -cF "↳ yamllint...........................ok")" -eq 1 ]
+  assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................wrote")" -eq 3 ]
+  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................ok")" -eq 1 ]
 }
 
 @test 'lintball fix # lintball lang=bash' {
@@ -62,7 +47,7 @@ teardown() {
   directive="# lintball lang=bash"
   expected="$(
     cat <<EOF
-$directive
+${directive}
 
 a() {
   echo
@@ -81,7 +66,7 @@ for var in "\${c[@]}"; do
 done
 EOF
   )"
-  assert_equal "$(cat "b_bash")" "$expected"
+  assert_equal "$(cat "b_bash")" "${expected}"
 }
 
 @test 'lintball fix #!/bin/sh' {
@@ -102,7 +87,7 @@ b() {
 }
 EOF
   )"
-  assert_equal "$(cat "a_sh")" "$expected"
+  assert_equal "$(cat "a_sh")" "${expected}"
 }
 
 @test 'lintball fix #!/usr/bin/env bash' {
@@ -129,7 +114,7 @@ for var in "\${c[@]}"; do
 done
 EOF
   )"
-  assert_equal "$(cat "a_bash")" "$expected"
+  assert_equal "$(cat "a_bash")" "${expected}"
 }
 
 @test 'lintball fix #!/usr/bin/env deno' {
@@ -145,7 +130,7 @@ modules.exports = {
 };
 EOF
   )"
-  assert_equal "$(cat "b_js")" "$expected"
+  assert_equal "$(cat "b_js")" "${expected}"
 }
 @test 'lintball fix #!/usr/bin/env node' {
   run lintball fix "a_js"
@@ -160,7 +145,7 @@ modules.exports = {
 };
 EOF
   )"
-  assert_equal "$(cat "a_js")" "$expected"
+  assert_equal "$(cat "a_js")" "${expected}"
 }
 
 @test 'lintball fix #!/usr/bin/env python3' {
@@ -188,7 +173,7 @@ def a(arg):
     print(system)
 EOF
   )"
-  assert_equal "$(cat "a_py")" "$expected"
+  assert_equal "$(cat "a_py")" "${expected}"
 }
 
 @test 'lintball fix #!/usr/bin/env ruby' {
@@ -203,7 +188,7 @@ d = [123, 456, 789]
 echo d
 EOF
   )"
-  assert_equal "$(cat "a_rb")" "$expected"
+  assert_equal "$(cat "a_rb")" "${expected}"
 }
 
 @test 'lintball fix *.bash' {
@@ -228,7 +213,7 @@ for var in "\${c[@]}"; do
 done
 EOF
   )"
-  assert_equal "$(cat "a.bash")" "$expected"
+  assert_equal "$(cat "a.bash")" "${expected}"
 }
 
 @test 'lintball fix *.bats' {
@@ -250,7 +235,7 @@ int main() {
 }
 EOF
   )"
-  assert_equal "$(cat "a.c")" "$expected"
+  assert_equal "$(cat "a.c")" "${expected}"
 }
 
 @test 'lintball fix *.cpp' {
@@ -274,7 +259,7 @@ int main() {
 }
 EOF
   )"
-  assert_equal "$(cat "a.cpp")" "$expected"
+  assert_equal "$(cat "a.cpp")" "${expected}"
 }
 
 @test 'lintball fix *.cs' {
@@ -291,7 +276,7 @@ class Hello {
 }
 EOF
   )"
-  assert_equal "$(cat "a.cs")" "$expected"
+  assert_equal "$(cat "a.cs")" "${expected}"
 }
 
 @test 'lintball fix *.css' {
@@ -304,7 +289,7 @@ html body h1 {
 }
 EOF
   )"
-  assert_equal "$(cat "a.css")" "$expected"
+  assert_equal "$(cat "a.css")" "${expected}"
 }
 
 @test 'lintball fix *.d' {
@@ -320,7 +305,7 @@ void main() {
 }
 EOF
   )"
-  assert_equal "$(cat "a.d")" "$expected"
+  assert_equal "$(cat "a.d")" "${expected}"
 }
 
 @test 'lintball fix *.dash' {
@@ -339,7 +324,7 @@ b() {
 }
 EOF
   )"
-  assert_equal "$(cat "a.dash")" "$expected"
+  assert_equal "$(cat "a.dash")" "${expected}"
 }
 
 @test 'lintball fix *.h' {
@@ -352,7 +337,7 @@ EOF
 int main();
 EOF
   )"
-  assert_equal "$(cat "a.h")" "$expected"
+  assert_equal "$(cat "a.h")" "${expected}"
 }
 
 @test 'lintball fix *.hpp' {
@@ -365,7 +350,7 @@ EOF
 int main();
 EOF
   )"
-  assert_equal "$(cat "a.hpp")" "$expected"
+  assert_equal "$(cat "a.hpp")" "${expected}"
 }
 
 @test 'lintball fix *.html' {
@@ -384,7 +369,7 @@ EOF
 </html>
 EOF
   )"
-  assert_equal "$(cat "a.html")" "$expected"
+  assert_equal "$(cat "a.html")" "${expected}"
 }
 
 @test 'lintball fix *.java' {
@@ -400,7 +385,7 @@ class HelloWorld {
 }
 EOF
   )"
-  assert_equal "$(cat "a.java")" "$expected"
+  assert_equal "$(cat "a.java")" "${expected}"
 }
 
 @test 'lintball fix *.js' {
@@ -414,7 +399,7 @@ modules.exports = {
 };
 EOF
   )"
-  assert_equal "$(cat "a.js")" "$expected"
+  assert_equal "$(cat "a.js")" "${expected}"
 }
 
 @test 'lintball fix *.json' {
@@ -425,7 +410,7 @@ EOF
 { "a": "b", "c": "d" }
 EOF
   )"
-  assert_equal "$(cat "a.json")" "$expected"
+  assert_equal "$(cat "a.json")" "${expected}"
 }
 
 @test 'lintball fix *.jsx' {
@@ -436,7 +421,7 @@ EOF
 ReactDOM.render(<h1>Hello, world!</h1>, document.getElementById("root"));
 EOF
   )"
-  assert_equal "$(cat "a.jsx")" "$expected"
+  assert_equal "$(cat "a.jsx")" "${expected}"
 }
 
 @test 'lintball fix *.ksh' {
@@ -461,7 +446,7 @@ for var in "\${c[@]}"; do
 done
 EOF
   )"
-  assert_equal "$(cat "a.ksh")" "$expected"
+  assert_equal "$(cat "a.ksh")" "${expected}"
 }
 
 @test 'lintball fix *.lua' {
@@ -476,7 +461,7 @@ local a: A = { b = 1, c = 2 }
 print(a.b, a.c)
 EOF
   )"
-  assert_equal "$(cat "a.lua")" "$expected"
+  assert_equal "$(cat "a.lua")" "${expected}"
 }
 
 @test 'lintball fix *.m' {
@@ -495,7 +480,7 @@ int main(int argc, const char *argv[]) {
 }
 EOF
   )"
-  assert_equal "$(cat "a.m")" "$expected"
+  assert_equal "$(cat "a.m")" "${expected}"
 }
 
 @test 'lintball fix *.md' {
@@ -508,7 +493,7 @@ EOF
 | a    |   b    |   c |
 EOF
   )"
-  assert_equal "$(cat "a.md")" "$expected"
+  assert_equal "$(cat "a.md")" "${expected}"
 }
 
 @test 'lintball fix *.mdx' {
@@ -534,7 +519,7 @@ It is a Foo!
 <Foo></Foo>
 EOF
   )"
-  assert_equal "$(cat "a.mdx")" "$expected"
+  assert_equal "$(cat "a.mdx")" "${expected}"
 }
 
 @test 'lintball fix *.mksh' {
@@ -559,7 +544,7 @@ for var in "\${c[@]}"; do
 done
 EOF
   )"
-  assert_equal "$(cat "a.mksh")" "$expected"
+  assert_equal "$(cat "a.mksh")" "${expected}"
 }
 
 @test 'lintball fix *.nim' {
@@ -582,7 +567,7 @@ proc my_foo(a: string, b: string, c: int, ): string =
   return "string to return"
 EOF
   )"
-  assert_equal "$(cat "a.nim")" "$expected"
+  assert_equal "$(cat "a.nim")" "${expected}"
 }
 
 @test 'lintball fix *.pug' {
@@ -598,7 +583,7 @@ html
     h1 B
 EOF
   )"
-  assert_equal "$(cat "a.pug")" "$expected"
+  assert_equal "$(cat "a.pug")" "${expected}"
 }
 
 @test 'lintball fix *.py' {
@@ -624,7 +609,7 @@ def a(arg):
     print(system)
 EOF
   )"
-  assert_equal "$(cat "a.py")" "$expected"
+  assert_equal "$(cat "a.py")" "${expected}"
 }
 
 @test 'lintball fix *.pyi' {
@@ -646,7 +631,7 @@ class Foo(object):
     ham: str = ...
 EOF
   )"
-  assert_equal "$(cat "c.pyi")" "$expected"
+  assert_equal "$(cat "c.pyi")" "${expected}"
 }
 
 @test 'lintball fix *.pyx' {
@@ -661,7 +646,7 @@ cdef void fun(char * a) nogil:
         char * dest = a
 EOF
   )"
-  assert_equal "$(cat "b.pyx")" "$expected"
+  assert_equal "$(cat "b.pyx")" "${expected}"
 }
 
 @test 'lintball fix *.rb' {
@@ -675,7 +660,7 @@ d = [123, 456, 789]
 echo d
 EOF
   )"
-  assert_equal "$(cat "a.rb")" "$expected"
+  assert_equal "$(cat "a.rb")" "${expected}"
 }
 
 @test 'lintball fix *.scss' {
@@ -692,7 +677,7 @@ html {
 }
 EOF
   )"
-  assert_equal "$(cat "a.scss")" "$expected"
+  assert_equal "$(cat "a.scss")" "${expected}"
 }
 
 @test 'lintball fix *.sh' {
@@ -711,7 +696,7 @@ b() {
 }
 EOF
   )"
-  assert_equal "$(cat "a.sh")" "$expected"
+  assert_equal "$(cat "a.sh")" "${expected}"
 }
 
 @test 'lintball fix *.tsx' {
@@ -732,7 +717,7 @@ export default class HelloWorld extends Component<HelloWorldProps, any> {
 }
 EOF
   )"
-  assert_equal "$(cat "a.tsx")" "$expected"
+  assert_equal "$(cat "a.tsx")" "${expected}"
 }
 
 @test 'lintball fix *.xml' {
@@ -748,7 +733,7 @@ EOF
 </items>
 EOF
   )"
-  assert_equal "$(cat "a.xml")" "$expected"
+  assert_equal "$(cat "a.xml")" "${expected}"
 }
 
 @test 'lintball fix *.yml' {
@@ -760,7 +745,7 @@ key: value
 hello: world
 EOF
   )"
-  assert_equal "$(cat "a.yml")" "$expected"
+  assert_equal "$(cat "a.yml")" "${expected}"
 }
 
 @test 'lintball fix Cargo.toml' {
@@ -790,7 +775,7 @@ fn main() {
 EOF
   )"
   assert_success
-  assert_equal "$(cat "src/main.rs")" "$expected"
+  assert_equal "$(cat "src/main.rs")" "${expected}"
 }
 
 @test 'lintball fix handles implicit path' {
@@ -819,7 +804,7 @@ key: value
 hello: world
 EOF
   )"
-  assert_equal "$(cat "aaa aaa/bbb bbb/a b.yml")" "$expected"
+  assert_equal "$(cat "aaa aaa/bbb bbb/a b.yml")" "${expected}"
 }
 
 @test 'lintball fix package.json' {
@@ -840,7 +825,7 @@ EOF
 }
 EOF
   )"
-  assert_equal "$(cat "package.json")" "$expected"
+  assert_equal "$(cat "package.json")" "${expected}"
 }
 
 @test 'lintball fix unhandled is a no-op' {

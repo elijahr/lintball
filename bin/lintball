@@ -1,23 +1,25 @@
 #!/usr/bin/env bash
 
-set -ueo pipefail
+# shellcheck source-path=SCRIPTDIR/..
+
+set -uefo pipefail
 shopt -s nullglob
 
 # resolve symlink, for instance, if lintball is linked to /usr/local/bin
 BIN="$(realpath "${BASH_SOURCE[0]}" 2>/dev/null || readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || readlink "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")"
 
-case "$BIN" in
+case "${BIN}" in
   ../*)
     # Resolve relative paths
     BIN="$(dirname "${BASH_SOURCE[0]}")/${BIN}"
     BIN="$(
-      cd "$(dirname "$BIN")"
+      cd "$(dirname "${BIN}")"
       pwd
-    )/$(basename "$BIN")"
+    )/$(basename "${BIN}")"
     ;;
 esac
 
-if [ -z "$BIN" ]; then
+if [[ -z ${BIN} ]]; then
   BIN="${BASH_SOURCE[0]}"
 fi
 
@@ -25,20 +27,20 @@ fi
 BIN_DIR="$(dirname "${BIN}")"
 
 # Find lintball dir
-if [ -z "${LINTBALL_DIR:-}" ] || [ ! -d "$LINTBALL_DIR" ]; then
-  if [ -f "${BIN_DIR}/../configs/lintballrc-defaults.json" ]; then
+if [[ -z ${LINTBALL_DIR:-} ]] || [[ ! -d ${LINTBALL_DIR} ]]; then
+  if [[ -f "${BIN_DIR}/../configs/lintballrc-defaults.json" ]]; then
     # path to repo
     LINTBALL_DIR="$(
       cd "${BIN_DIR}/.."
       pwd
     )"
-  elif [ -f "${BIN_DIR}/../lintball/configs/lintballrc-defaults.json" ]; then
+  elif [[ -f "${BIN_DIR}/../lintball/configs/lintballrc-defaults.json" ]]; then
     # path to installation via npm, local
     LINTBALL_DIR="$(
       cd "${BIN_DIR}/../lintball"
       pwd
     )"
-  elif [ -f "${BIN_DIR}/../lib/node_modules/lintball/configs/lintballrc-defaults.json" ]; then
+  elif [[ -f "${BIN_DIR}/../lib/node_modules/lintball/configs/lintballrc-defaults.json" ]]; then
     # path to installation via npm, global
     LINTBALL_DIR="$(
       cd "${BIN_DIR}/../lib/node_modules/lintball"
@@ -47,33 +49,34 @@ if [ -z "${LINTBALL_DIR:-}" ] || [ ! -d "$LINTBALL_DIR" ]; then
   fi
 fi
 
-if [ -z "${LINTBALL_DIR:-}" ] || [ ! -d "$LINTBALL_DIR" ]; then
+if [[ -z ${LINTBALL_DIR:-} ]] || [[ ! -d ${LINTBALL_DIR} ]]; then
   echo "Cannot find lintball installation from ${BIN}" >&2
-  find "$BIN_DIR/.."
+  find "${BIN_DIR}/.."
   exit 1
 fi
+
 export LINTBALL_DIR
 
-declare -a IGNORE_GLOBS=()
-
-# shellcheck source=SCRIPTDIR/../lib/env.bash
 source "${LINTBALL_DIR}/lib/env.bash"
-# shellcheck source=SCRIPTDIR/../lib/install.bash
 source "${LINTBALL_DIR}/lib/install.bash"
-# shellcheck source=SCRIPTDIR/../lib/cmds.bash
 source "${LINTBALL_DIR}/lib/cmds.bash"
-# shellcheck source=SCRIPTDIR/../lib/tools.bash
 source "${LINTBALL_DIR}/lib/tools.bash"
-# shellcheck source=SCRIPTDIR/../lib/utils.bash
 source "${LINTBALL_DIR}/lib/utils.bash"
-# shellcheck source=SCRIPTDIR/../lib/cli.bash
 source "${LINTBALL_DIR}/lib/cli.bash"
 
-if [ "${1:-}" = "exec" ]; then
+if [[ ${1:-} == "exec" ]]; then
   # allow running functions / commands within lintball's environment
   shift
-  "$@" || exit $?
-  exit 0
+  "$@"
+else
+  subcommand="${1:-}"
+  if [ "$subcommand" = "fix" ] || [ "$subcommand" = "check" ]; then
+    start=$(date +%s)
+    cli_entrypoint "$@"
+    end=$(date +%s)
+    echo
+    echo "lintball ${subcommand}: completed in $((end - start)) seconds"
+  else
+    cli_entrypoint "$@"
+  fi
 fi
-
-cli_entrypoint "$@" || exit $?
