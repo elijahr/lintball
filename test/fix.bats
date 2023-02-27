@@ -17,8 +17,8 @@ teardown() {
   find . -type f -not -name 'a.json' -not -name 'a.yml' -delete
   run lintball fix
   assert_success
-  assert_line "# ./a.json"
-  assert_line "# ./a.yml"
+  assert_line "./a.json"
+  assert_line "./a.yml"
   assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................wrote" -c)" -eq 2 ]
   assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................ok" -c)" -eq 1 ]
 }
@@ -34,9 +34,9 @@ teardown() {
   git add a.yml
   run lintball fix --since HEAD~2
   assert_success
-  assert_line "# ./a.html"
-  assert_line "# ./a.xml"
-  assert_line "# ./a.yml"
+  assert_line "./a.html"
+  assert_line "./a.xml"
+  assert_line "./a.yml"
   assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................wrote")" -eq 3 ]
   assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................ok")" -eq 1 ]
 }

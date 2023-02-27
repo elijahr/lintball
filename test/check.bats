@@ -34,15 +34,15 @@ teardown() {
   run lintball check --since HEAD~2
   assert_failure
   # previously committed
-  assert_line "# a.html"
+  assert_line "a.html"
   # untracked
-  assert_line "# a.xml"
+  assert_line "a.xml"
   # staged, never committed
-  assert_line "# a.yml"
+  assert_line "a.yml"
   # deleted
-  refute_line "# a.md"
+  refute_line "a.md"
   # committed before HEAD~2
-  refute_line "# a.css"
+  refute_line "a.css"
   run lintball fix --since HEAD~1
   run lintball check --since HEAD~1
   assert_success

@@ -22,9 +22,9 @@ cli_entrypoint() {
   while [[ $# -gt 1 ]]; do
     case "$1" in
       -h | --help)
-        usage
-        support_table
-        documentation_link
+        usage >&2
+        support_table >&2
+        documentation_link >&2
         return 0
         ;;
       -v | --version)

@@ -112,7 +112,7 @@ COPY package.json "${LINTBALL_DIR}/package.json"
 COPY README.md "${LINTBALL_DIR}/README.md"
 COPY test "${LINTBALL_DIR}/test"
 COPY tools/.eslintrc.cjs "${LINTBALL_DIR}/tools/.eslintrc.cjs"
-COPY tools/.prettierrc.json "${LINTBALL_DIR}/tools/.prettier.json"
+COPY tools/.prettierrc.json "${LINTBALL_DIR}/tools/.prettierrc.json"
 COPY tools/Gemfile "${LINTBALL_DIR}/tools/Gemfile"
 COPY tools/Gemfile.lock "${LINTBALL_DIR}/tools/Gemfile.lock"
 COPY tools/package-lock.json "${LINTBALL_DIR}/tools/package-lock.json"
@@ -126,6 +126,12 @@ ENV LINTBALL_DIR=/lintball
 RUN echo 'PATH=${LINTBALL_DIR}/bin:$PATH' >> ~/.bashrc
 COPY --from=lintball-composite "${LINTBALL_DIR}" "${LINTBALL_DIR}"
 WORKDIR "${LINTBALL_DIR}"
+
+# Install jq for parsing lintballrc.json
+RUN apt update && apt install -y jq && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /tmp/* && \
+    rm -rf /var/tmp/*
 
 # Install git, bats, etc, for running tests
 ENV TESTING=no
