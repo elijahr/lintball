@@ -1,0 +1,17 @@
+version: '3'
+services:
+  test:
+    command:
+      - /lintball/bin/lintball
+      - exec
+      - npm
+      - run
+      - test
+    working_dir: /lintball/test
+    # environment:
+    #   - DJANGO_SETTINGS_MODULE=settings.dev
+    image: docker.io/elijahru/lintball:latest-arm64
+    volumes:
+      - ./bin:/lintball/bin:cached
+      - ./lib:/lintball/lib:cached
+      - ./test:/lintball/test:cached

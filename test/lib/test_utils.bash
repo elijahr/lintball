@@ -2,7 +2,7 @@
 
 setup_test() {
   PROJECT_DIR="$(
-    cd "$(dirname "${BATS_TEST_DIRNAME}")/.."
+    cd "$(dirname "${BATS_TEST_DIRNAME}")"
     pwd
   )"
   export PROJECT_DIR

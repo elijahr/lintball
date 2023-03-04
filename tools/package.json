@@ -13,7 +13,6 @@
     "eslint-plugin-react": "latest",
     "install-peerdeps": "latest",
     "prettier": "latest",
-    "prettier-eslint-cli": "latest",
     "prettier-package-json": "latest",
     "prettier-plugin-java": "latest",
     "typescript": "latest",
@@ -21,8 +20,14 @@
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest"
   },
+  "devDependencies": {
+    "bats": "latest",
+    "bats-assert": "git+https://github.com/bats-core/bats-assert.git#master",
+    "bats-support": "latest"
+  },
   "scripts": {
-    "prettier": "cd \"$npm_config_path\" && prettier",
-    "prettier-eslint": "cd \"$npm_config_path\" && prettier-eslint"
+    "test": "bats ../test",
+    "prettier": "cd \"$npm_config_path\" && npx prettier",
+    "eslint": "cd \"$npm_config_path\" && npx eslint"
   }
 }

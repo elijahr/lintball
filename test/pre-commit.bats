@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
-load ./node_modules/bats-support/load
-load ./node_modules/bats-assert/load
+load ../tools/node_modules/bats-support/load
+load ../tools/node_modules/bats-assert/load
 load ./lib/test_utils
 
 setup() {
@@ -146,5 +146,5 @@ EOF
   assert_equal "$(command -v lintball)" "${PWD}/other/lintball"
   run "${PROJECT_DIR}/githooks/pre-commit"
   assert_success
-  assert_output "in ./other/lintball"
+  assert_line "in ./other/lintball"
 }

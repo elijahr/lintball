@@ -55,17 +55,16 @@
       "{{lintball_dir}}/tools/.prettierrc.json",
       "{{path}}"
     ],
-    "prettier-eslint": [
+    "eslint": [
       "npm",
       "--prefix={{lintball_dir}}/tools",
       "run",
       "--silent",
       "{{tool}}",
       "--",
-      "--eslint-config-path",
-      "{{lintball_dir}}/tools/.eslintrc.cjs",
       "--config",
-      "{{lintball_dir}}/tools/.prettierrc.json",
+      "{{lintball_dir}}/tools/.eslintrc.cjs",
+      "{{color}}",
       "{{path}}"
     ],
     "pylint": [
@@ -178,18 +177,19 @@
       "{{lintball_dir}}/tools/.prettierrc.json",
       "{{path}}"
     ],
-    "prettier-eslint": [
+    "eslint": [
       "npm",
       "--prefix={{lintball_dir}}/tools",
       "run",
       "--silent",
       "{{tool}}",
       "--",
-      "--write",
-      "--eslint-config-path",
-      "{{lintball_dir}}/tools/.eslintrc.cjs",
       "--config",
-      "{{lintball_dir}}/tools/.prettierrc.json",
+      "{{lintball_dir}}/tools/.eslintrc.cjs",
+      "--output-file",
+      "{{output_file}}",
+      "{{color}}",
+      "--fix",
       "{{path}}"
     ],
     "pylint": [
@@ -256,7 +256,7 @@
     "isort": true,
     "nimpretty": true,
     "prettier": true,
-    "prettier-eslint": true,
+    "eslint": true,
     "pylint": true,
     "rubocop": true,
     "shellcheck": true,

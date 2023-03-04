@@ -75,7 +75,7 @@ else
     cli_entrypoint "$@"
     end=$(date +%s)
     echo
-    echo "lintball ${subcommand}: completed in $((end - start)) seconds"
+    echo "completed in $((end - start)) seconds"
   else
     cli_entrypoint "$@"
   fi

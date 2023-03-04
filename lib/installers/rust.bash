@@ -7,8 +7,21 @@ export ASDF_RUST_VERSION
 RUSTUP_INIT_SKIP_PATH_CHECK=yes
 export RUSTUP_INIT_SKIP_PATH_CHECK
 
+install_clippy() {
+  if [[ ! -f "${LINTBALL_DIR}/tools/asdf/shims/clippy" ]]; then
+    configure_asdf
+    if [[ ! -d "${ASDF_DATA_DIR}/installs/rust/${ASDF_RUST_VERSION}" ]]; then
+      asdf plugin-add rust
+      asdf install rust
+      asdf reshim
+    fi
+    rustup component add clippy
+    asdf reshim || true
+  fi
+}
+
 install_stylua() {
-  if [[ ! -f "${LINTBALL_DIR}/tools/bin/stylua" ]]; then
+  if [[ ! -f "${LINTBALL_DIR}/tools/asdf/shims/stylua" ]]; then
     configure_asdf
     if [[ ! -d "${ASDF_DATA_DIR}/installs/rust/${ASDF_RUST_VERSION}" ]]; then
       asdf plugin-add rust
@@ -19,9 +32,6 @@ install_stylua() {
     # see https://www.reddit.com/r/docker/comments/z9vxvj/docker_buildx_gives_exit_code_137_with_cargo/
     rustup toolchain install nightly
     cargo +nightly install stylua --features luau -Z sparse-registry
-    mv "${ASDF_DATA_DIR}/installs/rust/${ASDF_RUST_VERSION}/bin/stylua" \
-      "${LINTBALL_DIR}/tools/bin/stylua"
-    asdf plugin-remove rust
     asdf reshim || true
   fi
 }

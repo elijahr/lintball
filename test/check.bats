@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
-load ./node_modules/bats-support/load
-load ./node_modules/bats-assert/load
+load ../tools/node_modules/bats-support/load
+load ../tools/node_modules/bats-assert/load
 load ./lib/test_utils
 
 setup() {
@@ -333,6 +333,14 @@ teardown() {
   assert_failure
   run lintball fix "a.sh"
   run lintball check "a.sh"
+  assert_success
+}
+
+@test 'lintball check *.ts' {
+  run lintball check "a.ts"
+  assert_failure
+  run lintball fix "a.ts"
+  run lintball check "a.ts"
   assert_success
 }
 

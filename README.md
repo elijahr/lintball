@@ -33,9 +33,9 @@ Most software projects consist of more than one programming language. There's so
 | GraphQL      | `*.graphql`                              |                                      [prettier][4]                                       |
 | HTML         | `*.html`                                 |                                      [prettier][4]                                       |
 | Java         | `*.java`                                 |                                    [prettier-java][8]                                    |
-| JavaScript   | `*.js`, `#!/usr/bin/env node`            |                                   [prettier-eslint][9]                                   |
+| JavaScript   | `*.js`, `*.cjs`, `#!/usr/bin/env node`   |                                [eslint][9],[prettier][4]                                 |
 | JSON         | `*.json`                                 |                                      [prettier][4]                                       |
-| JSX          | `*.jsx`                                  |                                   [prettier-eslint][9]                                   |
+| JSX          | `*.jsx`                                  |                                [eslint][9],[prettier][4]                                 |
 | ksh          | `*.ksh`, `#!/usr/bin/env ksh`            |                               [shellcheck][1], [shfmt][2]                                |
 | Lua          | `*.lua`                                  |                                       [StyLua][10]                                       |
 | Luau         | `*.lua`                                  |                                       [StyLua][10]                                       |
@@ -51,8 +51,8 @@ Most software projects consist of more than one programming language. There's so
 | Rust         | `Cargo.toml`                             |                                       [clippy][18]                                       |
 | SASS         | `*.scss`                                 |                                      [prettier][4]                                       |
 | sh           | `*.sh`, `#!/bin/sh`                      |                               [shellcheck][1], [shfmt][2]                                |
-| TSX          | `*.tsx`                                  |                                   [prettier-eslint][9]                                   |
-| TypeScript   | `*.ts`                                   |                                   [prettier-eslint][9]                                   |
+| TSX          | `*.tsx`                                  |                                [eslint][9],[prettier][4]                                 |
+| TypeScript   | `*.ts`                                   |                                [eslint][9],[prettier][4]                                 |
 | XML          | `*.xml`                                  |                                [prettier/plugin-xml][19]                                 |
 | YAML         | `*.yml`, `*.yaml`                        |                              [prettier][4], [yamllint][20]                               |
 
@@ -319,7 +319,7 @@ Pull requests are welcome! lintball has a suite of unit tests, located in the `t
 [6]: https://pypi.org/project/autopep8/
 [7]: https://pypi.org/project/docformatter/
 [8]: https://github.com/jhipster/prettier-java
-[9]: https://github.com/prettier/prettier-eslint-cli
+[9]: https://github.com/eslint/eslint
 [10]: https://github.com/JohnnyMorganz/StyLua
 [11]: https://nim-lang.org/docs/tools.html
 [12]: https://github.com/cameronhunter/prettier-package-json

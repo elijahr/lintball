@@ -64,7 +64,7 @@ cli_entrypoint() {
 
   if [[ -n ${config} ]]; then
     echo
-    echo "lintball: using config file ${config}"
+    echo "using config: $(prettify_path "${config}")"
     echo
     config_load "path=${config}"
   fi
@@ -284,7 +284,6 @@ process_file() {
   local path mode extension tools tool status
   path="${1#path=}"
   mode="${2#mode=}"
-
   path="$(normalize_path "path=${path}")"
   readarray -t tools < <(get_tools_for_file "path=${path}")
   if [[ ${#tools[@]} -eq 0 ]]; then
@@ -299,7 +298,7 @@ process_file() {
       clippy) run_tool_clippy "mode=${mode}" "path=${path}" || status=$? ;;
       nimpretty) run_tool_nimpretty "mode=${mode}" "path=${path}" || status=$? ;;
       prettier) run_tool_prettier "mode=${mode}" "path=${path}" || status=$? ;;
-      prettier-eslint) run_tool_prettier_eslint "mode=${mode}" "path=${path}" || status=$? ;;
+      eslint) run_tool_eslint "mode=${mode}" "path=${path}" || status=$? ;;
       shellcheck) run_tool_shellcheck "mode=${mode}" "path=${path}" "lang=$(get_lang_shellcheck "extension=${extension}")" || status=$? ;;
       shfmt) run_tool_shfmt "mode=${mode}" "path=${path}" "lang=$(get_lang_shfmt "extension=${extension}")" || status=$? ;;
       uncrustify) run_tool_uncrustify "mode=${mode}" "path=${path}" "lang=$(get_lang_uncrustify "extension=${extension}")" || status=$? ;;
@@ -549,9 +548,9 @@ Supported tools:
   | GraphQL      |                                                prettier |
   | HTML         |                                                prettier |
   | Java         |                                           prettier-java |
-  | JavaScript   |                                         prettier-eslint |
+  | JavaScript   |                                        eslint, prettier |
   | JSON         |                                                prettier |
-  | JSX          |                                         prettier-eslint |
+  | JSX          |                                        eslint, prettier |
   | ksh          |                                       shellcheck, shfmt |
   | Lua          |                                                  StyLua |
   | Luau         |                                                  StyLua |
@@ -567,8 +566,8 @@ Supported tools:
   | Rust         |                                                  clippy |
   | SASS         |                                                prettier |
   | sh           |                                       shellcheck, shfmt |
-  | TSX          |                                         prettier-eslint |
-  | TypeScript   |                                         prettier-eslint |
+  | TSX          |                                        eslint, prettier |
+  | TypeScript   |                                        eslint, prettier |
   | XML          |                                     prettier/plugin-xml |
   | YAML         |                                      prettier, yamllint |
 
@@ -587,7 +586,7 @@ Detection methods:
   | GraphQL      |                                           *.graphql |
   | HTML         |                                              *.html |
   | Java         |                                              *.java |
-  | JavaScript   |                           *.js, #!/usr/bin/env node |
+  | JavaScript   |                    *.js, *.cjs, #!/usr/bin/env node |
   | JSON         |                                              *.json |
   | JSX          |                                               *.jsx |
   | ksh          |                           *.ksh, #!/usr/bin/env ksh |

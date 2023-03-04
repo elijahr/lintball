@@ -1,5 +1,5 @@
-load ./node_modules/bats-support/load
-load ./node_modules/bats-assert/load
+load ../tools/node_modules/bats-support/load
+load ../tools/node_modules/bats-assert/load
 load ../lib/utils.bash
 load ./lib/test_utils.bash
 

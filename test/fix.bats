@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
-load ./node_modules/bats-support/load
-load ./node_modules/bats-assert/load
+load ../tools/node_modules/bats-support/load
+load ../tools/node_modules/bats-assert/load
 load ./lib/test_utils
 
 setup() {
@@ -17,8 +17,8 @@ teardown() {
   find . -type f -not -name 'a.json' -not -name 'a.yml' -delete
   run lintball fix
   assert_success
-  assert_line "./a.json"
-  assert_line "./a.yml"
+  assert_line "a.json"
+  assert_line "a.yml"
   assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................wrote" -c)" -eq 2 ]
   assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................ok" -c)" -eq 1 ]
 }
@@ -34,9 +34,9 @@ teardown() {
   git add a.yml
   run lintball fix --since HEAD~2
   assert_success
-  assert_line "./a.html"
-  assert_line "./a.xml"
-  assert_line "./a.yml"
+  assert_line "a.html"
+  assert_line "a.xml"
+  assert_line "a.yml"
   assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................wrote")" -eq 3 ]
   assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................ok")" -eq 1 ]
 }
@@ -124,9 +124,16 @@ EOF
     cat <<EOF
 #!/usr/bin/env deno
 
-modules.exports = {
-  foo: function() {},
-  bar: () => ({})
+const a = {
+  a: 'b',
+  1: 2,
+};
+
+module.exports = {
+  foo() {
+    throw new Error('foo');
+  },
+  bar: () => ({ a: 'b', 1: 2, ...a }),
 };
 EOF
   )"
@@ -139,9 +146,16 @@ EOF
     cat <<EOF
 #!/usr/bin/env node
 
-modules.exports = {
-  foo: function() {},
-  bar: () => ({})
+const a = {
+  a: 'b',
+  1: 2,
+};
+
+module.exports = {
+  foo() {
+    throw new Error('foo');
+  },
+  bar: () => ({ a: 'b', 1: 2, ...a }),
 };
 EOF
   )"
@@ -393,9 +407,16 @@ EOF
   assert_success
   expected="$(
     cat <<EOF
-modules.exports = {
-  foo: function() {},
-  bar: () => ({})
+const a = {
+  a: 'b',
+  1: 2,
+};
+
+module.exports = {
+  foo() {
+    throw new Error('foo');
+  },
+  bar: () => ({ a: 'b', 1: 2, ...a }),
 };
 EOF
   )"
@@ -418,7 +439,13 @@ EOF
   assert_success
   expected="$(
     cat <<EOF
-ReactDOM.render(<h1>Hello, world!</h1>, document.getElementById("root"));
+/* eslint-disable import/no-unresolved */
+
+import * as ReactDOM from 'react-dom/client';
+
+import React from 'react';
+
+ReactDOM.render(<h1>Hello, world!</h1>, document.getElementById('root'));
 EOF
   )"
   assert_equal "$(cat "a.jsx")" "${expected}"
@@ -699,20 +726,40 @@ EOF
   assert_equal "$(cat "a.sh")" "${expected}"
 }
 
+@test 'lintball fix *.ts' {
+  run lintball fix "a.ts"
+  assert_success
+  expected="$(
+    cat <<EOF
+interface Interface {
+  foo: string;
+  bar: string;
+}
+const message = 'Hello World';
+console.log(message);
+EOF
+  )"
+  assert_equal "$(cat "a.ts")" "${expected}"
+}
+
 @test 'lintball fix *.tsx' {
   run lintball fix "a.tsx"
   assert_success
   expected="$(
     cat <<EOF
-import { h, Component } from "preact";
+/* eslint-disable import/no-unresolved */
+
+import React from 'react';
 
 export interface HelloWorldProps {
   name: string;
 }
 
-export default class HelloWorld extends Component<HelloWorldProps, any> {
-  render(props) {
-    return <p>Hello {props.name}!</p>;
+/* eslint-disable react/prefer-stateless-function */
+export default class HelloWorld extends React.Component<HelloWorldProps> {
+  render() {
+    const { name } = this.props;
+    return <div>{name}</div>;
   }
 }
 EOF

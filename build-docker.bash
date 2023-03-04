@@ -7,9 +7,13 @@ lintball_version=$(jq -r .version ./package.json)
 lintball_major_version=$(echo "${lintball_version}" | awk -F '.' '{print $1}')
 lintball_minor_version=$(echo "${lintball_version}" | awk -F '.' '{print $2}')
 do_push=no
+testing=no
 answer_yes=no
 
-declare -a archs=(arm64 amd64)
+declare -a archs=(
+  arm64
+  amd64
+)
 
 DOCKER_BUILDKIT=1
 export DOCKER_BUILDKIT
@@ -20,7 +24,7 @@ declare -A docker_manifest_args=(
 )
 
 declare -a manifests=(
-  docker.io/elijahru/lintball:latest
+  "docker.io/elijahru/lintball:latest"
   "docker.io/elijahru/lintball:${lintball_version}"
   "docker.io/elijahru/lintball:${lintball_major_version}.${lintball_minor_version}"
   "docker.io/elijahru/lintball:${lintball_major_version}"
@@ -33,7 +37,7 @@ build() {
     docker build \
       --platform "linux/${arch}" \
       --build-arg "DEBIAN_VERSION=${debian_version}" \
-      --build-arg "LINTBALL_VERSION=${lintball_version}" \
+      --build-arg "TESTING=${testing}" \
       --file Dockerfile \
       --tag "docker.io/elijahru/lintball:latest-${arch}" \
       $@ \
@@ -143,6 +147,10 @@ if [[ ${#@} -gt 0 ]]; then
       --yes)
         shift
         answer_yes=yes
+        ;;
+      --testing)
+        shift
+        testing=yes
         ;;
       --single-arch)
         shift

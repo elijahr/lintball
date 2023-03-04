@@ -118,7 +118,7 @@ cmd_prettier() {
     -- "${args[@]}"
 }
 
-cmd_prettier_eslint() {
+cmd_eslint() {
   local mode path args
   mode="${1#mode=}"
   path="${2#path=}"
@@ -129,7 +129,7 @@ cmd_prettier_eslint() {
     args+=("${LINTBALL_CHECK_ARGS_PRETTIER[@]}")
   fi
   interpolate \
-    "tool" "prettier-eslint" \
+    "tool" "eslint" \
     "lintball_dir" "${LINTBALL_DIR}" \
     "path" "$(absolutize_path "path=${path}")" \
     -- "${args[@]}"

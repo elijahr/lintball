@@ -219,7 +219,7 @@ get_installer_for_tool() {
       echo "install_python"
       ;;
     nimpretty) echo "install_nimpretty" ;;
-    prettier | prettier-eslint) echo "install_nodejs" ;;
+    prettier | eslint) echo "install_nodejs" ;;
     rubocop) echo "install_ruby" ;;
     shellcheck) echo "install_shellcheck" ;;
     shfmt) echo "install_shfmt" ;;
@@ -296,8 +296,9 @@ get_tools_for_file() {
     c | cpp | cs | d | h | hpp | m | mm | M)
       echo "uncrustify"
       ;;
-    js | jsx | ts | tsx)
-      echo "prettier-eslint"
+    cjs | js | jsx | ts | tsx)
+      echo "eslint"
+      echo "prettier"
       ;;
     lua)
       echo "stylua"
@@ -411,10 +412,10 @@ normalize_extension() {
   esac
 
   case "$extension" in
-    bash | bats | c | cpp | cs | css | d | dash | graphql | h | hpp | html | \
-      jade | java | js | json | jsx | ksh | lua | m | M | md | mdx | mksh | \
-      mm | nim | pug | pxd | pxi | py | pyi | pyx | rb | rs | scss | toml | \
-      ts | tsx | xml | yml)
+    bash | bats | c | cjs | cpp | cs | css | d | dash | graphql | h | hpp | \
+      html | jade | java | js | json | jsx | ksh | lua | m | M | md | mdx | \
+      mksh | mm | nim | pug | pxd | pxi | py | pyi | pyx | rb | rs | scss | \
+      toml | ts | tsx | xml | yml)
       echo "$extension"
       ;;
     sh)
@@ -468,8 +469,13 @@ normalize_path() {
 prettify_path() {
   local path
   path="${1#path=}"
-  # strip leading ./ from path
-  echo "${path#./}"
+  # - strip leading ./ from path
+  path="${path#./}"
+  if [[ ${path} =~ ^"${HOME}"(.*) ]]; then
+    # - swap ${HOME} for ~ in path
+    path="~${BASH_REMATCH[1]}"
+  fi
+  echo "${path}"
 }
 
 # shellcheck disable=SC2120

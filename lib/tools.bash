@@ -168,7 +168,7 @@ run_tool_prettier() {
   tool="prettier"
   offset="${#tool}"
 
-  if [[ ${LINTBALL_USE_PRETTIER_ESLINT} == "false" ]]; then
+  if [[ ${LINTBALL_USE_PRETTIER} == "false" ]]; then
     printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "disabled"
     return 0
   fi
@@ -192,6 +192,7 @@ run_tool_prettier() {
 
   # shellcheck disable=SC2068
   ${cmd[@]} 1>"${stdout}" 2>"${stderr}" || status=$?
+
   if [[ ${status} -eq 0 ]]; then
     if [[ "$(cat "${stdout}")" == "$(cat "${path}")" ]]; then
       printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
@@ -215,55 +216,61 @@ run_tool_prettier() {
   return "${status}"
 }
 
-run_tool_prettier_eslint() {
-  local mode path tool offset cmd stdout stderr status args
+run_tool_eslint() {
+  local mode path tool offset cmd tmp stdout stderr status args color
   mode="${1#mode=}"
   path="${2#path=}"
 
-  tool="prettier-eslint"
+  tool="eslint"
   offset="${#tool}"
 
-  if [[ ${LINTBALL_USE_PRETTIER_ESLINT} == "false" ]]; then
+  if [[ ${LINTBALL_USE_ESLINT} == "false" ]]; then
     printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "disabled"
     return 0
   fi
 
+  tmp="$(mktemp)"
   stdout="$(mktemp)"
   stderr="$(mktemp)"
   status=0
 
+  # show colors in output only if interactive shell
+  color="--color"
+  if [[ $- == *i* ]]; then
+    color="--no-color"
+  fi
+
   declare -a args=()
   if [[ ${mode} == "write" ]]; then
-    args+=("${LINTBALL_WRITE_ARGS_PRETTIER_ESLINT[@]}")
+    args+=("${LINTBALL_WRITE_ARGS_ESLINT[@]}")
   else
-    args+=("${LINTBALL_CHECK_ARGS_PRETTIER_ESLINT[@]}")
+    args+=("${LINTBALL_CHECK_ARGS_ESLINT[@]}")
   fi
   readarray -t cmd < <(interpolate \
-    "tool" "prettier-eslint" \
+    "tool" "eslint" \
     "lintball_dir" "${LINTBALL_DIR}" \
     "path" "$(absolutize_path "path=${path}")" \
+    "color" "${color}" \
+    "output_file" "${tmp}" \
     -- "${args[@]}")
 
   # shellcheck disable=SC2068
   ${cmd[@]} 1>"${stdout}" 2>"${stderr}" || status=$?
 
   if [[ ${status} -eq 0 ]]; then
-    if [[ "$(cat "${stderr}")" =~ unchanged ]]; then
-      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
-    elif [[ ${mode} == "write" ]] &&
-      [[ "$(cat "${stderr}")" =~ success\ formatting ]]; then
+    if [[ ${mode} == "write" ]] &&
+      [[ -n "$(cat "${tmp}")" ]] &&
+      [[ "$(cat "${tmp}")" != "$(cat "${path}")" ]]; then
       printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "wrote"
     else
-      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
-      cat "${stdout}" 1>&2 2>/dev/null
-      cat "${stderr}" 1>&2 2>/dev/null
-      status=1
+      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
     fi
   else
     printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
     cat "${stdout}" 2>/dev/null
     cat "${stderr}" 1>&2 2>/dev/null
   fi
+  rm "${tmp}"
   rm "${stdout}"
   rm "${stderr}"
   return "${status}"

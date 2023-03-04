@@ -10,10 +10,10 @@ declare -a LINTBALL_CHECK_ARGS_AUTOPEP8=()
 declare -a LINTBALL_CHECK_ARGS_BLACK=()
 declare -a LINTBALL_CHECK_ARGS_CLIPPY=()
 declare -a LINTBALL_CHECK_ARGS_DOCFORMATTER=()
+declare -a LINTBALL_CHECK_ARGS_ESLINT=()
 declare -a LINTBALL_CHECK_ARGS_ISORT=()
 declare -a LINTBALL_CHECK_ARGS_NIMPRETTY=()
 declare -a LINTBALL_CHECK_ARGS_PRETTIER=()
-declare -a LINTBALL_CHECK_ARGS_PRETTIER_ESLINT=()
 declare -a LINTBALL_CHECK_ARGS_PYLINT=()
 declare -a LINTBALL_CHECK_ARGS_RUBOCOP=()
 declare -a LINTBALL_CHECK_ARGS_SHELLCHECK=()
@@ -27,10 +27,10 @@ declare -a LINTBALL_WRITE_ARGS_AUTOPEP8=()
 declare -a LINTBALL_WRITE_ARGS_BLACK=()
 declare -a LINTBALL_WRITE_ARGS_CLIPPY=()
 declare -a LINTBALL_WRITE_ARGS_DOCFORMATTER=()
+declare -a LINTBALL_WRITE_ARGS_ESLINT=()
 declare -a LINTBALL_WRITE_ARGS_ISORT=()
 declare -a LINTBALL_WRITE_ARGS_NIMPRETTY=()
 declare -a LINTBALL_WRITE_ARGS_PRETTIER=()
-declare -a LINTBALL_WRITE_ARGS_PRETTIER_ESLINT=()
 declare -a LINTBALL_WRITE_ARGS_PYLINT=()
 declare -a LINTBALL_WRITE_ARGS_RUBOCOP=()
 declare -a LINTBALL_WRITE_ARGS_SHELLCHECK=()
@@ -42,9 +42,8 @@ declare -a LINTBALL_WRITE_ARGS_YAMLLINT=()
 declare -a LINTBALL_IGNORE_GLOBS=()
 
 declare -a LINTBALL_ALL_TOOLS=(
-  autoflake autopep8 black clippy docformatter isort nimpretty
-  prettier prettier-eslint pylint rubocop shellcheck shfmt stylua
-  uncrustify yamllint)
+  autoflake autopep8 black clippy docformatter eslint isort nimpretty
+  prettier pylint rubocop shellcheck shfmt stylua uncrustify yamllint)
 
 # ASDF config
 # Specific tool versions are configured in lib/installers/*.bash

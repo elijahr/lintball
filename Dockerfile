@@ -59,9 +59,9 @@ FROM --platform=$TARGETPLATFORM lintball-builder as lintball-shfmt
 COPY lib/installers/shfmt.bash "${LINTBALL_DIR}/lib/installers/shfmt.bash"
 RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source ${LINTBALL_DIR}/lib/install.bash && install_shfmt"
 
-FROM --platform=$TARGETPLATFORM lintball-builder as lintball-stylua
-COPY lib/installers/stylua.bash "${LINTBALL_DIR}/lib/installers/stylua.bash"
-RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source ${LINTBALL_DIR}/lib/install.bash && install_stylua"
+FROM --platform=$TARGETPLATFORM lintball-builder as lintball-rust
+COPY lib/installers/rust.bash "${LINTBALL_DIR}/lib/installers/rust.bash"
+RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source ${LINTBALL_DIR}/lib/install.bash && install_clippy && install_stylua"
 
 FROM --platform=$TARGETPLATFORM lintball-builder as lintball-python
 COPY lib/installers/python.bash "${LINTBALL_DIR}/lib/installers/python.bash"
@@ -98,7 +98,8 @@ COPY --from=lintball-shellcheck "${LINTBALL_DIR}/tools/asdf/installs/shellcheck"
 COPY --from=lintball-shellcheck "${LINTBALL_DIR}/tools/asdf/plugins/shellcheck" "${LINTBALL_DIR}/tools/asdf/plugins/shellcheck"
 COPY --from=lintball-shfmt "${LINTBALL_DIR}/tools/asdf/installs/shfmt" "${LINTBALL_DIR}/tools/asdf/installs/shfmt"
 COPY --from=lintball-shfmt "${LINTBALL_DIR}/tools/asdf/plugins/shfmt" "${LINTBALL_DIR}/tools/asdf/plugins/shfmt"
-COPY --from=lintball-stylua "${LINTBALL_DIR}/tools/bin/stylua" "${LINTBALL_DIR}/tools/bin/stylua"
+COPY --from=lintball-rust "${LINTBALL_DIR}/tools/asdf/installs/rust" "${LINTBALL_DIR}/tools/asdf/installs/rust"
+COPY --from=lintball-rust "${LINTBALL_DIR}/tools/asdf/plugins/rust" "${LINTBALL_DIR}/tools/asdf/plugins/rust"
 COPY --from=lintball-uncrustify "${LINTBALL_DIR}/tools/bin/uncrustify" "${LINTBALL_DIR}/tools/bin/uncrustify"
 COPY .gitignore "${LINTBALL_DIR}/.gitignore"
 COPY .lintballrc.json "${LINTBALL_DIR}/.lintballrc.json"
@@ -134,8 +135,9 @@ RUN apt update && apt install -y jq && \
     rm -rf /var/tmp/*
 
 # Install git, bats, etc, for running tests
-ENV TESTING=no
+ARG TESTING=no
 RUN if [ "${TESTING}" = "yes" ]; then \
+      export PATH="${LINTBALL_DIR}/bin:${PATH}" && \
       apt update && apt install -y git && \
       rm -rf /var/lib/apt/lists/* && \
       rm -rf /tmp/* && \
