@@ -28,7 +28,8 @@ run_tool() {
   readarray -t cmd < <(cmd_"${tool//-/_}" "mode=${mode}" "path=${path}" "lang=${lang}")
 
   # shellcheck disable=SC2068
-  ${cmd[@]} 1>"${stdout}" 2>"${stderr}" || status=$?
+  "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
+
   if [[ "$(cat "${path}")" == "${original}" ]]; then
     if [[ ${status} -gt 0 ]] || {
       [[ "$(head -n1 "${stdout}" | head -c4)" == "--- " ]] &&
@@ -77,7 +78,8 @@ run_tool_clippy() {
   cd "${dir}" || return $?
 
   # shellcheck disable=SC2068
-  ${cmd[@]} 1>"${stdout}" 2>"${stderr}" || status=$?
+  "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
+
   if [[ ${status} -gt 0 ]]; then
     # Some error message or diff
     printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
@@ -128,7 +130,8 @@ run_tool_nimpretty() {
     -- "${args[@]}")
 
   # shellcheck disable=SC2068
-  ${cmd[@]} 1>"${stdout}" 2>"${stderr}" || status=$?
+  "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
+
   if [[ ${status} -eq 0 ]]; then
     if [[ "$(cat "${tmp}")" == "$(cat "${path}")" ]]; then
       printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
@@ -191,7 +194,7 @@ run_tool_prettier() {
     -- "${args[@]}")
 
   # shellcheck disable=SC2068
-  ${cmd[@]} 1>"${stdout}" 2>"${stderr}" || status=$?
+  "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
 
   if [[ ${status} -eq 0 ]]; then
     if [[ "$(cat "${stdout}")" == "$(cat "${path}")" ]]; then
@@ -255,7 +258,7 @@ run_tool_eslint() {
     -- "${args[@]}")
 
   # shellcheck disable=SC2068
-  ${cmd[@]} 1>"${stdout}" 2>"${stderr}" || status=$?
+  "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
 
   if [[ ${status} -eq 0 ]]; then
     if [[ ${mode} == "write" ]] &&
@@ -301,7 +304,8 @@ run_tool_shfmt() {
   readarray -t cmd < <(cmd_"${tool//-/_}" "mode=${mode}" "path=${path}" "lang=${lang}")
 
   # shellcheck disable=SC2068
-  ${cmd[@]} 1>"${stdout}" 2>"${stderr}" || status=$?
+  "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
+
   if [[ "$(cat "${path}")" == "${original}" ]]; then
     if [[ ${status} -gt 0 ]] || {
       [[ "$(head -n1 "${stdout}" | head -c4)" == "--- " ]] &&
@@ -367,7 +371,8 @@ run_tool_shellcheck() {
     -- "${args[@]}")
 
   # shellcheck disable=SC2068
-  ${cmd[@]} 1>"${stdout}" 2>"${stderr}" || status=$?
+  "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
+
   if [[ ${status} -eq 0 ]]; then
     # File has no issues
     printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
@@ -386,7 +391,8 @@ run_tool_shellcheck() {
         -- "${args[@]}")
 
       # shellcheck disable=SC2068
-      ${cmd[@]} 1>"${patchfile}" 2>"${patcherr}" || true
+      "${cmd[@]}" 1>"${patchfile}" 2>"${patcherr}" || true
+
       if [[ -n "$(cat "${patchfile}")" ]]; then
         # Fix patchfile
         sed -i '' 's/^--- a\/\.\//--- a\//' "${patchfile}"
@@ -450,7 +456,8 @@ run_tool_uncrustify() {
     -- "${args[@]}")
 
   # shellcheck disable=SC2068
-  ${cmd[@]} 1>"${stdout}" 2>"${stderr}" || status=$?
+  "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
+
   if [[ ${status} -eq 0 ]]; then
     if [[ "$(cat "${stdout}")" == "$(cat "${path}")" ]]; then
       printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"

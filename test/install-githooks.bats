@@ -32,6 +32,7 @@ teardown() {
 
 @test 'lintball install-githooks already configured' {
   run lintball install-githooks --no
+  assert_success
   run lintball install-githooks --no
   assert_failure
 }

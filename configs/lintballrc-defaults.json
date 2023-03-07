@@ -75,7 +75,9 @@
       "{{path}}"
     ],
     "rubocop": [
-      "{{tool}}",
+      "bundle",
+      "exec",
+      "rubocop",
       "{{color}}",
       "--config",
       "{{lintball_dir}}/configs/rubocop.yml",
@@ -200,7 +202,9 @@
       "{{path}}"
     ],
     "rubocop": [
-      "{{tool}}",
+      "bundle",
+      "exec",
+      "rubocop",
       "{{color}}",
       "--config",
       "{{lintball_dir}}/configs/rubocop.yml",

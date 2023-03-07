@@ -36,24 +36,27 @@ generate_find_cmd() {
 
 config_find() {
   local path
-  path="${1:-}"
-  path=${path#path=}
-  if [[ -n ${path} ]]; then
-    path="$(normalize_path "path=${path}")"
-    if [[ -d ${path} ]] || [[ -s ${path} ]]; then
-      path="$(cd "${path}" && pwd)"
-    else
-      echo "Not a valid path arg: ${path}" >&2
-      return 1
-    fi
-  else
+
+  if [[ $# -eq 0 ]]; then
     path="$(pwd)"
+  else
+    path="$(normalize_path "$1")"
   fi
 
-  if ! [[ -d ${path} ]] && ! [[ -s ${path} ]]; then
+  if [[ -f ${path} ]]; then
+    echo "${path}"
+    return 0
+  fi
+
+  if ! [[ -d ${path} ]]; then
     echo "Not a valid path arg: ${path}" >&2
     return 1
   fi
+
+  path="$(
+    cd "$path" || exit
+    pwd
+  )"
 
   # Traverse up the directory tree looking for .lintballrc.json
   while true; do
@@ -92,7 +95,7 @@ config_load() {
   lintballrc_version=$(jq --raw-output ".lintballrc_version" 2>/dev/null <"${path}" || true)
   # shellcheck disable=SC2153
   if [[ ${lintballrc_version} != "${LINTBALLRC_VERSION}" ]]; then
-    echo "Cannot use config file ${path@Q}: expected lintballrc_version ${LINTBALLRC_VERSION} but found ${lintballrc_version}" >&2
+    echo "Cannot use config file ${path@Q}: expected lintballrc_version \"${LINTBALLRC_VERSION}\" but found \"${lintballrc_version}\"" >&2
     return 1
   fi
 
@@ -297,8 +300,8 @@ get_tools_for_file() {
       echo "uncrustify"
       ;;
     cjs | js | jsx | ts | tsx)
-      echo "eslint"
       echo "prettier"
+      echo "eslint"
       ;;
     lua)
       echo "stylua"
@@ -326,8 +329,8 @@ get_tools_for_file() {
       echo "autoflake"
       ;;
     rb)
-      echo "rubocop"
       echo "prettier"
+      echo "rubocop"
       ;;
     rs)
       echo "clippy"

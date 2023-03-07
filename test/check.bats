@@ -403,3 +403,9 @@ teardown() {
   run lintball check "a.txt"
   assert_success
 }
+
+@test 'lintball check missing' {
+  run lintball check "missing.txt"
+  assert_failure
+  assert_output ""
+}

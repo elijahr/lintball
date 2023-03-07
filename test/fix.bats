@@ -125,15 +125,15 @@ EOF
 #!/usr/bin/env deno
 
 const a = {
-  a: 'b',
+  a: "b",
   1: 2,
 };
 
 module.exports = {
   foo() {
-    throw new Error('foo');
+    throw new Error("foo");
   },
-  bar: () => ({ a: 'b', 1: 2, ...a }),
+  bar: () => ({ a: "b", 1: 2, ...a }),
 };
 EOF
   )"
@@ -147,15 +147,15 @@ EOF
 #!/usr/bin/env node
 
 const a = {
-  a: 'b',
+  a: "b",
   1: 2,
 };
 
 module.exports = {
   foo() {
-    throw new Error('foo');
+    throw new Error("foo");
   },
-  bar: () => ({ a: 'b', 1: 2, ...a }),
+  bar: () => ({ a: "b", 1: 2, ...a }),
 };
 EOF
   )"
@@ -408,15 +408,15 @@ EOF
   expected="$(
     cat <<EOF
 const a = {
-  a: 'b',
+  a: "b",
   1: 2,
 };
 
 module.exports = {
   foo() {
-    throw new Error('foo');
+    throw new Error("foo");
   },
-  bar: () => ({ a: 'b', 1: 2, ...a }),
+  bar: () => ({ a: "b", 1: 2, ...a }),
 };
 EOF
   )"
@@ -441,11 +441,11 @@ EOF
     cat <<EOF
 /* eslint-disable import/no-unresolved */
 
-import * as ReactDOM from 'react-dom/client';
+import * as ReactDOM from "react-dom/client";
 
-import React from 'react';
+import React from "react";
 
-ReactDOM.render(<h1>Hello, world!</h1>, document.getElementById('root'));
+ReactDOM.render(<h1>Hello, world!</h1>, document.getElementById("root"));
 EOF
   )"
   assert_equal "$(cat "a.jsx")" "${expected}"
@@ -749,7 +749,7 @@ EOF
     cat <<EOF
 /* eslint-disable import/no-unresolved */
 
-import React from 'react';
+import React from "react";
 
 export interface HelloWorldProps {
   name: string;
@@ -878,4 +878,10 @@ EOF
 @test 'lintball fix unhandled is a no-op' {
   run lintball fix "a.txt"
   assert_success
+}
+
+@test 'lintball fix missing' {
+  run lintball fix "missing.txt"
+  assert_failure
+  assert_output ""
 }

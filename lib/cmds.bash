@@ -178,7 +178,6 @@ cmd_rubocop() {
     args+=("${LINTBALL_CHECK_ARGS_RUBOCOP[@]}")
   fi
   interpolate \
-    "tool" "bundle exec rubocop" \
     "lintball_dir" "${LINTBALL_DIR}" \
     "color" "${color}" \
     "path" "${path}" \

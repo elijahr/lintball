@@ -107,7 +107,7 @@ cli_entrypoint() {
           *)
             if [[ -n ${1:-} ]]; then
               # shellcheck disable=SC2206
-              paths+=($@)
+              paths+=("$@")
             fi
             break
             ;;
@@ -325,10 +325,14 @@ subcommand_install_githooks() {
   if [[ -z ${hooks_path} ]]; then
     hooks_path="${path}/.githooks"
   fi
+
+  set +f
   for hook in "${LINTBALL_DIR}/githooks/"*; do
     dest="${hooks_path}/$(basename "${hook}")"
     confirm_copy "src=${hook}" "dest=${dest}" "answer=${answer}" "symlink=yes"
   done
+  set -f
+
   git --git-dir="${git_dir}" config --local core.hooksPath "${hooks_path}"
   echo
   echo "Set git hooks path → ${hooks_path}"

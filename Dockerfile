@@ -142,8 +142,10 @@ RUN if [ "${TESTING}" = "yes" ]; then \
       rm -rf /var/lib/apt/lists/* && \
       rm -rf /tmp/* && \
       rm -rf /var/tmp/* && \
-      cd test && \
-      lintball exec npm install; \
+      cd tools && \
+      lintball exec npm install && \
+      lintball exec npm cache clean --force && \
+      lintball exec asdf reshim; \
     fi
 
 CMD ["/bin/bash"]

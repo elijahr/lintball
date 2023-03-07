@@ -23,7 +23,7 @@ install_nodejs() {
   status=0
   npm install || status=$?
   npm cache clean --force || status=$?
+  asdf reshim || status=$?
   cd "${old}" || return $?
-  asdf reshim
   return "${status}"
 }

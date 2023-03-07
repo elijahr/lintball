@@ -2,7 +2,7 @@
 
 setup_test() {
   PROJECT_DIR="$(
-    cd "$(dirname "${BATS_TEST_DIRNAME}")"
+    cd "$(dirname "${BATS_TEST_DIRNAME}")" || exit 1
     pwd
   )"
   export PROJECT_DIR
@@ -36,18 +36,4 @@ teardown_test() {
   unset LINTBALL_DIR
   PATH="${ORIGINAL_PATH}"
   export PATH
-}
-
-git_branch() {
-  (
-    cd "${LINTBALL_REPO}"
-    git rev-parse --abbrev-ref HEAD
-  )
-}
-
-git_sha() {
-  (
-    cd "${LINTBALL_REPO}"
-    git rev-parse HEAD
-  )
 }
