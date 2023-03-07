@@ -505,34 +505,41 @@ consume() {
       fi
     fi
   done; } <"${tmp}/${consumer}.queue"
+
   return $status
 }
 
 produce() {
-  local tmp num_jobs consumer
+  local tmp num_jobs consumer found
   tmp="${1#tmp=}"
   num_jobs="${2#num_jobs=}"
   shift
   shift
 
-  # Divvy up the work among the consumers
-  # in a round-robin fashion.
+  # Send work to consumers, round-robin.
+  found=false
   consumer=1
   while read -r path; do
+    found=true
     echo "${path}" >"${tmp}/${consumer}.queue"
     if [[ ${consumer} -eq ${num_jobs} ]]; then
       # Reset
-      consumer="1"
+      consumer=1
     else
       # Increment
-      consumer="$((consumer + 1))"
+      consumer=$((consumer + 1))
     fi
-  done < <(eval "$(generate_find_cmd "$@")")
+  done < <(eval "$(generate_find_cmd "$@")" 2>/dev/null)
 
   # Notify consumers that all paths have been enqueued
   for ((consumer = 1; consumer <= num_jobs; consumer++)); do
     echo "<done>" >"${tmp}/${consumer}.queue"
   done
+
+  if [[ ${found} == false ]]; then
+    echo "No files found matching ${*@Q}"$'\n' >&2
+    return 1
+  fi
 }
 
 support_table() {

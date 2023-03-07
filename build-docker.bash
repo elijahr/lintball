@@ -12,7 +12,7 @@ answer_yes=no
 
 declare -a archs=(
   arm64
-  amd64
+  # amd64
 )
 
 DOCKER_BUILDKIT=1

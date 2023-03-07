@@ -735,7 +735,7 @@ interface Interface {
   foo: string;
   bar: string;
 }
-const message = 'Hello World';
+const message = "Hello World";
 console.log(message);
 EOF
   )"
@@ -883,5 +883,9 @@ EOF
 @test 'lintball fix missing' {
   run lintball fix "missing.txt"
   assert_failure
-  assert_output ""
+  assert_line "No files found matching 'missing.txt'"
+
+  run lintball fix "missing1.txt" "missing2.txt"
+  assert_failure
+  assert_line "No files found matching 'missing1.txt' 'missing2.txt'"
 }

@@ -388,7 +388,8 @@ teardown() {
   cp "a.yml" "aaa aaa/bbb bbb/a b.yml"
   run lintball check "aaa aaa/bbb bbb/a b.yml"
   assert_failure
-  assert_line "[warn] aaa aaa/bbb bbb/a b.yml"
+  assert_line "+key: value"
+  assert_line "+hello: world"
 }
 
 @test 'lintball check package.json' {
@@ -407,5 +408,9 @@ teardown() {
 @test 'lintball check missing' {
   run lintball check "missing.txt"
   assert_failure
-  assert_output ""
+  assert_line "No files found matching 'missing.txt'"
+
+  run lintball check "missing1.txt" "missing2.txt"
+  assert_failure
+  assert_line "No files found matching 'missing1.txt' 'missing2.txt'"
 }
