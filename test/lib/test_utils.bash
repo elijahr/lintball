@@ -16,14 +16,11 @@ setup_test() {
   PATH="${LINTBALL_DIR}/bin:${PATH}"
   export PATH
 
-  TEST_PROJECT_DIR="$(mktemp -d)/fixture"
-  export TEST_PROJECT_DIR
+  cp -r "${LINTBALL_DIR}/test/fixture/" "${BATS_TEST_TMPDIR}/"
+  cp "${LINTBALL_DIR}/.gitignore" "${BATS_TEST_TMPDIR}/"
 
-  cp -r "${LINTBALL_DIR}/test/fixture/" "${TEST_PROJECT_DIR}/"
-  cp "${LINTBALL_DIR}/.gitignore" "${TEST_PROJECT_DIR}/"
-
-  # rustup override set nightly --path "$TEST_PROJECT_DIR"
-  cd "${TEST_PROJECT_DIR}"
+  # rustup override set nightly --path "$BATS_TEST_TMPDIR"
+  cd "${BATS_TEST_TMPDIR}"
   git config --global init.defaultBranch devel
   git init .
   git config --local user.name "Bats Test"
@@ -31,8 +28,6 @@ setup_test() {
 }
 
 teardown_test() {
-  rm -rf "$(dirname "${TEST_PROJECT_DIR}")"
-  unset TEST_PROJECT_DIR
   unset LINTBALL_DIR
   PATH="${ORIGINAL_PATH}"
   export PATH
