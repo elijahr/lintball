@@ -1,13 +1,13 @@
 module.exports = {
   extends: [
-    'airbnb',
-    'airbnb/hooks',
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:import/recommended',
-    'plugin:react/recommended',
-    'plugin:jsx-a11y/recommended',
-    'plugin:prettier/recommended',
+    "airbnb",
+    "airbnb/hooks",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/recommended",
+    "plugin:react/recommended",
+    "plugin:jsx-a11y/recommended",
+    "plugin:prettier/recommended",
   ],
   root: true,
   env: {
@@ -18,10 +18,10 @@ module.exports = {
     node: true,
   },
   rules: {
-    'prettier/prettier': 'warn',
-    'react/jsx-filename-extension': [
+    "prettier/prettier": "warn",
+    "react/jsx-filename-extension": [
       2,
-      { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
+      { extensions: [".js", ".jsx", ".ts", ".tsx"] },
     ],
   },
 };

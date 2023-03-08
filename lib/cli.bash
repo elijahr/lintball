@@ -19,7 +19,7 @@ cli_entrypoint() {
   config=""
 
   # Parse base options
-  while [[ $# -gt 1 ]]; do
+  while [[ $# -gt 0 ]]; do
     case "$1" in
       -h | --help)
         usage >&2

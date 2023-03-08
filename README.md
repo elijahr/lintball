@@ -178,10 +178,10 @@ An example GitHub Actions workflow for linting your project:
 name: Lint
 on:
   pull_request:
-    branches: ['*']
+    branches: ["*"]
   push:
-    branches: ['*']
-    tags: ['*']
+    branches: ["*"]
+    tags: ["*"]
 
 jobs:
   lint:
@@ -195,7 +195,7 @@ jobs:
 
       - uses: actions/setup-node@v2
         with:
-          node-version: '15'
+          node-version: "15"
 
       - name: Install lintball
         run: |
