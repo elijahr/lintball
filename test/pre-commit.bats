@@ -53,10 +53,18 @@ EOF
 @test 'pre-commit does not fix ignored files' {
   mkdir -p vendor
   cp a.md vendor/
-  git add -f vendor/a.md
+  git add a.md vendor
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
-  assert_equal "$(cat "vendor/a.md")" "$(cat "a.md")"
+  expected="$(
+    cat <<EOF
+| aaaa | bbbbbb |  cc |
+| :--- | :----: | --: |
+| a    |   b    |   c |
+EOF
+  )"
+  assert_equal "$(cat "a.md")" "${expected}"
+  assert_not_equal "$(cat vendor/a.md)" "${expected}"
 }
 
 @test 'pre-commit fixes code' {

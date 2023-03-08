@@ -536,7 +536,7 @@ produce() {
     echo "<done>" >"${tmp}/${consumer}.queue"
   done
 
-  if [[ ${found} == false ]]; then
+  if [[ ${found} == false ]] && [[ $# -gt 0 ]]; then
     echo "No files found matching ${*@Q}"$'\n' >&2
     return 1
   fi

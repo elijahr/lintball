@@ -836,8 +836,14 @@ EOF
   mkdir -p vendor
   cp a.rb vendor/
   run lintball fix vendor/a.rb
+  assert_failure
+  assert_line "No files found matching 'vendor/a.rb'"
+
+  original=$(cat vendor/a.rb)
+  run lintball fix a.rb vendor/a.rb
   assert_success
-  assert_equal "$(cat "vendor/a.rb")" "$(cat "a.rb")"
+  assert_not_equal "$original" "$(cat a.rb)"
+  assert_equal "$original" "$(cat vendor/a.rb)"
 }
 
 @test 'lintball fix handles paths with spaces' {

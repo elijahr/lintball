@@ -380,7 +380,16 @@ teardown() {
   mkdir -p vendor
   cp a.rb vendor/
   run lintball check vendor/a.rb
+  assert_failure
+  assert_line "No files found matching 'vendor/a.rb'"
+
+  original=$(cat vendor/a.rb)
+  run lintball fix a.rb
   assert_success
+  run lintball check a.rb vendor/a.rb
+  assert_success
+  assert_not_equal "$original" "$(cat a.rb)"
+  assert_equal "$original" "$(cat vendor/a.rb)"
 }
 
 @test 'lintball check handles paths with spaces' {

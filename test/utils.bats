@@ -32,30 +32,30 @@ teardown() {
 @test "generate_find_cmd" {
   run generate_find_cmd
   assert_success
-  assert_output "'find' '.' '-type' 'f' '-print'"
+  assert_output "'find' '-L' '.' '-type' 'f' '-print'"
 
   run generate_find_cmd " "
   assert_success
-  assert_output "'find' '.' '-type' 'f' '-print'"
+  assert_output "'find' '-L' '.' '-type' 'f' '-print'"
 
   run generate_find_cmd " " " " " "
   assert_success
-  assert_output "'find' '.' '-type' 'f' '-print'"
+  assert_output "'find' '-L' '.' '-type' 'f' '-print'"
 
   run generate_find_cmd "aaa bbb/ccc ddd/eee/ fff"
   assert_success
-  assert_output "'find' './aaa bbb/ccc ddd/eee/ fff' '-type' 'f' '-print'"
+  assert_output "'find' '-L' './aaa bbb/ccc ddd/eee/ fff' '-type' 'f' '-print'"
 
   LINTBALL_IGNORE_GLOBS=('*.py' '*.rb')
   run generate_find_cmd "dir1" "dir2"
   assert_success
-  assert_output "'find' './dir1' './dir2' '-type' 'f' '-a' '(' '-not' '-path' '*.py' ')' '-a' '(' '-not' '-path' '*.rb' ')' '-print'"
+  assert_output "'find' '-L' './dir1' './dir2' '-type' 'f' '-a' '(' '-not' '-path' '*.py' ')' '-a' '(' '-not' '-path' '*.rb' ')' '-print'"
   # shellcheck disable=SC2034
   LINTBALL_IGNORE_GLOBS=()
 
   run generate_find_cmd " dir1" "dir2 "
   assert_success
-  assert_output "'find' './dir1' './dir2' '-type' 'f' '-print'"
+  assert_output "'find' '-L' './dir1' './dir2' '-type' 'f' '-print'"
 }
 
 @test "config_find" {

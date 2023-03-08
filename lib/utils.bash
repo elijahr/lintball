@@ -7,7 +7,7 @@ absolutize_path() {
 generate_find_cmd() {
   local parts normalized_path
 
-  declare -a parts=("find")
+  declare -a parts=("find" "-L")
 
   for path in "$@"; do
     normalized_path="$(normalize_path "path=${path}")"
@@ -16,7 +16,7 @@ generate_find_cmd() {
     fi
   done
 
-  if [[ ${#parts[@]} -eq 1 ]]; then
+  if [[ ${#parts[@]} -eq 2 ]]; then
     # all args were whitespace only, so default to current dir
     parts+=(".")
   fi
