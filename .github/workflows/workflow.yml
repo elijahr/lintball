@@ -26,48 +26,48 @@ jobs:
         shell: bash
         run: ./bin/lintball check
 
-  test:
-    name: bats unit tests (${{ matrix.runs-on }})
-    strategy:
-      fail-fast: false
-      matrix:
-        runs-on:
-          # - ubuntu-latest
-          - macos-latest
+  # test:
+  #   name: bats unit tests (${{ matrix.runs-on }})
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       runs-on:
+  #         # - ubuntu-latest
+  #         - macos-latest
 
-    runs-on: ${{ matrix.runs-on }}
+  #   runs-on: ${{ matrix.runs-on }}
 
-    steps:
-      - name: Install macOS dependencies
-        if: ${{ runner.os == 'macOS' }}
-        run: brew install bash parallel
+  #   steps:
+  #     - name: Install macOS dependencies
+  #       if: ${{ runner.os == 'macOS' }}
+  #       run: brew install bash parallel
 
-      - name: Checkout code
-        uses: actions/checkout@v3
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "16.x"
+  #     - uses: actions/setup-node@v2
+  #       with:
+  #         node-version: "16.x"
 
-      - uses: dtolnay/rust-toolchain@nightly
+  #     - uses: dtolnay/rust-toolchain@nightly
 
-      - name: Install tools
-        shell: bash
-        run: |
-          set -euxo pipefail
+  #     - name: Install tools
+  #       shell: bash
+  #       run: |
+  #         set -euxo pipefail
 
-          cd tools
-          npm ci --verbose
-          # seems to be necessary for node >= 15
-          [ -n "$(which bats)" ] || npm link bats --verbose
-          cd ..
+  #         cd tools
+  #         npm ci --verbose
+  #         # seems to be necessary for node >= 15
+  #         [ -n "$(which bats)" ] || npm link bats --verbose
+  #         cd ..
 
-          ./bin/lintball install-tools --all
+  #         ./bin/lintball install-tools --all
 
-      - name: Run tests
-        run: |
-          cd tools
-          npm run test
+  #     - name: Run tests
+  #       run: |
+  #         cd tools
+  #         npm run test
 
   install-local:
     name: test local installation
@@ -99,7 +99,7 @@ jobs:
 
   build-docker:
     name: "build, test, & push docker"
-    needs: [lint, test, install-local, install-global]
+    needs: [lint, install-local, install-global]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -117,10 +117,10 @@ jobs:
         run: ./build-docker.bash --single-arch amd64
 
       - name: Test
-        # Run tests in built docker to make sure it is copacetic
+        # Run tests in built docker
         run: |
-          export LINTBALL_IMAGE_TAG: latest-amd64
-          export LINTBALL_WORKSPACE: ${{ github.workspace }}
+          export LINTBALL_IMAGE_TAG="latest-amd64"
+          export LINTBALL_WORKSPACE="${{ github.workspace }}"
           docker-compose run test
 
       - name: Push to DockerHub
