@@ -10,21 +10,21 @@ on:
     tags: ["*"]
 
 jobs:
-  lint:
-    name: lint
-    runs-on: ubuntu-latest
+  # lint:
+  #   name: lint
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
 
-      - name: Install tools
-        shell: bash
-        run: ./bin/lintball install-tools
+  #     - name: Install tools
+  #       shell: bash
+  #       run: ./bin/lintball install-tools
 
-      - name: Run lintball
-        shell: bash
-        run: ./bin/lintball check
+  #     - name: Run lintball
+  #       shell: bash
+  #       run: ./bin/lintball check
 
   # test:
   #   name: bats unit tests (${{ matrix.runs-on }})
@@ -100,7 +100,7 @@ jobs:
   build-docker:
     name: "build, test, & push docker"
     runs-on: ubuntu-latest
-    needs: [lint, install-local, install-global]
+    needs: [install-local, install-global]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -116,6 +116,13 @@ jobs:
 
       - name: Build
         run: ./build-docker.bash --single-arch amd64
+
+      - name: Lint
+        # Lint lintball with lintball
+        run: |
+          export LINTBALL_IMAGE_TAG="latest-amd64"
+          export LINTBALL_WORKSPACE="${{ github.workspace }}"
+          docker-compose run lintball
 
       - name: Test
         # Run tests in built docker
