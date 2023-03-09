@@ -51,6 +51,7 @@
       "--silent",
       "{{tool}}",
       "--",
+      "--check",
       "--config",
       "{{lintball_dir}}/tools/.prettierrc.json",
       "{{path}}"
