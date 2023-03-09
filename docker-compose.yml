@@ -1,17 +1,24 @@
 version: "3"
 services:
   test:
-    command:
-      - /lintball/bin/lintball
-      - exec
-      - npm
-      - run
-      - test
-    working_dir: /lintball/test
-    # environment:
-    #   - DJANGO_SETTINGS_MODULE=settings.dev
-    image: docker.io/elijahru/lintball:latest-arm64
+    image: docker.io/elijahru/lintball:${LINTBALL_IMAGE_TAG:-latest}
+    cache_from: docker.io/elijahru/lintball:${LINTBALL_IMAGE_TAG:-latest}
+    entrypoint: /lintball/scripts/docker-entrypoint.sh
+    working_dir: /lintball/tools
+    command: npm run test
     volumes:
+      - ./bin:/lintball/bin:cached
+      - ./lib:/lintball/lib:cached
+      - ./test:/lintball/test:cached
+
+  lintball:
+    image: docker.io/elijahru/lintball:${LINTBALL_IMAGE_TAG:-latest}
+    cache_from: docker.io/elijahru/lintball:${LINTBALL_IMAGE_TAG:-latest}
+    entrypoint: /lintball/scripts/docker-entrypoint.sh
+    working_dir: /workspace
+    command: lintball check .
+    volumes:
+      - ${LINTBALL_WORKSPACE:-.}:/workspace:cached
       - ./bin:/lintball/bin:cached
       - ./lib:/lintball/lib:cached
       - ./test:/lintball/test:cached

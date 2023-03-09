@@ -1,0 +1,28 @@
+# yamllint disable rule:line-length
+name: "Run lintball"
+description: "Keep your entire project tidy with one github action"
+inputs:
+  check-all-files:
+    description: "If true, the entire workspace is checked"
+    required: true
+    default: "false"
+  committish:
+    description: "The git commit hash, branch name, or tag name to check against"
+    required: true
+    default: "<auto>"
+  default-branch:
+    description: "The git branch to compare against. Usually master, main, or devel."
+    required: true
+    default: "<auto>"
+  workspace:
+    description: "The filesystem path to check"
+    required: true
+    default: "${{ GITHUB_WORKSPACE }}"
+    # outputs:
+    #   time:
+    #     description: 'The time we greeted you'
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.who-to-greet }}

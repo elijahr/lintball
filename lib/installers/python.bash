@@ -1,8 +1,5 @@
 # shellcheck disable=SC2154
 
-ASDF_PYTHON_VERSION=3.10.8
-export ASDF_PYTHON_VERSION
-
 install_python() {
   local old status
   configure_asdf

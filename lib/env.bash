@@ -1,10 +1,10 @@
 # shellcheck disable=SC2034
 
-# Expected lintballrc_version in config files
+## Expected lintballrc_version in config files
 LINTBALLRC_VERSION="2"
 export LINTBALLRC_VERSION
 
-# Global lintball config - modified by config files
+## Global lintball config - modified by config files
 declare -a LINTBALL_CHECK_ARGS_AUTOFLAKE=()
 declare -a LINTBALL_CHECK_ARGS_AUTOPEP8=()
 declare -a LINTBALL_CHECK_ARGS_BLACK=()
@@ -45,8 +45,17 @@ declare -a LINTBALL_ALL_TOOLS=(
   autoflake autopep8 black clippy docformatter eslint isort nimpretty
   prettier pylint rubocop shellcheck shfmt stylua uncrustify yamllint)
 
-# ASDF config
-# Specific tool versions are configured in lib/installers/*.bash
+# Used by some tools to determine whether to install binaries or compile source
+LIBC_TYPE="$(if command -v clang 2>&1 >/dev/null; then
+  echo "clang"
+elif ldd /bin/ls | grep musl 2>&1 >/dev/null; then
+  echo "musl"
+else
+  echo "gnu"
+fi)"
+export LIBC_TYPE
+
+## ASDF config
 ASDF_VERSION=v0.10.2
 export ASDF_VERSION
 ASDF_CONFIG_FILE="${LINTBALL_DIR}/configs/asdfrc"
@@ -58,17 +67,32 @@ export ASDF_DIR
 ASDF_DATA_DIR="${LINTBALL_DIR}/tools/asdf"
 export ASDF_DATA_DIR
 
-# Used by some tools to determine whether to install binaries or compile source
-LIBC_TYPE="$(if command -v clang 2>&1 >/dev/null; then
-  echo "clang"
-elif ldd /bin/ls | grep musl 2>&1 >/dev/null; then
-  echo "musl"
-else
-  echo "gnu"
-fi)"
-export LIBC_TYPE
+## ASDF tool versions
+ASDF_NODEJS_VERSION=18.12.1
+export ASDF_NODEJS_VERSION
+ASDF_SHFMT_VERSION=3.5.1
+export ASDF_SHFMT_VERSION
+ASDF_SHELLCHECK_VERSION=0.8.0
+export ASDF_SHELLCHECK_VERSION
+ASDF_RUST_VERSION=1.65.0
+export ASDF_RUST_VERSION
+ASDF_PYTHON_VERSION=3.10.8
+export ASDF_PYTHON_VERSION
+ASDF_NIM_VERSION=ref:version-1-6
+export ASDF_NIM_VERSION
 
-# Setup PATH to find installed tools
+## ASDF tool config
+# Allow rustup installation
+RUSTUP_INIT_SKIP_PATH_CHECK=yes
+export RUSTUP_INIT_SKIP_PATH_CHECK
+if [[ ${LIBC_TYPE} == "musl" ]]; then
+  # binary nodejs doesn't run on alpine / musl
+  # see https://github.com/asdf-vm/asdf-nodejs/issues/190
+  ASDF_NODEJS_FORCE_COMPILE=1
+  export ASDF_NODEJS_FORCE_COMPILE
+fi
+
+## Setup PATH to find installed tools
 PATH="${LINTBALL_DIR}/tools/node_modules/.bin:${PATH}"
 PATH="${LINTBALL_DIR}/tools/asdf/shims:${PATH}"
 PATH="${LINTBALL_DIR}/tools/asdf/bin:${PATH}"

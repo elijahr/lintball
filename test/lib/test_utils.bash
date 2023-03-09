@@ -16,7 +16,8 @@ setup_test() {
   PATH="${LINTBALL_DIR}/bin:${PATH}"
   export PATH
 
-  cp -r "${LINTBALL_DIR}/test/fixture/" "${BATS_TEST_TMPDIR}/"
+  rm -r "${BATS_TEST_TMPDIR}"
+  cp -r "${LINTBALL_DIR}/test/fixture"* "${BATS_TEST_TMPDIR}"
   cp "${LINTBALL_DIR}/.gitignore" "${BATS_TEST_TMPDIR}/"
 
   # rustup override set nightly --path "$BATS_TEST_TMPDIR"

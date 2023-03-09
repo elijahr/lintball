@@ -38,7 +38,7 @@ run_tool() {
       # Some error message or diff
       printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
       cat "${stdout}" 2>/dev/null
-      cat "${stderr}" 1>&2 2>/dev/null
+      cat "${stderr}" 1>&2
       status=1
     else
       printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
@@ -84,7 +84,7 @@ run_tool_clippy() {
     # Some error message or diff
     printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
     cat "${stdout}" 2>/dev/null
-    cat "${stderr}" 1>&2 2>/dev/null
+    cat "${stderr}" 1>&2
     status=1
   elif [[ "$(cat "$stdout")" =~ (^\s+Fixed) ]]; then
     printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "wrote"
@@ -149,13 +149,13 @@ run_tool_nimpretty() {
       else
         printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
         cat "${stdout}" 2>/dev/null
-        cat "${stderr}" 1>&2 2>/dev/null
+        cat "${stderr}" 1>&2
       fi
     fi
   else
     printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
     cat "${stdout}" 2>/dev/null
-    cat "${stderr}" 1>&2 2>/dev/null
+    cat "${stderr}" 1>&2
   fi
   rm "${tmp}"
   rm "${stdout}"
@@ -178,6 +178,7 @@ run_tool_prettier() {
 
   stdout="$(mktemp)"
   stderr="$(mktemp)"
+  original="$(mktemp)"
   status=0
 
   declare -a args=()
@@ -193,11 +194,13 @@ run_tool_prettier() {
     "path" "$(absolutize_path "path=${path}")" \
     -- "${args[@]}")
 
+  cp "${path}" "${original}"
+
   # shellcheck disable=SC2068
   "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
 
   if [[ ${status} -eq 0 ]]; then
-    if [[ "$(cat "${stdout}")" == "$(cat "${path}")" ]]; then
+    if [[ "$(cat "${original}")" == "$(cat "${path}")" ]]; then
       printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
     else
       if [[ ${mode} == "write" ]]; then
@@ -210,12 +213,13 @@ run_tool_prettier() {
       fi
     fi
   else
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   syntax error"
     cat "${stdout}" 2>/dev/null
-    cat "${stderr}" 1>&2 2>/dev/null
+    cat "${stderr}" 1>&2
   fi
   rm "${stdout}"
   rm "${stderr}"
+  rm "${original}"
   return "${status}"
 }
 
@@ -271,7 +275,7 @@ run_tool_eslint() {
   else
     printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
     cat "${stdout}" 2>/dev/null
-    cat "${stderr}" 1>&2 2>/dev/null
+    cat "${stderr}" 1>&2
   fi
   rm "${tmp}"
   rm "${stdout}"
@@ -314,7 +318,7 @@ run_tool_shfmt() {
       # Some error message or diff
       printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
       cat "${stdout}" 2>/dev/null
-      cat "${stderr}" 1>&2 2>/dev/null
+      cat "${stderr}" 1>&2
       status=1
     else
       printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
@@ -413,7 +417,7 @@ run_tool_shellcheck() {
       # not patchable, show error
       printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
       cat "${stdout}" 2>/dev/null
-      cat "${stderr}" 1>&2 2>/dev/null
+      cat "${stderr}" 1>&2
     fi
   fi
   rm "${stdout}"
@@ -475,12 +479,12 @@ run_tool_uncrustify() {
       else
         printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
         cat "${stdout}" 2>/dev/null
-        cat "${stderr}" 1>&2 2>/dev/null
+        cat "${stderr}" 1>&2
       fi
     fi
   else
     printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
-    cat "${stderr}" 1>&2 2>/dev/null
+    cat "${stderr}" 1>&2
   fi
   rm "${stdout}"
   rm "${stderr}"

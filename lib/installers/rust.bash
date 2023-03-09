@@ -1,12 +1,5 @@
 # shellcheck disable=SC2154
 
-ASDF_RUST_VERSION=1.65.0
-export ASDF_RUST_VERSION
-
-# Allow rustup installation
-RUSTUP_INIT_SKIP_PATH_CHECK=yes
-export RUSTUP_INIT_SKIP_PATH_CHECK
-
 install_clippy() {
   if [[ ! -f "${LINTBALL_DIR}/tools/asdf/shims/clippy" ]]; then
     configure_asdf

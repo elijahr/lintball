@@ -1,8 +1,5 @@
 # shellcheck disable=SC2154
 
-ASDF_NIM_VERSION=ref:version-1-6
-export ASDF_NIM_VERSION
-
 install_nimpretty() {
   local cache_dir nim_dir nimpretty status old
   status=0

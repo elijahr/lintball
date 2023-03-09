@@ -2,17 +2,26 @@
 
 set -euxo pipefail
 
-debian_version=bullseye
-lintball_version=$(jq -r .version ./package.json)
+if [[ -n $(command -v jq) ]]; then
+  lintball_version=$(jq -r .version ./package.json)
+elif [[ -n $(command -v npm) ]]; then
+  # shellcheck disable=SC2016
+  lintball_version=$(npm -s run env echo '$npm_package_version')
+else
+  echo >&2
+  echo "Could not find jq or npm. Please install one of them." >&2
+  exit 1
+fi
 lintball_major_version=$(echo "${lintball_version}" | awk -F '.' '{print $1}')
 lintball_minor_version=$(echo "${lintball_version}" | awk -F '.' '{print $2}')
+debian_version=bullseye
 do_push=no
-testing=no
+testing=yes
 answer_yes=no
 
 declare -a archs=(
   arm64
-  # amd64
+  amd64
 )
 
 DOCKER_BUILDKIT=1
@@ -148,9 +157,9 @@ if [[ ${#@} -gt 0 ]]; then
         shift
         answer_yes=yes
         ;;
-      --testing)
+      --not-testing)
         shift
-        testing=yes
+        testing=no
         ;;
       --single-arch)
         shift

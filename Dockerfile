@@ -9,7 +9,9 @@ ARG DEBIAN_VERSION
 ENV LINTBALL_DIR=/lintball
 
 # Install deps
-RUN apt update && apt install -y gnupg && \
+RUN echo 'APT::Install-Suggests "0";' >> /etc/apt/apt.conf.d/99no-install-recommends && \
+    echo 'APT::Install-Recommends "0";' >> /etc/apt/apt.conf.d/99no-install-recommends && \
+    apt update && apt install -y gnupg && \
     echo "deb http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main" >> /etc/apt/sources.list.d/apt-fast.list && \
     echo "deb-src http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main" >> /etc/apt/sources.list.d/apt-fast.list && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B && \
@@ -94,6 +96,7 @@ COPY --from=lintball-nodejs "${LINTBALL_DIR}/tools/asdf/plugins/nodejs" "${LINTB
 COPY --from=lintball-nodejs "${LINTBALL_DIR}/tools/node_modules" "${LINTBALL_DIR}/tools/node_modules"
 COPY --from=lintball-python "${LINTBALL_DIR}/tools/asdf/installs/python" "${LINTBALL_DIR}/tools/asdf/installs/python"
 COPY --from=lintball-python "${LINTBALL_DIR}/tools/asdf/plugins/python" "${LINTBALL_DIR}/tools/asdf/plugins/python"
+COPY --from=lintball-python "${LINTBALL_DIR}/tools/pip-requirements.txt" "${LINTBALL_DIR}/tools/pip-requirements.txt"
 COPY --from=lintball-shellcheck "${LINTBALL_DIR}/tools/asdf/installs/shellcheck" "${LINTBALL_DIR}/tools/asdf/installs/shellcheck"
 COPY --from=lintball-shellcheck "${LINTBALL_DIR}/tools/asdf/plugins/shellcheck" "${LINTBALL_DIR}/tools/asdf/plugins/shellcheck"
 COPY --from=lintball-shfmt "${LINTBALL_DIR}/tools/asdf/installs/shfmt" "${LINTBALL_DIR}/tools/asdf/installs/shfmt"
@@ -124,29 +127,27 @@ RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source
 # of the installed debian packages.
 FROM --platform=$TARGETPLATFORM debian:${DEBIAN_VERSION}-slim as lintball
 ENV LINTBALL_DIR=/lintball
-RUN echo 'PATH=${LINTBALL_DIR}/bin:$PATH' >> ~/.bashrc
+RUN echo 'source "${LINTBALL_DIR}/lib/env.bash"' >> ~/.bashrc
 COPY --from=lintball-composite "${LINTBALL_DIR}" "${LINTBALL_DIR}"
 WORKDIR "${LINTBALL_DIR}"
 
-# Install jq for parsing lintballrc.json
-RUN apt update && apt install -y jq && \
+# Install:
+# - jq for parsing lintballrc.json
+# - git for pre-commit hook
+RUN apt update && apt install -y jq git && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/* && \
     rm -rf /var/tmp/*
 
-# Install git, bats, etc, for running tests
-ARG TESTING=no
-RUN if [ "${TESTING}" = "yes" ]; then \
-      export PATH="${LINTBALL_DIR}/bin:${PATH}" && \
-      apt update && apt install -y git && \
-      rm -rf /var/lib/apt/lists/* && \
-      rm -rf /tmp/* && \
-      rm -rf /var/tmp/* && \
+# Install bats for running tests
+ARG TESTING=yes
+RUN bash -c "set -euxo pipefail && if [[ ${TESTING} == yes ]]; then \
+      source ${LINTBALL_DIR}/lib/env.bash && \
       cd tools && \
-      lintball exec npm install && \
-      lintball exec npm cache clean --force && \
-      lintball exec asdf reshim; \
-    fi
+      npm ci --include=dev && \
+      npm cache clean --force && \
+      asdf reshim; \
+    fi"
 
 CMD ["/bin/bash"]
 
