@@ -164,7 +164,7 @@ run_tool_nimpretty() {
 }
 
 run_tool_prettier() {
-  local mode path tool offset cmd stdout stderr status args
+  local mode path tool offset cmd stdout stderr status args patch original
   mode="${1#mode=}"
   path="${2#path=}"
 
@@ -200,20 +200,24 @@ run_tool_prettier() {
   "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
 
   if [[ ${status} -eq 0 ]]; then
-    if [[ "$(cat "${original}")" == "$(cat "${path}")" ]]; then
-      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
-    else
-      if [[ ${mode} == "write" ]]; then
-        printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "wrote"
+    if [[ ${mode} == "write" ]]; then
+      if [[ "$(cat "${original}")" == "$(cat "${path}")" ]]; then
+        printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
       else
-        patch="$(diff -u "${path}" "${stdout}")"
+        printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "wrote"
+      fi
+    else
+      if [[ "$(cat "${path}")" == "$(cat "${stdout}")" ]]; then
+        printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
+      else
         printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+        patch="$(diff -u "${path}" "${stdout}")"
         echo "${patch}"
         status=1
       fi
     fi
   else
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   syntax error"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
     cat "${stdout}" 2>/dev/null
     cat "${stderr}" 1>&2
   fi
