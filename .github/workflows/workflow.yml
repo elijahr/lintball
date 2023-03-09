@@ -118,11 +118,10 @@ jobs:
 
       - name: Test
         # Run tests in built docker to make sure it is copacetic
-        with:
-          env:
-            LINTBALL_IMAGE_TAG: latest-amd64
-            LINTBALL_WORKSPACE: ${{ github.workspace }}
-        run: docker-compose run test
+        run: |
+          export LINTBALL_IMAGE_TAG: latest-amd64
+          export LINTBALL_WORKSPACE: ${{ github.workspace }}
+          docker-compose run test
 
       - name: Push to DockerHub
         # Only for git tag pushes; build arm64 and push all images to DockerHub
