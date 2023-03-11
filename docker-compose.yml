@@ -11,7 +11,7 @@ services:
       - ./scripts:/lintball/scripts:cached
       - ./test:/lintball/test:cached
 
-  lint:
+  check:
     image: localhost:5000/elijahru/lintball
     entrypoint: /lintball/scripts/docker-entrypoint.bash
     working_dir: /workspace
@@ -19,6 +19,20 @@ services:
     volumes:
       - ${LINTBALL_WORKSPACE:-.}:/workspace:cached
       - ./bin:/lintball/bin:cached
+      - ./configs:/lintball/configs:cached
+      - ./lib:/lintball/lib:cached
+      - ./scripts:/lintball/scripts:cached
+      - ./test:/lintball/test:cached
+
+  fix:
+    image: localhost:5000/elijahru/lintball
+    entrypoint: /lintball/scripts/docker-entrypoint.bash
+    working_dir: /workspace
+    command: lintball fix .
+    volumes:
+      - ${LINTBALL_WORKSPACE:-.}:/workspace:cached
+      - ./bin:/lintball/bin:cached
+      - ./configs:/lintball/configs:cached
       - ./lib:/lintball/lib:cached
       - ./scripts:/lintball/scripts:cached
       - ./test:/lintball/test:cached

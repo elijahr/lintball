@@ -36,6 +36,21 @@
       "clippy::all"
     ],
     "docformatter": ["{{tool}}", "--check", "{{path}}"],
+    "eslint": [
+      "npm",
+      "--prefix={{lintball_dir}}/tools",
+      "run",
+      "--silent",
+      "{{tool}}",
+      "--",
+      "--no-eslintrc",
+      "--resolve-plugins-relative-to",
+      ".",
+      "--config",
+      "{{lintball_dir}}/tools/.eslintrc.cjs",
+      "{{color}}",
+      "{{path}}"
+    ],
     "isort": [
       "{{tool}}",
       "--settings-path",
@@ -53,18 +68,6 @@
       "--",
       "--config",
       "{{lintball_dir}}/tools/.prettierrc.json",
-      "{{path}}"
-    ],
-    "eslint": [
-      "npm",
-      "--prefix={{lintball_dir}}/tools",
-      "run",
-      "--silent",
-      "{{tool}}",
-      "--",
-      "--config",
-      "{{lintball_dir}}/tools/.eslintrc.cjs",
-      "{{color}}",
       "{{path}}"
     ],
     "pylint": [
@@ -160,6 +163,24 @@
       "clippy::all"
     ],
     "docformatter": ["{{tool}}", "--in-place", "{{path}}"],
+    "eslint": [
+      "npm",
+      "--prefix={{lintball_dir}}/tools",
+      "run",
+      "--silent",
+      "{{tool}}",
+      "--",
+      "--no-eslintrc",
+      "--resolve-plugins-relative-to",
+      ".",
+      "--config",
+      "{{lintball_dir}}/tools/.eslintrc.cjs",
+      "--output-file",
+      "{{output_file}}",
+      "{{color}}",
+      "--fix",
+      "{{path}}"
+    ],
     "isort": [
       "{{tool}}",
       "--settings-path",
@@ -177,21 +198,6 @@
       "--write",
       "--config",
       "{{lintball_dir}}/tools/.prettierrc.json",
-      "{{path}}"
-    ],
-    "eslint": [
-      "npm",
-      "--prefix={{lintball_dir}}/tools",
-      "run",
-      "--silent",
-      "{{tool}}",
-      "--",
-      "--config",
-      "{{lintball_dir}}/tools/.eslintrc.cjs",
-      "--output-file",
-      "{{output_file}}",
-      "{{color}}",
-      "--fix",
       "{{path}}"
     ],
     "pylint": [

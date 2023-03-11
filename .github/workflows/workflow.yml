@@ -152,7 +152,7 @@ jobs:
         # Lint lintball with lintball
         run: |
           export LINTBALL_WORKSPACE="${{ github.workspace }}"
-          docker-compose run lint
+          docker-compose run check
 
       - name: Test
         # Run tests in built docker
