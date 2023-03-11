@@ -9,5 +9,6 @@ configure_asdf() {
     # disable `asdf update`
     touch "${LINTBALL_DIR}/tools/asdf/asdf_updates_disabled"
   fi
+  # shellcheck disable=SC1091
   source "${LINTBALL_DIR}/tools/asdf/asdf.sh"
 }
