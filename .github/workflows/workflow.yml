@@ -131,22 +131,10 @@ jobs:
             --build-arg="DEBIAN_VERSION=bullseye" \
             --build-arg="TESTING=yes" \
             --platform linux/amd64 \
-            --push \
-            --output=type=registry,registry.insecure=true \
-            --tag host.docker.internal:5000/elijahru/lintball \
+            --cache-from=elijahr/lintball \
+            --tag elijahru/lintball \
+            --load \
             .
-
-      # - name: Build all
-      #   run: |
-      #     docker buildx build \
-      #       --progress=plain \
-      #       --build-arg="DEBIAN_VERSION=bullseye" \
-      #       --build-arg="TESTING=yes" \
-      #       --platform linux/amd64,linux/arm64 \
-      #       --push \
-      # --output=type=registry,registry.insecure=true \
-      #       --tag host.docker.internal:5000/elijahru/lintball \
-      #       .
 
       - name: Lint
         # Lint lintball with lintball
@@ -160,17 +148,15 @@ jobs:
           export LINTBALL_WORKSPACE="${{ github.workspace }}"
           docker-compose run test
 
-      # - name: Build arm64
-      #   run: |
-      #     docker buildx build \
-      #       --build-arg="DEBIAN_VERSION=bullseye" \
-      #       --build-arg="TESTING=yes" \
-      #       --platform linux/amd64,linux/arm64 \
-      #       --push \
-      # --output=type=registry,registry.insecure=true \
-      #       --cache-from=host.docker.internal:5000/elijahr/lintball \
-      #       --tag host.docker.internal:5000/elijahru/lintball \
-      #       .
+      - name: Build arm64
+        run: |
+          docker buildx build \
+            --build-arg="DEBIAN_VERSION=bullseye" \
+            --build-arg="TESTING=yes" \
+            --platform linux/amd64,linux/arm64 \
+            --cache-from=elijahr/lintball \
+            --tag elijahru/lintball \
+            .
 
       - name: Push to DockerHub
         # Only for git tag pushes; build arm64 and push all images to DockerHub
@@ -197,9 +183,9 @@ jobs:
             docker buildx build \
               --build-arg="DEBIAN_VERSION=bullseye" \
               --build-arg="TESTING=yes" \
-              --platform linux/amd64 \
+              --platform linux/amd64,linux/arm64 \
+              --cache-from=elijahr/lintball \
+              --tag "elijahru/lintball:${tag}" \
               --push \
-              --cache-from=host.docker.internal:5000/elijahr/lintball \
-              --tag "docker.io/elijahru/lintball:${tag}" \
               .
           done
