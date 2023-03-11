@@ -102,8 +102,8 @@ else
   lintball_check_args+=("--since" "${committish}")
 fi
 
-LINTBALL_IMAGE_TAG="${lintball_version}"
-export LINTBALL_IMAGE_TAG
+LINTBALL_DOCKERHUB_IMAGE_TAG="${lintball_version}"
+export LINTBALL_DOCKERHUB_IMAGE_TAG
 LINTBALL_WORKSPACE="${workspace}"
 export LINTBALL_WORKSPACE
 

@@ -1,8 +1,7 @@
 version: "3"
 services:
   test:
-    image: docker.io/elijahru/lintball:${LINTBALL_IMAGE_TAG:-latest}
-    cache_from: docker.io/elijahru/lintball:${LINTBALL_IMAGE_TAG:-latest}
+    image: localhost:5000/elijahru/lintball
     entrypoint: /lintball/scripts/docker-entrypoint.sh
     working_dir: /lintball/tools
     command: npm run test
@@ -11,9 +10,8 @@ services:
       - ./lib:/lintball/lib:cached
       - ./test:/lintball/test:cached
 
-  lintball:
-    image: docker.io/elijahru/lintball:${LINTBALL_IMAGE_TAG:-latest}
-    cache_from: docker.io/elijahru/lintball:${LINTBALL_IMAGE_TAG:-latest}
+  lint:
+    image: localhost:5000/elijahru/lintball
     entrypoint: /lintball/scripts/docker-entrypoint.sh
     working_dir: /workspace
     command: lintball check .

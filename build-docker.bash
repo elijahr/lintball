@@ -14,14 +14,17 @@ else
 fi
 lintball_major_version=$(echo "${lintball_version}" | awk -F '.' '{print $1}')
 lintball_minor_version=$(echo "${lintball_version}" | awk -F '.' '{print $2}')
+branch_name_slug=$(git rev-parse --abbrev-ref HEAD | sed 's/[^a-zA-Z0-9]/-/g')
 debian_version=bullseye
-do_push=no
+do_push_dockerhub=no
+do_push_ghcr=no
+do_push_local=no
 testing=yes
 answer_yes=no
 
 declare -a archs=(
   arm64
-  amd64
+  # amd64
 )
 
 DOCKER_BUILDKIT=1
@@ -32,11 +35,24 @@ declare -A docker_manifest_args=(
   [arm64]="--arch arm64 --variant v8"
 )
 
-declare -a manifests=(
+declare -a dockerhub_manifests=(
   "docker.io/elijahru/lintball:latest"
   "docker.io/elijahru/lintball:${lintball_version}"
   "docker.io/elijahru/lintball:${lintball_major_version}.${lintball_minor_version}"
   "docker.io/elijahru/lintball:${lintball_major_version}"
+)
+
+declare -a ghcr_manifests=(
+  "ghcr.io/elijahr/lintball:latest"
+  "ghcr.io/elijahr/lintball:${branch_name_slug}"
+)
+
+declare -a local_manifests=(
+  "localhost:5000/elijahru/lintball:latest"
+  "localhost:5000/elijahru/lintball:${lintball_version}"
+  "localhost:5000/elijahru/lintball:${lintball_major_version}.${lintball_minor_version}"
+  "localhost:5000/elijahru/lintball:${lintball_major_version}"
+  "localhost:5000/elijahru/lintball:${branch_name_slug}"
 )
 
 build() {
@@ -48,18 +64,20 @@ build() {
       --build-arg "DEBIAN_VERSION=${debian_version}" \
       --build-arg "TESTING=${testing}" \
       --file Dockerfile \
-      --tag "docker.io/elijahru/lintball:latest-${arch}" \
+      --tag "localhost:5000/elijahru/lintball:latest-${arch}" \
       $@ \
       .
+    docker push "localhost:5000/elijahru/lintball:latest-${arch}"
+    docker pull "localhost:5000/elijahru/lintball:latest-${arch}"
   done
 }
 
 create_tags() {
   local manifest arch
-  for manifest in "${manifests[@]:1}"; do
+  for manifest in "$@"; do
     for arch in "${archs[@]}"; do
       docker tag \
-        "docker.io/elijahru/lintball:latest-${arch}" \
+        "localhost:5000/elijahru/lintball:latest-${arch}" \
         "${manifest}-${arch}"
     done
   done
@@ -67,10 +85,11 @@ create_tags() {
 
 create_manifests() {
   local manifest arch
-  for manifest in "${manifests[@]}"; do
-    docker manifest create "${manifest}"
+  for manifest in "$@"; do
+    # docker manifest create "${manifest}"
     for arch in "${archs[@]}"; do
-      docker manifest create --amend "${manifest}" "${manifest}-${arch}"
+      docker manifest create --amend "${manifest}" "${manifest}-${arch}" ||
+        docker manifest create "${manifest}" "${manifest}-${arch}"
       docker manifest annotate "${manifest}" --os linux "${docker_manifest_args[${arch}]}"
     done
   done
@@ -82,7 +101,7 @@ push_tags() {
   echo >&2
   echo "Will push the following tags:" >&2
   echo >&2
-  for manifest in "${manifests[@]}"; do
+  for manifest in "$@"; do
     for arch in "${archs[@]}"; do
       echo "- ${manifest}-${arch}" >&2
     done
@@ -105,7 +124,7 @@ push_tags() {
   fi
   set -x
 
-  for manifest in "${manifests[@]}"; do
+  for manifest in "$@"; do
     for arch in "${archs[@]}"; do
       docker push "${manifest}-${arch}"
     done
@@ -118,7 +137,7 @@ push_manifests() {
   set +x
   echo "Going to push the following manifests to hub.docker.com:"
 
-  for manifest in "${manifests[@]}"; do
+  for manifest in "$@"; do
     echo
     echo "- ${manifest}"
     docker manifest inspect "${manifest}"
@@ -141,7 +160,7 @@ push_manifests() {
   fi
   set -x
 
-  for manifest in "${manifests[@]}"; do
+  for manifest in "$@"; do
     docker manifest push "${manifest}"
   done
 }
@@ -149,9 +168,17 @@ push_manifests() {
 if [[ ${#@} -gt 0 ]]; then
   while [[ ${1:-} != "" ]]; do
     case "$1" in
-      --push)
+      --push-dockerhub)
         shift
-        do_push=yes
+        do_push_dockerhub=yes
+        ;;
+      --push-ghcr)
+        shift
+        do_push_ghcr=yes
+        ;;
+      --push-local)
+        shift
+        do_push_local=yes
         ;;
       --yes)
         shift
@@ -181,9 +208,25 @@ if [[ ${#@} -gt 0 ]]; then
 fi
 
 build "$@"
-create_tags
-if [[ ${do_push} == "yes" ]]; then
-  push_tags
-  create_manifests
-  push_manifests
+if [[ ${do_push_local} == "yes" ]]; then
+  if [[ -z "$(docker ps -a -q --filter="name=registry")" ]]; then
+    # start a local registry
+    docker run -d -p 5000:5000 --restart=always --name registry registry:2
+  fi
+  create_tags "${local_manifests[@]}"
+  push_tags "${local_manifests[@]}"
+  create_manifests "${local_manifests[@]}"
+  push_manifests "${local_manifests[@]}"
+fi
+if [[ ${do_push_dockerhub} == "yes" ]]; then
+  create_tags "${dockerhub_manifests[@]}"
+  push_tags "${dockerhub_manifests[@]}"
+  create_manifests "${dockerhub_manifests[@]}"
+  push_manifests "${dockerhub_manifests[@]}"
+fi
+if [[ ${do_push_ghcr} == "yes" ]]; then
+  create_tags "${ghcr_manifests[@]}"
+  push_tags "${ghcr_manifests[@]}"
+  create_manifests "${ghcr_manifests[@]}"
+  push_manifests "${ghcr_manifests[@]}"
 fi

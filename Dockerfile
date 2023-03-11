@@ -8,7 +8,7 @@ FROM --platform=$TARGETPLATFORM debian:${DEBIAN_VERSION}-slim AS lintball-builde
 ARG DEBIAN_VERSION
 ENV LINTBALL_DIR=/lintball
 
-# Install deps
+# Install minimal deps as quickly as possible
 RUN echo 'APT::Install-Suggests "0";' >> /etc/apt/apt.conf.d/99no-install-recommends && \
     echo 'APT::Install-Recommends "0";' >> /etc/apt/apt.conf.d/99no-install-recommends && \
     apt update && apt install -y gnupg && \
