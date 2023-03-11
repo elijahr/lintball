@@ -2,21 +2,23 @@ version: "3"
 services:
   test:
     image: localhost:5000/elijahru/lintball
-    entrypoint: /lintball/scripts/docker-entrypoint.sh
+    entrypoint: /lintball/scripts/docker-entrypoint.bash
     working_dir: /lintball/tools
     command: npm run test
     volumes:
       - ./bin:/lintball/bin:cached
       - ./lib:/lintball/lib:cached
+      - ./scripts:/lintball/scripts:cached
       - ./test:/lintball/test:cached
 
   lint:
     image: localhost:5000/elijahru/lintball
-    entrypoint: /lintball/scripts/docker-entrypoint.sh
+    entrypoint: /lintball/scripts/docker-entrypoint.bash
     working_dir: /workspace
     command: lintball check .
     volumes:
       - ${LINTBALL_WORKSPACE:-.}:/workspace:cached
       - ./bin:/lintball/bin:cached
       - ./lib:/lintball/lib:cached
+      - ./scripts:/lintball/scripts:cached
       - ./test:/lintball/test:cached
