@@ -1,15 +1,16 @@
 # shellcheck disable=2164
 
+safe_git() {
+  # run git without loading ~/.gitconfig
+  HOME=/dev/null git "$@" || return $?
+}
+
 setup_test() {
-  PROJECT_DIR="$(
+  LINTBALL_DIR="$(
     cd "$(dirname "${BATS_TEST_DIRNAME}")" || exit 1
     pwd
   )"
-  export PROJECT_DIR
-
-  LINTBALL_DIR="${PROJECT_DIR}"
   export LINTBALL_DIR
-
   ORIGINAL_PATH="${ORIGINAL_PATH:-${PATH}}"
   export ORIGINAL_PATH
 
@@ -20,12 +21,10 @@ setup_test() {
   cp -r "${LINTBALL_DIR}/test/fixture"* "${BATS_TEST_TMPDIR}"
   cp "${LINTBALL_DIR}/.gitignore" "${BATS_TEST_TMPDIR}/"
 
-  # rustup override set nightly --path "$BATS_TEST_TMPDIR"
   cd "${BATS_TEST_TMPDIR}"
-  git config --global init.defaultBranch devel
-  git init .
-  git config --local user.name "Bats Test"
-  git config --local user.email "test@example.org"
+  safe_git init --initial-branch=devel .
+  safe_git config --local user.name "Bats Test"
+  safe_git config --local user.email "test@example.org"
 }
 
 teardown_test() {

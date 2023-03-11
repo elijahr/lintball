@@ -6,7 +6,6 @@ load ./lib/test_utils
 
 setup() {
   setup_test
-  git init .
 }
 
 teardown() {
@@ -14,31 +13,31 @@ teardown() {
 }
 
 @test 'lintball install-githooks without --path' {
-  run lintball install-githooks --no
+  run lintball install-githooks --no 3>&-
   assert_success
-  assert_equal "$(git --git-dir="${BATS_TEST_TMPDIR}/.git" config --local core.hooksPath)" "${BATS_TEST_TMPDIR}/.githooks"
+  assert_equal "$(safe_git --git-dir="${BATS_TEST_TMPDIR}/.git" config --local core.hooksPath)" "${BATS_TEST_TMPDIR}/.githooks"
   assert [ -x "${BATS_TEST_TMPDIR}/.githooks/pre-commit" ]
 }
 
 @test 'lintball install-githooks with --path' {
   tmp="$(mktemp -d)"
-  git init "${tmp}"
-  run lintball install-githooks --no --path "${tmp}"
+  safe_git init "${tmp}"
+  run lintball install-githooks --no --path "${tmp}" 3>&-
   assert_success
-  assert_equal "$(git --git-dir="${tmp}/.git" config --local core.hooksPath)" "${tmp}/.githooks"
+  assert_equal "$(safe_git --git-dir="${tmp}/.git" config --local core.hooksPath)" "${tmp}/.githooks"
   assert [ -x "${tmp}/.githooks/pre-commit" ]
   rm -rf "${tmp}"
 }
 
 @test 'lintball install-githooks already configured' {
-  run lintball install-githooks --no
+  run lintball install-githooks --no 3>&-
   assert_success
-  run lintball install-githooks --no
+  run lintball install-githooks --no 3>&-
   assert_failure
 }
 
 @test 'lintball install-githooks does not cause shellcheck errors' {
-  run lintball install-githooks --no
-  run lintball check .githooks
+  run lintball install-githooks --no 3>&-
+  run lintball check .githooks 3>&-
   assert_success
 }

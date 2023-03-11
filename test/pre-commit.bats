@@ -15,8 +15,8 @@ setup() {
     -not -name 'a.txt' \
     -not -name 'a.yml' \
     -delete
-  git add .gitignore
-  git commit -m "Initial commit"
+  safe_git add .gitignore
+  safe_git commit -m "Initial commit"
 }
 
 teardown() {
@@ -24,7 +24,7 @@ teardown() {
 }
 
 @test 'pre-commit adds fixed code to git index' {
-  git add .
+  safe_git add .
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
   expected="$(
@@ -35,15 +35,15 @@ a.yml
 EOF
   )"
   # Everything is staged in index
-  assert_equal "$(git diff --name-only --cached | sort)" "${expected}"
+  assert_equal "$(safe_git diff --name-only --cached | sort)" "${expected}"
   # Nothing is partially staged
-  assert_equal "$(git diff --name-only)" ""
+  assert_equal "$(safe_git diff --name-only)" ""
 }
 
 @test 'pre-commit does not interfere with delete-only commits' {
-  git add .
-  git commit -m "commit 1"
-  git rm a.md
+  safe_git add .
+  safe_git commit -m "commit 1"
+  safe_git rm a.md
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
   assert_output ""
@@ -53,7 +53,7 @@ EOF
 @test 'pre-commit does not fix ignored files' {
   mkdir -p vendor
   cp a.md vendor/
-  git add a.md vendor
+  safe_git add a.md vendor
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
   expected="$(
@@ -68,7 +68,7 @@ EOF
 }
 
 @test 'pre-commit fixes code' {
-  git add a.md
+  safe_git add a.md
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
   expected="$(
@@ -84,7 +84,7 @@ EOF
 @test 'pre-commit handles paths with spaces' {
   mkdir -p "aaa aaa/bbb bbb"
   mv "a.yml" "aaa aaa/bbb bbb/a b.yml"
-  git add .
+  safe_git add .
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
   expected="$(
@@ -95,9 +95,9 @@ aaa aaa/bbb bbb/a b.yml
 EOF
   )"
   # Everything is staged in index
-  assert_equal "$(git diff --name-only --cached | sort)" "${expected}"
+  assert_equal "$(safe_git diff --name-only --cached | sort)" "${expected}"
   # Nothing is partially staged
-  assert_equal "$(git diff --name-only)" ""
+  assert_equal "$(safe_git diff --name-only)" ""
   # file was actually fixed
   expected="$(
     cat <<EOF
@@ -114,45 +114,41 @@ EOF
   echo '#!/bin/sh' >./lintball-dir/bin/lintball
   echo 'echo in ./lintball-dir/bin/lintball' >>./lintball-dir/bin/lintball
   chmod +x ./lintball-dir/bin/lintball
-  LINTBALL_DIR="${PWD}/lintball-dir"
-  export LINTBALL_DIR
-  run "${PROJECT_DIR}/githooks/pre-commit"
+  # shellcheck disable=SC2097,SC2098
+  LINTBALL_DIR="${PWD}/lintball-dir" run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
   assert_output "in ./lintball-dir/bin/lintball"
 }
 
 @test 'pre-commit uses ./bin/lintball if it exists' {
-  unset LINTBALL_DIR
   mkdir -p ./bin
   echo '#!/bin/sh' >./bin/lintball
   echo 'echo in ./bin/lintball' >>./bin/lintball
   chmod +x ./bin/lintball
-  run "${PROJECT_DIR}/githooks/pre-commit"
+  # shellcheck disable=SC2097,SC2098
+  LINTBALL_DIR="" run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
   assert_output "in ./bin/lintball"
 }
 
 @test 'pre-commit uses ./node_modules/lintball/bin/lintball if it exists' {
-  unset LINTBALL_DIR
   mkdir -p ./node_modules/lintball/bin
   echo '#!/bin/sh' >./node_modules/lintball/bin/lintball
   echo 'echo in ./node_modules/lintball/bin/lintball' >>./node_modules/lintball/bin/lintball
   chmod +x ./node_modules/lintball/bin/lintball
-  run "${PROJECT_DIR}/githooks/pre-commit"
+  # shellcheck disable=SC2097,SC2098
+  LINTBALL_DIR="" run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
   assert_output "in ./node_modules/lintball/bin/lintball"
 }
 
 @test 'pre-commit uses global lintball if it exists' {
-  unset LINTBALL_DIR
   mkdir -p ./other
   echo '#!/bin/sh' >./other/lintball
   echo 'echo in ./other/lintball' >>./other/lintball
   chmod +x ./other/lintball
-  PATH="${PWD}/other:${ORIGINAL_PATH}"
-  export PATH
-  assert_equal "$(command -v lintball)" "${PWD}/other/lintball"
-  run "${PROJECT_DIR}/githooks/pre-commit"
+  # shellcheck disable=SC2097,SC2098
+  LINTBALL_DIR="" PATH="${PWD}/other:${ORIGINAL_PATH}" run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
   assert_line "in ./other/lintball"
 }

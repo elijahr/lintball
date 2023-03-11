@@ -124,68 +124,47 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build amd64
-        run: |
-          docker buildx build \
-            --progress=plain \
-            --build-arg="DEBIAN_VERSION=bullseye" \
-            --build-arg="TESTING=yes" \
-            --platform linux/amd64 \
-            --cache-from=elijahr/lintball \
-            --tag elijahru/lintball \
-            --load \
-            .
-
-      - name: Lint
-        # Lint lintball with lintball
+      # Run tests in built docker
+      - name: Build and test
         run: |
           export LINTBALL_WORKSPACE="${{ github.workspace }}"
-          docker-compose run check
+          ./scripts/build-and-test.bash
 
-      - name: Test
-        # Run tests in built docker
-        run: |
-          export LINTBALL_WORKSPACE="${{ github.workspace }}"
-          docker-compose run test
-
-      - name: Build arm64
-        run: |
-          docker buildx build \
-            --build-arg="DEBIAN_VERSION=bullseye" \
-            --build-arg="TESTING=yes" \
-            --platform linux/amd64,linux/arm64 \
-            --cache-from=elijahr/lintball \
-            --tag elijahru/lintball \
-            .
-
-      - name: Push to DockerHub
-        # Only for git tag pushes; build arm64 and push all images to DockerHub
+      # Only for git tag pushes; build arm64 and push all images to DockerHub
+      - name: Build all platforms and push to DockerHub
         # if: ${{ startsWith(github.ref, 'refs/tags/') }}
         shell: bash
         run: |
           set -uexo pipefail
 
-          if [[ -n $(command -v jq) ]]; then
-            version=$(jq -r .version ./package.json)
-          elif [[ -n $(command -v npm) ]]; then
-            # shellcheck disable=SC2016
-            version=$(npm -s run env echo '$npm_package_version')
-          else
-            echo >&2
-            echo "Could not find jq or npm. Please install one of them." >&2
-            exit 1
-          fi
-          major_version=$(echo "${version}" | awk -F '.' '{print $1}')
-          minor_version=$(echo "${version}" | awk -F '.' '{print $2}')
+          declare -a tags=()
 
-          declare -a tags=("latest" "${major}" "${major.minor}" "${version}")
+          # regex to parse semver 2.0.0, with pre-release and build number
+          if [[ $GITHUB_REF_NAME =~ ^v?(([0-9]+)\.([0-9]+)\.([0-9]+)(-([a-zA-Z0-9-]+))?(\+([a-zA-Z0-9\.-]+))?)$ ]]; then
+            major="${BASH_REMATCH[2]}"
+            minor="${BASH_REMATCH[3]}"
+            patch="${BASH_REMATCH[4]}"
+
+            if [ -z "${BASH_REMATCH[5]}" ]; then
+              # not a pre-release, tag latest
+              tags+=("latest" "v${major}" "v${major}.${minor}" "v${major}.${minor}.${patch}")
+            else
+              # pre-release, just use the tag
+              tags+=("${GITHUB_REF_NAME//[^a-zA-Z0-9]/-}")
+            fi
+          else
+            # not a semantic version, just use the tag
+            tags+=("${GITHUB_REF_NAME//[^a-zA-Z0-9]/-}")
+          fi
+
           for tag in "${tags[@]}"; do
+            # build for the current platform
             docker buildx build \
-              --build-arg="DEBIAN_VERSION=bullseye" \
-              --build-arg="TESTING=yes" \
-              --platform linux/amd64,linux/arm64 \
-              --cache-from=elijahr/lintball \
-              --tag "elijahru/lintball:${tag}" \
-              --push \
+              --platform=linux/amd64,linux/arm64 \
+              --progress=plain \
+              --cache-from=elijahru/lintball \
+              --tag=elijahru/lintball:${tag} \
+              --target=lintball-latest \
+              --load \
               .
           done

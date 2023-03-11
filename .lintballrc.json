@@ -9,9 +9,12 @@
     "*/test/fixture/target/*",
     "*/tools/.bundle/*",
     "*/tools/asdf/*",
-    "*/tools/uncrustify*"
+    "*/tools/uncrustify*",
+    "*/tools/Gemfile*"
   ],
   "use": {
-    "clippy": false
+    "clippy": false,
+    "stylua": false,
+    "rubocop": false
   }
 }
