@@ -134,19 +134,19 @@ jobs:
             --build-arg="TESTING=yes" \
             --platform linux/amd64 \
             --push \
-            --tag localhost:5000/elijahru/lintball \
+            --tag host.docker.internal:5000/elijahru/lintball \
             .
 
-      - name: Build all
-        run: |
-          docker buildx build \
-            --progress=plain \
-            --build-arg="DEBIAN_VERSION=bullseye" \
-            --build-arg="TESTING=yes" \
-            --platform linux/amd64,linux/arm64 \
-            --push \
-            --tag localhost:5000/elijahru/lintball \
-            .
+      # - name: Build all
+      #   run: |
+      #     docker buildx build \
+      #       --progress=plain \
+      #       --build-arg="DEBIAN_VERSION=bullseye" \
+      #       --build-arg="TESTING=yes" \
+      #       --platform linux/amd64,linux/arm64 \
+      #       --push \
+      #       --tag host.docker.internal:5000/elijahru/lintball \
+      #       .
 
       - name: Lint
         # Lint lintball with lintball
@@ -167,8 +167,8 @@ jobs:
       #       --build-arg="TESTING=yes" \
       #       --platform linux/amd64,linux/arm64 \
       #       --push \
-      #       --cache-from=localhost:5000/elijahr/lintball \
-      #       --tag localhost:5000/elijahru/lintball \
+      #       --cache-from=host.docker.internal:5000/elijahr/lintball \
+      #       --tag host.docker.internal:5000/elijahru/lintball \
       #       .
 
       - name: Push to DockerHub
@@ -198,7 +198,7 @@ jobs:
               --build-arg="TESTING=yes" \
               --platform linux/amd64 \
               --push \
-              --cache-from=localhost:5000/elijahr/lintball \
+              --cache-from=host.docker.internal:5000/elijahr/lintball \
               --tag "docker.io/elijahru/lintball:${tag}" \
               .
           done
