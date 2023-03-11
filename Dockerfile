@@ -143,7 +143,7 @@ COPY --from=lintball-install-rust "${LINTBALL_DIR}/tools/asdf/plugins/rust" "${L
 COPY --from=lintball-install-uncrustify "${LINTBALL_DIR}/tools/bin/uncrustify" "${LINTBALL_DIR}/tools/bin/uncrustify"
 
 RUN bash -c "source ${LINTBALL_DIR}/lib/env.bash && \
-    cd tools && \
+    cd ${LINTBALL_DIR}/tools && \
     npm ci --include=dev && \
     npm cache clean --force && \
     asdf reshim && \
