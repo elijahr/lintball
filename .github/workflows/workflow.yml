@@ -127,6 +127,12 @@ jobs:
       # Run tests in built docker
       - name: Build and test
         run: |
+          # enable docker experimental features
+          tmp=$(mktemp)
+          sudo jq '.+{experimental:true}' /etc/docker/daemon.json > "$tmp"
+          sudo mv "$tmp" /etc/docker/daemon.json
+          sudo systemctl restart docker.service
+
           export LINTBALL_WORKSPACE="${{ github.workspace }}"
           ./scripts/build-and-test.bash
 

@@ -3,6 +3,8 @@
 # Dockerfile optimized to build lintball's dependencies in parallel and pare
 # down to the smallest possible output image.
 
+
+## <base image> ###############################################################
 FROM --platform=$TARGETPLATFORM debian:bullseye-slim as lintball-base
 ENV LINTBALL_DIR=/lintball
 
@@ -37,7 +39,9 @@ COPY lib/install.bash "${LINTBALL_DIR}/lib/install.bash"
 COPY lib/installers/asdf.bash "${LINTBALL_DIR}/lib/installers/asdf.bash"
 
 RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source ${LINTBALL_DIR}/lib/install.bash && configure_asdf"
+## </base image> ##############################################################
 
+## <tool images> ##############################################################
 FROM --platform=$TARGETPLATFORM lintball-base as lintball-install-nimpretty
 COPY lib/installers/nim.bash "${LINTBALL_DIR}/lib/installers/nim.bash"
 RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source ${LINTBALL_DIR}/lib/install.bash && install_nimpretty"
@@ -96,7 +100,9 @@ COPY tools/Gemfile.lock "${LINTBALL_DIR}/tools/Gemfile.lock"
 COPY tools/package-lock.json "${LINTBALL_DIR}/tools/package-lock.json"
 COPY tools/package.json "${LINTBALL_DIR}/tools/package.json"
 RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source ${LINTBALL_DIR}/lib/install.bash && configure_asdf && asdf reshim"
+## </tool images> #############################################################
 
+## <latest image> #############################################################
 # Output image does not inherit from lintball-base because we don't need all
 # of the installed debian packages.
 FROM --platform=$TARGETPLATFORM debian:bullseye-slim as lintball-latest
@@ -115,7 +121,9 @@ RUN apt update && apt install -y jq git && \
 ENTRYPOINT ["/lintball/scripts/docker-entrypoint.bash"]
 WORKDIR "/workspace"
 CMD ["lintball", "check", "."]
+## </latest image> ############################################################
 
+## <test image> ###############################################################
 FROM --platform=$TARGETPLATFORM lintball-base as lintball-install-ruby
 ENV LINTBALL_DIR=/lintball
 COPY lib/installers/ruby.bash "${LINTBALL_DIR}/lib/installers/ruby.bash"
@@ -133,7 +141,7 @@ ENV LINTBALL_DIR=/lintball
 COPY lib/installers/uncrustify.bash "${LINTBALL_DIR}/lib/installers/uncrustify.bash"
 RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source ${LINTBALL_DIR}/lib/install.bash && install_uncrustify"
 
-FROM --platform=$TARGETPLATFORM lintball-base as lintball-test
+FROM --platform=$TARGETPLATFORM lintball-latest as lintball-test
 ENV LINTBALL_DIR=/lintball
 COPY --from=lintball-install-ruby "${LINTBALL_DIR}/tools/.bundle" "${LINTBALL_DIR}/tools/asdf/.bundle"
 COPY --from=lintball-install-ruby "${LINTBALL_DIR}/tools/asdf/installs/ruby" "${LINTBALL_DIR}/tools/asdf/installs/ruby"
@@ -143,6 +151,7 @@ COPY --from=lintball-install-rust "${LINTBALL_DIR}/tools/asdf/plugins/rust" "${L
 COPY --from=lintball-install-uncrustify "${LINTBALL_DIR}/tools/bin/uncrustify" "${LINTBALL_DIR}/tools/bin/uncrustify"
 
 RUN bash -c "source ${LINTBALL_DIR}/lib/env.bash && \
+    apt update && apt install -y parallel git && \
     cd ${LINTBALL_DIR}/tools && \
     asdf reshim && \
     npm ci --include=dev && \
@@ -154,3 +163,4 @@ RUN bash -c "source ${LINTBALL_DIR}/lib/env.bash && \
 
 WORKDIR "${LINTBALL_DIR}/tools"
 CMD ["npm", "run", "test"]
+## </test image> ##############################################################
