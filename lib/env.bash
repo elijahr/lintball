@@ -41,6 +41,11 @@ declare -a LINTBALL_WRITE_ARGS_YAMLLINT=()
 
 declare -a LINTBALL_IGNORE_GLOBS=()
 
+declare -a LINTBALL_HANDLED_EXTENSION=(
+  bash bats c cjs cpp cs css d dash graphql h hpp html jade java js json jsx ksh
+  lua m M md mdx mksh mm nim pug pxd pxi py pyi pyx rb rs scss sh toml ts tsx
+  xml yaml yml)
+
 declare -a LINTBALL_ALL_TOOLS=(
   autoflake autopep8 black clippy docformatter eslint isort nimpretty
   prettier pylint rubocop shellcheck shfmt stylua uncrustify yamllint)

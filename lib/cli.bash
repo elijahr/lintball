@@ -236,7 +236,6 @@ subcommand_process_files() {
       num_jobs="4"
     fi
   fi
-  num_jobs=1
 
   tmp="$(mktemp -d)"
 
@@ -459,7 +458,7 @@ locked_echo() {
   (
     set -o noclobber
     # shellcheck disable=SC2188
-    while ! { >"${lockfile}"; }; do
+    while ! { >"${lockfile}"; } 2>/dev/null; do
       sleep 0.001
     done
     if [ -n "${stdout}" ]; then
@@ -529,15 +528,20 @@ produce() {
       # Increment
       consumer=$((consumer + 1))
     fi
-  done < <(eval "$(generate_find_cmd "$@")" 2>/dev/null)
+  done < <(eval "$(generate_find_cmd "$@")" 2>"${tmp}/find.stderr")
 
   # Notify consumers that all paths have been enqueued
   for ((consumer = 1; consumer <= num_jobs; consumer++)); do
     echo "<done>" >"${tmp}/${consumer}.queue"
   done
 
-  if [[ ${found} == false ]] && [[ $# -gt 0 ]]; then
-    echo "No files found matching ${*@Q}"$'\n' >&2
+  if [[ ${found} == false ]]; then
+    if [[ -n "$(cat "${tmp}/find.stderr")" ]]; then
+      cat "${tmp}/find.stderr" >&2
+      echo >&2
+    elif [[ $# -gt 0 ]]; then
+      echo "No files found matching ${*@Q}"$'\n' >&2
+    fi
     return 1
   fi
 }
