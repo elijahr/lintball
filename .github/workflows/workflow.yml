@@ -114,22 +114,22 @@ jobs:
         #   config-inline: |
         #     experimental: 'enabled'
 
-      - name: Enable Docker experimental features
-        shell: /bin/bash
-        run: |
-          set -uexo pipefail
-          # enable docker experimental features
-          if [[ -z "$(cat /etc/docker/daemon.json)" ]]; then
-            echo '{}' | sudo tee /etc/docker/daemon.json
-          fi
-          tmp=$(mktemp)
-          sudo jq '.+{experimental:true}' /etc/docker/daemon.json > "$tmp"
-          sudo mv "$tmp" /etc/docker/daemon.json
-          sudo service docker restart
-          docker version -f '{{.Server.Experimental}}'
-          docker buildx ls
-          docker buildx inspect
-          docker buildx version
+      # - name: Enable Docker experimental features
+      #   shell: bash
+      #   run: |
+      #     set -uexo pipefail
+      #     # enable docker experimental features
+      #     if [[ -z "$(cat /etc/docker/daemon.json)" ]]; then
+      #       echo '{}' | sudo tee /etc/docker/daemon.json
+      #     fi
+      #     tmp=$(mktemp)
+      #     sudo jq '.+{experimental:true}' /etc/docker/daemon.json > "$tmp"
+      #     sudo mv "$tmp" /etc/docker/daemon.json
+      #     sudo service docker restart
+      #     docker version -f '{{.Server.Experimental}}'
+      #     docker buildx ls
+      #     docker buildx inspect
+      #     docker buildx version
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
