@@ -27,32 +27,36 @@ teardown() {
 }
 
 @test "generate_find_cmd" {
+  # shellcheck disable=SC2034
+  declare -a LINTBALL_HANDLED_EXTENSIONS=('c' 'M' 'py' 'tsx')
   run generate_find_cmd
   assert_success
-  assert_output "'find' '-L' '.' '-type' 'f' '-print'"
+  assert_output "'find' '-L' '.' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'"
 
   run generate_find_cmd " "
   assert_success
-  assert_output "'find' '-L' '.' '-type' 'f' '-print'"
+  assert_output "'find' '-L' '.' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'"
 
   run generate_find_cmd " " " " " "
   assert_success
-  assert_output "'find' '-L' '.' '-type' 'f' '-print'"
+  assert_output "'find' '-L' '.' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'"
 
   run generate_find_cmd "aaa bbb/ccc ddd/eee/ fff"
   assert_success
-  assert_output "'find' '-L' './aaa bbb/ccc ddd/eee/ fff' '-type' 'f' '-print'"
+  assert_output "'find' '-L' './aaa bbb/ccc ddd/eee/ fff' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'"
 
-  LINTBALL_IGNORE_GLOBS=('*.py' '*.rb')
+  declare -a LINTBALL_IGNORE_GLOBS=('*.py' '*.rb')
   run generate_find_cmd "dir1" "dir2"
   assert_success
-  assert_output "'find' '-L' './dir1' './dir2' '-type' 'f' '-a' '(' '-not' '-path' '*.py' ')' '-a' '(' '-not' '-path' '*.rb' ')' '-print'"
+  assert_output "'find' '-L' './dir1' './dir2' '-type' 'f' '-a' '(' '-not' '-path' '*.py' ')' '-a' '(' '-not' '-path' '*.rb' ')' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'"
   # shellcheck disable=SC2034
   LINTBALL_IGNORE_GLOBS=()
 
   run generate_find_cmd " dir1" "dir2 "
   assert_success
-  assert_output "'find' '-L' './dir1' './dir2' '-type' 'f' '-print'"
+  assert_output "'find' '-L' './dir1' './dir2' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'"
+  # shellcheck disable=SC2034
+  LINTBALL_HANDLED_EXTENSIONS=()
 }
 
 @test "config_find" {

@@ -64,7 +64,7 @@ cli_entrypoint() {
 
   if [[ -n ${config} ]]; then
     echo
-    echo "using config: $(prettify_path "${config}")"
+    echo "lintball using config: $(prettify_path "${config}")"
     echo
     config_load "path=${config}"
   fi
@@ -126,6 +126,7 @@ cli_entrypoint() {
       shift
       readarray -t -O"${#paths[@]}" paths < <(get_fully_staged_paths)
       if [[ ${#paths[@]} -eq 0 ]]; then
+        echo "No fully staged files, nothing to do."
         return 0
       fi
       subcommand_process_files "mode=write" "num_jobs=${num_jobs}" "${paths[@]}"
@@ -202,13 +203,17 @@ cli_entrypoint() {
 }
 
 on_exit() {
-  local status=$? tmp
+  local status=$? tmp pid
   tmp="${1#tmp=}"
 
   # Kill consumers
   set +f
   for pidfile in "${tmp}/"*.pid; do
-    kill -KILL "$(cat "${pidfile}")" 1>/dev/null 2>/dev/null || true
+    pid="$(cat "${pidfile}")"
+    kill -TERM "$pid" 1>/dev/null 2>/dev/null || true
+    if ps -p "$pid" >/dev/null; then
+      kill -KILL "$(cat "${pidfile}")" 1>/dev/null 2>/dev/null || true
+    fi
   done
   set -f
 
@@ -282,17 +287,15 @@ subcommand_process_files() {
 process_file() {
   local path mode extension tools tool status
   path="${1#path=}"
-  mode="${2#mode=}"
+  shift
+  mode="${1#mode=}"
+  shift
   path="$(normalize_path "path=${path}")"
-  readarray -t tools < <(get_tools_for_file "path=${path}")
-  if [[ ${#tools[@]} -eq 0 ]]; then
-    return 0
-  fi
 
   extension="$(normalize_extension "path=${path}")"
   prettify_path "${path}"
   status=0
-  for tool in "${tools[@]}"; do
+  for tool in "$@"; do
     case "${tool}" in
       clippy) run_tool_clippy "mode=${mode}" "path=${path}" || status=$? ;;
       nimpretty) run_tool_nimpretty "mode=${mode}" "path=${path}" || status=$? ;;
@@ -303,6 +306,9 @@ process_file() {
       uncrustify) run_tool_uncrustify "mode=${mode}" "path=${path}" "lang=$(get_lang_uncrustify "extension=${extension}")" || status=$? ;;
       *) run_tool "tool=${tool}" "mode=${mode}" "path=${path}" || status=$? ;;
     esac
+    if [[ ${status} -ne 0 ]]; then
+      echo
+    fi
   done
   return $status
 }
@@ -473,7 +479,7 @@ locked_echo() {
 }
 
 consume() {
-  local tmp consumer mode path stdout stderr status
+  local tmp consumer mode path tools stdout stderr status
 
   tmp="${1#tmp=}"
   consumer="${2#consumer=}"
@@ -494,7 +500,13 @@ consume() {
     elif [[ ${path} == "<done>" ]]; then
       break
     else
-      process_file "path=${path}" "mode=${mode}" \
+      readarray -t tools < <(get_tools_for_file "path=${path}")
+      if [[ ${#tools[@]} -eq 0 ]]; then
+        # No tools for this file, skip it.
+        echo 1 >>"${tmp}/${consumer}.skipped"
+        continue
+      fi
+      process_file "path=${path}" "mode=${mode}" "${tools[@]}" \
         1>"${tmp}/${consumer}.stdout" \
         2>"${tmp}/${consumer}.stderr" || status=$?
       stdout=$(cat "${tmp}/${consumer}.stdout" 2>/dev/null || true)
@@ -536,11 +548,24 @@ produce() {
   done
 
   if [[ ${found} == false ]]; then
-    if [[ -n "$(cat "${tmp}/find.stderr")" ]]; then
+    if [[ $# -gt 0 ]]; then
+      for path in "$@"; do
+        if [[ -f ${path} ]]; then
+          echo "File ${path@Q} is ignored by lintball config."$'\n' >&2
+        elif [[ -d ${path} ]]; then
+          echo "Directory ${path@Q} is ignored by lintball config."$'\n' >&2
+        else
+          echo "No files found matching ${path@Q}."$'\n' >&2
+        fi
+      done
+    elif [[ -n "$(cat "${tmp}/find.stderr")" ]]; then
+      echo "Error running find:" >&2
       cat "${tmp}/find.stderr" >&2
       echo >&2
-    elif [[ $# -gt 0 ]]; then
-      echo "No files found matching ${*@Q}"$'\n' >&2
+    else
+      echo "No files found." >&2
+      echo >&2
+      return 0
     fi
     return 1
   fi

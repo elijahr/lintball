@@ -16,7 +16,8 @@ run_tool() {
   offset="${#tool}"
   use="LINTBALL_USE_$(echo "${tool//-/_}" | tr '[:lower:]' '[:upper:]')"
   if [[ ${!use} == "false" ]]; then
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "disabled"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "off"
+    printf "\e[9m%s\e[0m" "zzzz"
     return 0
   fi
 
@@ -36,12 +37,12 @@ run_tool() {
         [[ "$(head -n2 "${stdout}" | tail -n 1 | head -c4)" == "+++ " ]]
     }; then
       # Some error message or diff
-      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "❌"
       cat "${stdout}" 2>/dev/null
       cat "${stderr}" 1>&2
       status=1
     else
-      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
+      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "✔️"
     fi
   else
     status=0
@@ -60,7 +61,8 @@ run_tool_clippy() {
   tool="clippy"
   offset="${#tool}"
   if [[ ${LINTBALL_USE_CLIPPY} == "false" ]]; then
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "disabled"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "off"
+    printf "\e[9m%s\e[0m" "zzzz"
     return 0
   fi
 
@@ -82,14 +84,14 @@ run_tool_clippy() {
 
   if [[ ${status} -gt 0 ]]; then
     # Some error message or diff
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "❌"
     cat "${stdout}" 2>/dev/null
     cat "${stderr}" 1>&2
     status=1
   elif [[ "$(cat "$stdout")" =~ (^\s+Fixed) ]]; then
     printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "wrote"
   else
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "✔️"
   fi
   rm "${stdout}"
   rm "${stderr}"
@@ -106,7 +108,8 @@ run_tool_nimpretty() {
   offset="${#tool}"
 
   if [[ ${LINTBALL_USE_NIMPRETTY} == "false" ]]; then
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "disabled"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "off"
+    printf "\e[9m%s\e[0m" "zzzz"
     return 0
   fi
 
@@ -134,7 +137,7 @@ run_tool_nimpretty() {
 
   if [[ ${status} -eq 0 ]]; then
     if [[ "$(cat "${tmp}")" == "$(cat "${path}")" ]]; then
-      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
+      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "✔️"
     else
       patch="$(diff -u "${path}" "${tmp}")"
       if [[ -n ${patch} ]]; then
@@ -142,18 +145,18 @@ run_tool_nimpretty() {
           cat "${tmp}" >"${path}"
           printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "wrote"
         else
-          printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+          printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "❌"
           echo "${patch}"
           status=1
         fi
       else
-        printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+        printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "❌"
         cat "${stdout}" 2>/dev/null
         cat "${stderr}" 1>&2
       fi
     fi
   else
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "❌"
     cat "${stdout}" 2>/dev/null
     cat "${stderr}" 1>&2
   fi
@@ -172,7 +175,8 @@ run_tool_prettier() {
   offset="${#tool}"
 
   if [[ ${LINTBALL_USE_PRETTIER} == "false" ]]; then
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "disabled"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "off"
+    printf "\e[9m%s\e[0m" "zzzz"
     return 0
   fi
 
@@ -202,22 +206,22 @@ run_tool_prettier() {
   if [[ ${status} -eq 0 ]]; then
     if [[ ${mode} == "write" ]]; then
       if [[ "$(cat "${original}")" == "$(cat "${path}")" ]]; then
-        printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
+        printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "✔️"
       else
         printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "wrote"
       fi
     else
       if [[ "$(cat "${path}")" == "$(cat "${stdout}")" ]]; then
-        printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
+        printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "✔️"
       else
-        printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+        printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "❌mode=${mode}"
         patch="$(diff -u "${path}" "${stdout}")"
         echo "${patch}"
         status=1
       fi
     fi
   else
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "❌zzzz"
     cat "${stdout}" 2>/dev/null
     cat "${stderr}" 1>&2
   fi
@@ -236,7 +240,8 @@ run_tool_eslint() {
   offset="${#tool}"
 
   if [[ ${LINTBALL_USE_ESLINT} == "false" ]]; then
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "disabled"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "off"
+    printf "\e[9m%s\e[0m" "zzzz"
     return 0
   fi
 
@@ -274,10 +279,10 @@ run_tool_eslint() {
       [[ "$(cat "${tmp}")" != "$(cat "${path}")" ]]; then
       printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "wrote"
     else
-      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
+      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "✔️"
     fi
   else
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "❌"
     cat "${stdout}" 2>/dev/null
     cat "${stderr}" 1>&2
   fi
@@ -300,10 +305,10 @@ run_tool_shfmt() {
 
   offset="${#tool}"
   if [[ ${LINTBALL_USE_SHFMT} == "false" ]]; then
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "disabled"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "off"
+    printf "\e[9m%s\e[0m" "zzzz"
     return 0
   fi
-
   status=0
   original="$(cat "${path}")"
   stdout="$(mktemp)"
@@ -320,12 +325,12 @@ run_tool_shfmt() {
         [[ "$(head -n2 "${stdout}" | tail -n 1 | head -c4)" == "+++ " ]]
     }; then
       # Some error message or diff
-      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "❌"
       cat "${stdout}" 2>/dev/null
       cat "${stderr}" 1>&2
       status=1
     else
-      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
+      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "✔️"
     fi
   else
     status=0
@@ -346,7 +351,8 @@ run_tool_shellcheck() {
   offset="${#tool}"
 
   if [[ ${LINTBALL_USE_SHELLCHECK} == "false" ]]; then
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "disabled"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "off"
+    printf "\e[9m%s\e[0m" "zzzz"
     return 0
   fi
 
@@ -383,7 +389,7 @@ run_tool_shellcheck() {
 
   if [[ ${status} -eq 0 ]]; then
     # File has no issues
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "✔️"
   else
     # stdout contains the tool results
     # stderr contains an error message
@@ -411,7 +417,7 @@ run_tool_shellcheck() {
       else
         if [[ -n "$(cat "${patcherr}")" ]]; then
           # not patchable, show output from initial shellcheck run
-          printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+          printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "❌"
           cat "${stdout}"
         else
           printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "unknown error"
@@ -419,7 +425,7 @@ run_tool_shellcheck() {
       fi
     else
       # not patchable, show error
-      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "❌"
       cat "${stdout}" 2>/dev/null
       cat "${stderr}" 1>&2
     fi
@@ -441,7 +447,8 @@ run_tool_uncrustify() {
   offset="${#tool}"
 
   if [[ ${LINTBALL_USE_UNCRUSTIFY} == "false" ]]; then
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "disabled"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "off"
+    printf "\e[9m%s\e[0m" "zzzz"
     return 0
   fi
 
@@ -468,7 +475,7 @@ run_tool_uncrustify() {
 
   if [[ ${status} -eq 0 ]]; then
     if [[ "$(cat "${stdout}")" == "$(cat "${path}")" ]]; then
-      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "ok"
+      printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "✔️"
     else
       patch="$(diff -u "${path}" "${stdout}")"
       if [[ -n ${patch} ]]; then
@@ -476,18 +483,18 @@ run_tool_uncrustify() {
           cat "${stdout}" >"${path}"
           printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "wrote"
         else
-          printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+          printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "❌"
           echo "${patch}"
           status=1
         fi
       else
-        printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+        printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "❌"
         cat "${stdout}" 2>/dev/null
         cat "${stderr}" 1>&2
       fi
     fi
   else
-    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "⚠️   see below"
+    printf "%s%s%s\n" " ↳ ${tool}" "${DOTS:offset}" "❌"
     cat "${stderr}" 1>&2
   fi
   rm "${stdout}"

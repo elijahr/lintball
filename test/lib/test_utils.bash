@@ -18,7 +18,7 @@ setup_test() {
   export PATH
 
   rm -r "${BATS_TEST_TMPDIR}"
-  cp -r "${LINTBALL_DIR}/test/fixture"* "${BATS_TEST_TMPDIR}"
+  cp -r "${LINTBALL_DIR}/test/fixture" "${BATS_TEST_TMPDIR}"
   cp "${LINTBALL_DIR}/.gitignore" "${BATS_TEST_TMPDIR}/"
 
   cd "${BATS_TEST_TMPDIR}"

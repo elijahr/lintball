@@ -14,6 +14,7 @@ setup() {
     -not -name 'a.md' \
     -not -name 'a.txt' \
     -not -name 'a.yml' \
+    -not -name '.lintballrc.json' \
     -delete
   safe_git add .gitignore
   safe_git commit -m "Initial commit"
@@ -29,6 +30,7 @@ teardown() {
   assert_success
   expected="$(
     cat <<EOF
+.lintballrc.json
 a.md
 a.txt
 a.yml
@@ -46,14 +48,14 @@ EOF
   safe_git rm a.md
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
-  assert_output ""
+  assert_line "No fully staged files, nothing to do."
   assert [ ! -f "a.md" ]
 }
 
 @test 'pre-commit does not fix ignored files' {
-  mkdir -p vendor
-  cp a.md vendor/
-  safe_git add a.md vendor
+  mkdir -p a_dir
+  cp a.md a_dir/
+  safe_git add a.md a_dir
   run "${LINTBALL_DIR}/githooks/pre-commit"
   assert_success
   expected="$(
@@ -64,7 +66,7 @@ EOF
 EOF
   )"
   assert_equal "$(cat "a.md")" "${expected}"
-  assert_not_equal "$(cat vendor/a.md)" "${expected}"
+  assert_not_equal "$(cat a_dir/a.md)" "${expected}"
 }
 
 @test 'pre-commit fixes code' {
@@ -89,6 +91,7 @@ EOF
   assert_success
   expected="$(
     cat <<EOF
+.lintballrc.json
 a.md
 a.txt
 aaa aaa/bbb bbb/a b.yml

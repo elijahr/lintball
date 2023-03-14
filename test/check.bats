@@ -376,20 +376,18 @@ teardown() {
   assert_success
 }
 
-@test 'lintball check does not check ignored files' {
-  mkdir -p vendor
-  cp a.rb vendor/
-  run lintball check vendor/a.rb 3>&-
-  assert_failure
-  assert_line "No files found matching 'vendor/a.rb'"
+@test 'lintball check handles implicit path' {
+  mkdir foo
+  cd foo
+  run lintball check 3>&-
+  assert_success
+}
 
-  original=$(cat vendor/a.rb)
-  run lintball fix a.rb 3>&-
+@test 'lintball check handles . path' {
+  mkdir foo
+  cd foo
+  run lintball check . 3>&-
   assert_success
-  run lintball check a.rb vendor/a.rb 3>&-
-  assert_success
-  assert_not_equal "$original" "$(cat a.rb)"
-  assert_equal "$original" "$(cat vendor/a.rb)"
 }
 
 @test 'lintball check handles paths with spaces' {
@@ -409,17 +407,43 @@ teardown() {
   assert_success
 }
 
-@test 'lintball check unhandled is a no-op' {
+@test 'lintball check ignored file fails' {
   run lintball check "a.txt" 3>&-
-  assert_success
+  assert_failure
+  assert_line "File 'a.txt' is ignored by lintball config."
+}
+
+@test 'lintball check ignored directory fails' {
+  mkdir a_dir
+  cp a.yml a_dir/
+  run lintball check "a_dir" 3>&-
+  assert_failure
+  assert_line "Directory 'a_dir' is ignored by lintball config."
+}
+
+@test 'lintball check ignored file in ignored directory fails' {
+  mkdir a_dir
+  cp a.txt a_dir/
+  run lintball check "a_dir" 3>&-
+  assert_failure
+  assert_line "Directory 'a_dir' is ignored by lintball config."
+}
+
+@test 'lintball check handled file in ignored directory fails' {
+  mkdir a_dir
+  cp a.yml a_dir/
+  run lintball check "a_dir/a.yml" 3>&-
+  assert_failure
+  assert_line "File 'a_dir/a.yml' is ignored by lintball config."
 }
 
 @test 'lintball check missing' {
   run lintball check "missing.txt" 3>&-
   assert_failure
-  assert_line "No files found matching 'missing.txt'"
+  assert_line "No files found matching 'missing.txt'."
 
   run lintball check "missing1.txt" "missing2.txt" 3>&-
   assert_failure
-  assert_line "No files found matching 'missing1.txt' 'missing2.txt'"
+  assert_line "No files found matching 'missing1.txt'."
+  assert_line "No files found matching 'missing2.txt'."
 }

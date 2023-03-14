@@ -39,14 +39,16 @@ generate_find_cmd() {
 
   parts+=("-a" "(")
   parts+=("(")
+
   # files with handled extensions
-  for i in "${!LINTBALL_HANDLED_EXTENSION[@]}"; do
+  for i in "${!LINTBALL_HANDLED_EXTENSIONS[@]}"; do
     if [[ ${i} -gt 0 ]]; then
       parts+=("-o")
     fi
-    parts+=("-name" "*.${LINTBALL_HANDLED_EXTENSION[$i]}")
+    parts+=("-name" "*.${LINTBALL_HANDLED_EXTENSIONS[$i]}")
   done
   parts+=(")")
+
   # files without extensions
   parts+=("-o" "(" "-not" "(" "-name" "*.*" ")" ")")
   parts+=(")")

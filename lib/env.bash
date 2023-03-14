@@ -41,7 +41,8 @@ declare -a LINTBALL_WRITE_ARGS_YAMLLINT=()
 
 declare -a LINTBALL_IGNORE_GLOBS=()
 
-declare -a LINTBALL_HANDLED_EXTENSION=(
+# shellcheck disable=SC2034
+declare -a LINTBALL_HANDLED_EXTENSIONS=(
   bash bats c cjs cpp cs css d dash graphql h hpp html jade java js json jsx ksh
   lua m M md mdx mksh mm nim pug pxd pxi py pyi pyx rb rs scss sh toml ts tsx
   xml yaml yml)
