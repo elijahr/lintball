@@ -32,26 +32,32 @@ teardown() {
   declare -a LINTBALL_FIND_ARGS=()
 
   populate_find_args
-  assert_equal "'-L' '.' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "${LINTBALL_FIND_ARGS[@]@Q}"
+  # shellcheck disable=SC2116
+  assert_equal "'-L' '.' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "$(echo "${LINTBALL_FIND_ARGS[@]@Q}")"
 
   populate_find_args " "
-  assert_equal "'-L' '.' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "${LINTBALL_FIND_ARGS[@]@Q}"
+  # shellcheck disable=SC2116
+  assert_equal "'-L' '.' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "$(echo "${LINTBALL_FIND_ARGS[@]@Q}")"
 
   populate_find_args " " " " " "
-  assert_equal "'-L' '.' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "${LINTBALL_FIND_ARGS[@]@Q}"
+  # shellcheck disable=SC2116
+  assert_equal "'-L' '.' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "$(echo "${LINTBALL_FIND_ARGS[@]@Q}")"
 
   populate_find_args "aaa bbb/ccc ddd/eee/ fff"
-  assert_equal "'-L' './aaa bbb/ccc ddd/eee/ fff' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "${LINTBALL_FIND_ARGS[@]@Q}"
+  # shellcheck disable=SC2116
+  assert_equal "'-L' './aaa bbb/ccc ddd/eee/ fff' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "$(echo "${LINTBALL_FIND_ARGS[@]@Q}")"
 
   declare -a LINTBALL_IGNORE_GLOBS=('*.py' '*.rb')
   populate_find_args "dir1" "dir2"
-  assert_equal "'-L' './dir1' './dir2' '-type' 'f' '-a' '(' '-not' '-path' '*.py' ')' '-a' '(' '-not' '-path' '*.rb' ')' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "${LINTBALL_FIND_ARGS[@]@Q}"
+  # shellcheck disable=SC2116
+  assert_equal "'-L' './dir1' './dir2' '-type' 'f' '-a' '(' '-not' '-path' '*.py' ')' '-a' '(' '-not' '-path' '*.rb' ')' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "$(echo "${LINTBALL_FIND_ARGS[@]@Q}")"
 
   # shellcheck disable=SC2034
   LINTBALL_IGNORE_GLOBS=()
 
   populate_find_args " dir1" "dir2 "
-  assert_equal "'-L' './dir1' './dir2' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "${LINTBALL_FIND_ARGS[@]@Q}"
+  # shellcheck disable=SC2116
+  assert_equal "'-L' './dir1' './dir2' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "$(echo "${LINTBALL_FIND_ARGS[@]@Q}")"
 
   # shellcheck disable=SC2034
   LINTBALL_HANDLED_EXTENSIONS=()
