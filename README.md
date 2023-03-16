@@ -275,7 +275,7 @@ By default, lintball will not process files matching the following globs:
 */vendor/*
 ```
 
-To add or remove items from this list, run `lintball install-lintballrc` and edit the `ignores` section in the created `.lintballrc.json` file. Patterns should match what is passed to the `find` command's `-path` argument.
+To add or remove items from this list, run `lintball install-lintballrc` and edit the `ignores` section in the created `.lintballrc.json` file. Ignore patterns are [Full Name Patterns](https://www.gnu.org/software/findutils/manual/html_node/find_html/Full-Name-Patterns.html) passed to the `find` command's `-path` argument. See also: [fnmatch](https://docs.python.org/3/library/fnmatch.html).
 
 ### Disabling specific tools
 

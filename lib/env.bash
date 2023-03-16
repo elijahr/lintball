@@ -40,6 +40,7 @@ declare -a LINTBALL_WRITE_ARGS_UNCRUSTIFY=()
 declare -a LINTBALL_WRITE_ARGS_YAMLLINT=()
 
 declare -a LINTBALL_IGNORE_GLOBS=()
+declare -a LINTBALL_FIND_ARGS=()
 
 # shellcheck disable=SC2034
 declare -a LINTBALL_HANDLED_EXTENSIONS=(

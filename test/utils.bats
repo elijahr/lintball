@@ -26,37 +26,36 @@ teardown() {
   export PATH
 }
 
-@test "generate_find_cmd" {
+@test "populate_find_args" {
   # shellcheck disable=SC2034
   declare -a LINTBALL_HANDLED_EXTENSIONS=('c' 'M' 'py' 'tsx')
-  run generate_find_cmd
-  assert_success
-  assert_output "'find' '-L' '.' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'"
+  declare -a LINTBALL_FIND_ARGS=()
 
-  run generate_find_cmd " "
-  assert_success
-  assert_output "'find' '-L' '.' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'"
+  populate_find_args
+  assert_equal "'-L' '.' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "${LINTBALL_FIND_ARGS[@]@Q}"
 
-  run generate_find_cmd " " " " " "
-  assert_success
-  assert_output "'find' '-L' '.' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'"
+  populate_find_args " "
+  assert_equal "'-L' '.' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "${LINTBALL_FIND_ARGS[@]@Q}"
 
-  run generate_find_cmd "aaa bbb/ccc ddd/eee/ fff"
-  assert_success
-  assert_output "'find' '-L' './aaa bbb/ccc ddd/eee/ fff' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'"
+  populate_find_args " " " " " "
+  assert_equal "'-L' '.' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "${LINTBALL_FIND_ARGS[@]@Q}"
+
+  populate_find_args "aaa bbb/ccc ddd/eee/ fff"
+  assert_equal "'-L' './aaa bbb/ccc ddd/eee/ fff' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "${LINTBALL_FIND_ARGS[@]@Q}"
 
   declare -a LINTBALL_IGNORE_GLOBS=('*.py' '*.rb')
-  run generate_find_cmd "dir1" "dir2"
-  assert_success
-  assert_output "'find' '-L' './dir1' './dir2' '-type' 'f' '-a' '(' '-not' '-path' '*.py' ')' '-a' '(' '-not' '-path' '*.rb' ')' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'"
+  populate_find_args "dir1" "dir2"
+  assert_equal "'-L' './dir1' './dir2' '-type' 'f' '-a' '(' '-not' '-path' '*.py' ')' '-a' '(' '-not' '-path' '*.rb' ')' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "${LINTBALL_FIND_ARGS[@]@Q}"
+
   # shellcheck disable=SC2034
   LINTBALL_IGNORE_GLOBS=()
 
-  run generate_find_cmd " dir1" "dir2 "
-  assert_success
-  assert_output "'find' '-L' './dir1' './dir2' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'"
+  populate_find_args " dir1" "dir2 "
+  assert_equal "'-L' './dir1' './dir2' '-type' 'f' '-a' '(' '(' '-name' '*.c' '-o' '-name' '*.M' '-o' '-name' '*.py' '-o' '-name' '*.tsx' ')' '-o' '(' '-not' '(' '-name' '*.*' ')' ')' ')' '-print'" "${LINTBALL_FIND_ARGS[@]@Q}"
+
   # shellcheck disable=SC2034
   LINTBALL_HANDLED_EXTENSIONS=()
+  LINTBALL_FIND_ARGS=()
 }
 
 @test "config_find" {

@@ -12,50 +12,48 @@ first_byte() {
   dd bs=1 count=1 if="$1" 2>/dev/null
 }
 
-generate_find_cmd() {
-  local parts normalized_path
+populate_find_args() {
+  local normalized_path
 
-  declare -a parts=("find" "-L")
+  LINTBALL_FIND_ARGS=("-L")
 
   for path in "$@"; do
     normalized_path="$(normalize_path "path=${path}")"
     if [[ -n ${normalized_path} ]]; then
-      parts+=("${normalized_path}")
+      LINTBALL_FIND_ARGS+=("${normalized_path}")
     fi
   done
 
-  if [[ ${#parts[@]} -eq 2 ]]; then
-    # all args were whitespace only, so default to current dir
-    parts+=(".")
+  if [[ ${#LINTBALL_FIND_ARGS[@]} -eq 1 ]]; then
+    # all args were whitespace only or no path was provided, so default to current dir
+    LINTBALL_FIND_ARGS+=(".")
   fi
 
-  parts+=("-type" "f")
+  LINTBALL_FIND_ARGS+=("-type" "f")
 
   for ignore in "${LINTBALL_IGNORE_GLOBS[@]}"; do
     if [[ -n ${ignore} ]]; then
-      parts+=("-a" "(" "-not" "-path" "${ignore}" ")")
+      LINTBALL_FIND_ARGS+=("-a" "(" "-not" "-path" "${ignore}" ")")
     fi
   done
 
-  parts+=("-a" "(")
-  parts+=("(")
+  LINTBALL_FIND_ARGS+=("-a" "(")
+  LINTBALL_FIND_ARGS+=("(")
 
   # files with handled extensions
   for i in "${!LINTBALL_HANDLED_EXTENSIONS[@]}"; do
     if [[ ${i} -gt 0 ]]; then
-      parts+=("-o")
+      LINTBALL_FIND_ARGS+=("-o")
     fi
-    parts+=("-name" "*.${LINTBALL_HANDLED_EXTENSIONS[$i]}")
+    LINTBALL_FIND_ARGS+=("-name" "*.${LINTBALL_HANDLED_EXTENSIONS[$i]}")
   done
-  parts+=(")")
+  LINTBALL_FIND_ARGS+=(")")
 
-  # files without extensions
-  parts+=("-o" "(" "-not" "(" "-name" "*.*" ")" ")")
-  parts+=(")")
+  # exclude files without extensions
+  LINTBALL_FIND_ARGS+=("-o" "(" "-not" "(" "-name" "*.*" ")" ")")
+  LINTBALL_FIND_ARGS+=(")")
 
-  parts+=("-print")
-
-  echo "${parts[@]@Q}"
+  LINTBALL_FIND_ARGS+=("-print")
 }
 
 config_find() {

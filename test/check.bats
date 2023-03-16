@@ -381,6 +381,7 @@ teardown() {
   cd foo
   run lintball check 3>&-
   assert_success
+  assert_line "No handled files found in current directory."
 }
 
 @test 'lintball check handles . path' {
@@ -388,6 +389,7 @@ teardown() {
   cd foo
   run lintball check . 3>&-
   assert_success
+  assert_line "No handled files found in directory '.'."
 }
 
 @test 'lintball check handles paths with spaces' {
@@ -409,41 +411,41 @@ teardown() {
 
 @test 'lintball check ignored file fails' {
   run lintball check "a.txt" 3>&-
-  assert_failure
-  assert_line "File 'a.txt' is ignored by lintball config."
+  assert_success
+  assert_line "File not handled: 'a.txt'."
 }
 
 @test 'lintball check ignored directory fails' {
   mkdir a_dir
   cp a.yml a_dir/
   run lintball check "a_dir" 3>&-
-  assert_failure
-  assert_line "Directory 'a_dir' is ignored by lintball config."
+  assert_success
+  assert_line "No handled files found in directory 'a_dir'."
 }
 
 @test 'lintball check ignored file in ignored directory fails' {
   mkdir a_dir
   cp a.txt a_dir/
   run lintball check "a_dir" 3>&-
-  assert_failure
-  assert_line "Directory 'a_dir' is ignored by lintball config."
+  assert_success
+  assert_line "No handled files found in directory 'a_dir'."
 }
 
 @test 'lintball check handled file in ignored directory fails' {
   mkdir a_dir
   cp a.yml a_dir/
   run lintball check "a_dir/a.yml" 3>&-
-  assert_failure
-  assert_line "File 'a_dir/a.yml' is ignored by lintball config."
+  assert_success
+  assert_line "File not handled with current configuration: 'a_dir/a.yml'."
 }
 
 @test 'lintball check missing' {
   run lintball check "missing.txt" 3>&-
   assert_failure
-  assert_line "No files found matching 'missing.txt'."
+  assert_line "File not found: 'missing.txt'."
 
   run lintball check "missing1.txt" "missing2.txt" 3>&-
   assert_failure
-  assert_line "No files found matching 'missing1.txt'."
-  assert_line "No files found matching 'missing2.txt'."
+  assert_line "File not found: 'missing1.txt'."
+  assert_line "File not found: 'missing2.txt'."
 }

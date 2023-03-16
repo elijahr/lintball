@@ -20,7 +20,7 @@ teardown() {
   assert_line "a.json"
   assert_line "a.yml"
   assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................wrote" -c)" -eq 2 ]
-  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................✔️" -c)" -eq 1 ]
+  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................ok" -c)" -eq 1 ]
 }
 
 @test 'lintball fix --since HEAD~1' {
@@ -38,7 +38,7 @@ teardown() {
   assert_line "a.xml"
   assert_line "a.yml"
   assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................wrote")" -eq 3 ]
-  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................✔️")" -eq 1 ]
+  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................ok")" -eq 1 ]
 }
 
 @test 'lintball fix # lintball lang=bash' {
@@ -830,6 +830,7 @@ EOF
   cd foo
   run lintball fix 3>&-
   assert_success
+  assert_line "No handled files found in current directory."
 }
 
 @test 'lintball fix handles . path' {
@@ -837,6 +838,7 @@ EOF
   cd foo
   run lintball fix . 3>&-
   assert_success
+  assert_line "No handled files found in directory '.'."
 }
 
 @test 'lintball fix handles paths with spaces' {
@@ -876,41 +878,41 @@ EOF
 
 @test 'lintball fix ignored file fails' {
   run lintball fix "a.txt" 3>&-
-  assert_failure
-  assert_line "File 'a.txt' is ignored by lintball config."
+  assert_success
+  assert_line "File not handled: 'a.txt'."
 }
 
 @test 'lintball fix ignored directory fails' {
   mkdir a_dir
   cp a.yml a_dir/
   run lintball fix "a_dir" 3>&-
-  assert_failure
-  assert_line "Directory 'a_dir' is ignored by lintball config."
+  assert_success
+  assert_line "No handled files found in directory 'a_dir'."
 }
 
 @test 'lintball fix ignored file in ignored directory fails' {
   mkdir a_dir
   cp a.txt a_dir/
   run lintball fix "a_dir" 3>&-
-  assert_failure
-  assert_line "Directory 'a_dir' is ignored by lintball config."
+  assert_success
+  assert_line "No handled files found in directory 'a_dir'."
 }
 
 @test 'lintball fix handled file in ignored directory fails' {
   mkdir a_dir
   cp a.yml a_dir/
   run lintball fix "a_dir/a.yml" 3>&-
-  assert_failure
-  assert_line "File 'a_dir/a.yml' is ignored by lintball config."
+  assert_success
+  assert_line "File not handled with current configuration: 'a_dir/a.yml'."
 }
 
 @test 'lintball fix missing' {
   run lintball fix "missing.txt" 3>&-
   assert_failure
-  assert_line "No files found matching 'missing.txt'."
+  assert_line "File not found: 'missing.txt'."
 
   run lintball fix "missing1.txt" "missing2.txt" 3>&-
   assert_failure
-  assert_line "No files found matching 'missing1.txt'."
-  assert_line "No files found matching 'missing2.txt'."
+  assert_line "File not found: 'missing1.txt'."
+  assert_line "File not found: 'missing2.txt'."
 }

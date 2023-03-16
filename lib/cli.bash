@@ -374,9 +374,10 @@ subcommand_install_tools() {
     done
   else
     # examine path to find tools to install
+    populate_find_args "${path}"
     while read -r file; do
       readarray -t -O"${#tools[@]}" tools < <(get_tools_for_file "path=${file}")
-    done < <(eval "$(generate_find_cmd "${path}")")
+    done < <(find "${LINTBALL_FIND_ARGS[@]}")
   fi
 
   for tool in "${tools[@]}"; do
@@ -530,6 +531,7 @@ produce() {
   # Send work to consumers, round-robin.
   found=false
   consumer=1
+  populate_find_args "$@"
   while read -r path; do
     found=true
     echo "${path}" >"${tmp}/${consumer}.queue"
@@ -540,35 +542,46 @@ produce() {
       # Increment
       consumer=$((consumer + 1))
     fi
-  done < <(eval "$(generate_find_cmd "$@")" 2>"${tmp}/find.stderr")
+  done < <(find "${LINTBALL_FIND_ARGS[@]}" 2>"${tmp}/find.stderr")
 
   # Notify consumers that all paths have been enqueued
   for ((consumer = 1; consumer <= num_jobs; consumer++)); do
     echo "<done>" >"${tmp}/${consumer}.queue"
   done
 
+  status=0
   if [[ ${found} == false ]]; then
     if [[ $# -gt 0 ]]; then
       for path in "$@"; do
+        # path was provided explicitly, but `find` did not generate any paths
         if [[ -f ${path} ]]; then
-          echo "File ${path@Q} is ignored by lintball config."$'\n' >&2
+          # no-op: file exists but is not handled
+          if [[ -z "$(get_tools_for_file "path=$path")" ]]; then
+            echo "File not handled: ${path@Q}."$'\n' >&2
+          else
+            echo "File not handled with current configuration: ${path@Q}."$'\n' >&2
+          fi
         elif [[ -d ${path} ]]; then
-          echo "Directory ${path@Q} is ignored by lintball config."$'\n' >&2
+          # no-op: directory is empty or has no files that are handled
+          echo "No handled files found in directory ${path@Q}."$'\n' >&2
         else
-          echo "No files found matching ${path@Q}."$'\n' >&2
+          # error: passed an invalid path
+          echo "File not found: ${path@Q}."$'\n' >&2
+          status=1
         fi
       done
     elif [[ -n "$(cat "${tmp}/find.stderr")" ]]; then
+      # something went wrong with `find` command
       echo "Error running find:" >&2
       cat "${tmp}/find.stderr" >&2
       echo >&2
+      status=1
     else
-      echo "No files found." >&2
-      echo >&2
-      return 0
+      # no-op: current directory is empty or has no files that are handled
+      echo "No handled files found in current directory."$'\n' >&2
     fi
-    return 1
   fi
+  return $status
 }
 
 support_table() {
