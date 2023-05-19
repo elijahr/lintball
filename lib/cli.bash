@@ -468,12 +468,14 @@ get_tools_for_file() {
       echo "isort"
       echo "black"
       echo "pylint"
+      echo "ruff"
       ;;
     pyi)
       echo "docformatter"
       echo "autopep8"
       echo "autoflake"
       echo "pylint"
+      echo "ruff"
       ;;
     pyx | pxd | pxi)
       echo "docformatter"

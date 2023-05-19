@@ -234,6 +234,31 @@ cmd_rubocop() {
   fi
 }
 
+cmd_ruff() {
+  local mode path ruffexe
+  mode="${1//mode=/}"
+  path="${2//path=/}"
+
+  ruffexe=""
+  if [ -f "${LINTBALL_DIR}/tools/python-env/bin/ruff" ]; then
+    ruffexe="${LINTBALL_DIR}/tools/python-env/bin/ruff"
+  elif [ -f "${LINTBALL_DIR}/tools/python-env/Scripts/ruff.exe" ]; then
+    ruffexe="${LINTBALL_DIR}/tools/python-env/Scripts/ruff.exe"
+  else
+    echo "Could not find ruff executable" >&2
+    return 1
+  fi
+  if [ "$mode" = "write" ]; then
+    echo "${ruffexe} \
+      $(eval echo "${LINTBALL__WRITE_ARGS__RUFF}") \
+      '$path'"
+  else
+    echo "${ruffexe} \
+      $(eval echo "${LINTBALL__CHECK_ARGS__RUFF}") \
+      '$path'"
+  fi
+}
+
 cmd_shfmt() {
   local mode path lang
   mode="${1//mode=/}"
