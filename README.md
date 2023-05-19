@@ -19,42 +19,42 @@ Most software projects consist of more than one programming language. There's so
 
 ## Supported languages
 
-| Language     | Detection                                |                                        Tools used                                        |
-| :----------- | ---------------------------------------- | :--------------------------------------------------------------------------------------: |
-| bash         | `*.bash`, `#!/usr/bin/env bash`          |                               [shellcheck][1], [shfmt][1]                                |
-| bats         | `*.bats`, `#!/usr/bin/env bats`          |                               [shellcheck][1], [shfmt][2]                                |
-| C            | `*.c`, `*.h`                             |                                     [uncrustify][3]                                      |
-| C#           | `*.cs`                                   |                                     [uncrustify][3]                                      |
-| C++          | `*.cpp`, `*.hpp`                         |                                     [uncrustify][3]                                      |
-| CSS          | `*.css`                                  |                                      [prettier][4]                                       |
-| Cython       | `*.pyx`, `*.pxd`, `*.pxi`                |                     [autoflake][5], [autopep8][6], [docformatter][7]                     |
-| D            | `*.d`                                    |                                     [uncrustify][3]                                      |
-| dash         | `*.dash`, `#!/usr/bin/env dash`          |                               [shellcheck][1], [shfmt][2]                                |
-| GraphQL      | `*.graphql`                              |                                      [prettier][4]                                       |
-| HTML         | `*.html`                                 |                                      [prettier][4]                                       |
-| Java         | `*.java`                                 |                                    [prettier-java][8]                                    |
-| JavaScript   | `*.js`, `#!/usr/bin/env node`            |                                   [prettier-eslint][9]                                   |
-| JSON         | `*.json`                                 |                                      [prettier][4]                                       |
-| JSX          | `*.jsx`                                  |                                   [prettier-eslint][9]                                   |
-| ksh          | `*.ksh`, `#!/usr/bin/env ksh`            |                               [shellcheck][1], [shfmt][2]                                |
-| Lua          | `*.lua`                                  |                                       [StyLua][10]                                       |
-| Luau         | `*.lua`                                  |                                       [StyLua][10]                                       |
-| Markdown     | `*.md`                                   |                                      [prettier][4]                                       |
-| MDX          | `*.mdx`                                  |                                      [prettier][4]                                       |
-| mksh         | `*.mksh`, `#!/usr/bin/env mksh`          |                               [shellcheck][1], [shfmt][2]                                |
-| Nim          | `*.nim`                                  |                               [nimfmt][23][nimpretty][11]                                |
-| Objective-C  | `*.m`, `*.mm`, `*.M`                     |                                     [uncrustify][3]                                      |
-| package.json | `package.json`                           |                               [prettier-package-json][12]                                |
-| pug          | `*.pug`                                  |                                [prettier/plugin-pug][13]                                 |
-| Python       | `*.py`, `*.pyi`, `#!/usr/bin/env python` | [autoflake][5], [autopep8][6], [black][14], [docformatter][7], [isort][15], [pylint][22] |
-| Ruby         | `*.rb`, `Gemfile`, `#!/usr/bin/env ruby` |                        [@prettier/plugin-ruby][16], [rubocop][17]                        |
-| Rust         | `Cargo.toml`                             |                                       [clippy][18]                                       |
-| SASS         | `*.scss`                                 |                                      [prettier][4]                                       |
-| sh           | `*.sh`, `#!/bin/sh`                      |                               [shellcheck][1], [shfmt][2]                                |
-| TSX          | `*.tsx`                                  |                                   [prettier-eslint][9]                                   |
-| TypeScript   | `*.ts`                                   |                                   [prettier-eslint][9]                                   |
-| XML          | `*.xml`                                  |                                [prettier/plugin-xml][19]                                 |
-| YAML         | `*.yml`, `*.yaml`                        |                              [prettier][4], [yamllint][20]                               |
+| Language     | Detection                                |                                        Tools used                                                    |
+| :----------- | ---------------------------------------- | :-----------------------------------------------------------------------------------------------:    |
+| bash         | `*.bash`, `#!/usr/bin/env bash`          |                               [shellcheck][1], [shfmt][1]                                            |
+| bats         | `*.bats`, `#!/usr/bin/env bats`          |                               [shellcheck][1], [shfmt][2]                                            |
+| C            | `*.c`, `*.h`                             |                                     [uncrustify][3]                                                  |
+| C#           | `*.cs`                                   |                                     [uncrustify][3]                                                  |
+| C++          | `*.cpp`, `*.hpp`                         |                                     [uncrustify][3]                                                  |
+| CSS          | `*.css`                                  |                                      [prettier][4]                                                   |
+| Cython       | `*.pyx`, `*.pxd`, `*.pxi`                |                     [autoflake][5], [autopep8][6], [docformatter][7]                                 |
+| D            | `*.d`                                    |                                     [uncrustify][3]                                                  |
+| dash         | `*.dash`, `#!/usr/bin/env dash`          |                               [shellcheck][1], [shfmt][2]                                            |
+| GraphQL      | `*.graphql`                              |                                      [prettier][4]                                                   |
+| HTML         | `*.html`                                 |                                      [prettier][4]                                                   |
+| Java         | `*.java`                                 |                                    [prettier-java][8]                                                |
+| JavaScript   | `*.js`, `#!/usr/bin/env node`            |                                   [prettier-eslint][9]                                               |
+| JSON         | `*.json`                                 |                                      [prettier][4]                                                   |
+| JSX          | `*.jsx`                                  |                                   [prettier-eslint][9]                                               |
+| ksh          | `*.ksh`, `#!/usr/bin/env ksh`            |                               [shellcheck][1], [shfmt][2]                                            |
+| Lua          | `*.lua`                                  |                                       [StyLua][10]                                                   |
+| Luau         | `*.lua`                                  |                                       [StyLua][10]                                                   |
+| Markdown     | `*.md`                                   |                                      [prettier][4]                                                   |
+| MDX          | `*.mdx`                                  |                                      [prettier][4]                                                   |
+| mksh         | `*.mksh`, `#!/usr/bin/env mksh`          |                               [shellcheck][1], [shfmt][2]                                            |
+| Nim          | `*.nim`                                  |                               [nimfmt][23][nimpretty][11]                                            |
+| Objective-C  | `*.m`, `*.mm`, `*.M`                     |                                     [uncrustify][3]                                                  |
+| package.json | `package.json`                           |                               [prettier-package-json][12]                                            |
+| pug          | `*.pug`                                  |                                [prettier/plugin-pug][13]                                             |
+| Python       | `*.py`, `*.pyi`, `#!/usr/bin/env python` | [autoflake][5], [autopep8][6], [black][14], [docformatter][7], [isort][15], [pylint][22], [ruff][24] |
+| Ruby         | `*.rb`, `Gemfile`, `#!/usr/bin/env ruby` |                        [@prettier/plugin-ruby][16], [rubocop][17]                                    |
+| Rust         | `Cargo.toml`                             |                                       [clippy][18]                                                   |
+| SASS         | `*.scss`                                 |                                      [prettier][4]                                                   |
+| sh           | `*.sh`, `#!/bin/sh`                      |                               [shellcheck][1], [shfmt][2]                                            |
+| TSX          | `*.tsx`                                  |                                   [prettier-eslint][9]                                               |
+| TypeScript   | `*.ts`                                   |                                   [prettier-eslint][9]                                               |
+| XML          | `*.xml`                                  |                                [prettier/plugin-xml][19]                                             |
+| YAML         | `*.yml`, `*.yaml`                        |                              [prettier][4], [yamllint][20]                                           |
 
 ## Installation
 
@@ -340,3 +340,4 @@ Pull requests are welcome! lintball has a suite of unit tests, located in the `t
 [21]: https://github.com/elijahr/lintball/tree/devel/configs/lintballrc-defaults.json
 [22]: http://pylint.pycqa.org/
 [23]: https://github.com/FedericoCeratto/nimfmt
+[24]: https://pypi.org/project/ruff/
